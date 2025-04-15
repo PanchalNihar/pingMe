@@ -16,7 +16,7 @@ import { Router, RouterLink } from '@angular/router';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent{
   loginForm: FormGroup;
   constructor(
     private fb: FormBuilder,
@@ -28,16 +28,12 @@ export class LoginComponent implements OnInit {
       password: ['', Validators.required],
     });
   }
-  ngOnInit(): void {
-    if (this.authService.getToken()) {
-      this.router.navigate(['/chat']);
-    }
-  }
   onSubmit() {
     if (this.loginForm.valid) {
       this.authService.login(this.loginForm.value).subscribe({
         next: (res) => {
           this.authService.savetoken(res.token);
+          this.authService.saveUserId(res.user.id)
           this.router.navigate(['/chat']);
         },
         error: (err) => {

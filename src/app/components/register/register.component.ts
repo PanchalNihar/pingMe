@@ -15,7 +15,7 @@ import { Router, RouterLink } from '@angular/router';
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent {
   registerForm: FormGroup;
   constructor(
     private fb: FormBuilder,
@@ -28,16 +28,13 @@ export class RegisterComponent implements OnInit {
       password: ['', [Validators.required]],
     });
   }
-  ngOnInit(): void {
-    if (this.authService.getToken()) {
-      this.router.navigate(['/chat']);
-    }
-  }
+
   onSubmit() {
     if (this.registerForm.valid) {
       this.authService.register(this.registerForm.value).subscribe({
         next: (res) => {
           this.authService.savetoken(res.token);
+          this.authService.saveUserId(res.user.id)
           this.router.navigate(['/chat']);
         },
         error: (err) => {

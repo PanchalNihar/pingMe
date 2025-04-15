@@ -20,7 +20,16 @@ export class AuthService {
   getToken() {
     return localStorage.getItem('token');
   }
+  saveUserId(userId: string) {
+    localStorage.setItem('userId', userId);
+  }
+  getUserId(): string | null {
+    return localStorage.getItem('userId');
+  }
+  getAllUsers(excludeId:string){
+    return this.http.get(`${this.apiUrl}/users?exclude=${excludeId}`);
+  }
   logout() {
-    localStorage.removeItem('token');
+    localStorage.clear;
   }
 }
