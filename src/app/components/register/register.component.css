@@ -1,0 +1,28 @@
+.card {
+    transition: all 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .input-group-text {
+    border-right: none;
+  }
+  
+  .form-control {
+    border-left: none;
+  }
+  
+  .form-control:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+  }
+  
+  .btn-primary {
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-2px);
+  }

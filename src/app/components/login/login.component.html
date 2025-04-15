@@ -1,0 +1,66 @@
+<div class="container py-4">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        <h2 class="text-center mb-4 text-primary fw-bold">Welcome Back</h2>
+  
+        <div class="card shadow-lg border-0 rounded-lg animate__animated animate__fadeIn">
+          <div class="card-body p-3 p-sm-4">
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+              <div class="mb-3">
+                <div class="input-group mb-2">
+                  <span class="input-group-text bg-light d-none d-sm-flex">
+                    <i class="bi bi-envelope"></i>
+                  </span>
+                  <input 
+                    formControlName="email" 
+                    type="email" 
+                    class="form-control form-control-lg" 
+                    placeholder="Email"
+                    [ngClass]="{'is-invalid': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}" 
+                  />
+                </div>
+                <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="text-danger small">
+                  <div *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</div>
+                  <div *ngIf="loginForm.get('email')?.errors?.['email']">Please enter a valid email</div>
+                </div>
+              </div>
+              
+              <div class="mb-4">
+                <div class="input-group mb-2">
+                  <span class="input-group-text bg-light d-none d-sm-flex">
+                    <i class="bi bi-lock"></i>
+                  </span>
+                  <input 
+                    formControlName="password" 
+                    type="password" 
+                    class="form-control form-control-lg" 
+                    placeholder="Password"
+                    [ngClass]="{'is-invalid': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}" 
+                  />
+                </div>
+                <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-danger small">
+                  Password is required
+                </div>
+              </div>
+              
+              <div class="d-grid gap-2">
+                <button 
+                  type="submit" 
+                  class="btn btn-primary btn-lg shadow-sm"
+                  [disabled]="loginForm.invalid"
+                >
+                  <span>Login</span>
+                  <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer bg-light text-center p-3">
+            <a routerLink="/auth/register" class="text-decoration-none animate__animated animate__fadeIn">
+              Don't have an account? <span class="text-primary fw-bold">Register</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
