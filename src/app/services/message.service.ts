@@ -14,4 +14,7 @@ export class MessageService {
       `${this.apiUrl}/messages?user1=${user1}&user2=${user2}`
     );
   }
+  markMessagesAsRead(sender:string,receiver:string){
+    return this.http.post(`${this.apiUrl}/mark-read`,{sender,receiver})
+  }
 }
