@@ -19,7 +19,7 @@ export interface Message {
   sender: string;
   receiver: string;
   content: string;
-  isRead:boolean;
+  isRead: boolean;
   timestamp?: Date;
   id?: string;
 }
@@ -46,6 +46,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   receiverId: string | null = null;
   isTyping = false;
   lastMessageTimestamp = 0; // Track the last message time
+  unreadMap = new Map<string, number>();
 
   constructor(
     private socketService: SocketService,
@@ -54,17 +55,55 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     private messageService: MessageService,
     private router: Router
   ) {}
-
+  playSound() {
+    const audio = new Audio(
+      'https://notificationsounds.com/notification-sounds/just-saying-613/download/mp3'
+    );
+    audio.play().catch(() => {});
+  }
+  showToast(senderName: string) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-msg';
+    toast.innerText = `💬 New message from ${senderName}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
   ngOnInit(): void {
     this.userId = this.authService.getUserId();
-    if (!this.userId) {
-      return;
-    }
+    if (!this.userId) return;
 
-    // Listen for incoming messages from socket
+    // Get user list
+    this.authService.getAllUsers(this.userId).subscribe((res: any) => {
+      this.users = res;
+    });
+
+    // 🔥 Get unread counts
+    this.messageService.getUnreadCounts(this.userId).subscribe((data) => {
+      data.forEach((item) => {
+        this.unreadMap.set(item._id, item.count);
+      });
+    });
+
+    // Listen to incoming messages
     this.socketService.onMessage().subscribe((msg: Message) => {
-      console.log('Received message:', msg);
+      const isCurrentChat =
+        (msg.sender === this.userId && msg.receiver === this.receiverId) ||
+        (msg.sender === this.receiverId && msg.receiver === this.userId);
 
+      const isIncoming = msg.receiver === this.userId;
+
+      // 🔴 Show notification or update unread if not current chat
+      if (!isCurrentChat && isIncoming) {
+        const current = this.unreadMap.get(msg.sender) || 0;
+        this.unreadMap.set(msg.sender, current + 1);
+
+        // Optional: sound alert or toast
+        this.playSound();
+        this.showToast(this.getUserName(msg.sender));
+        return; // don't show the message in current window
+      }
+
+      // ✅ Only add to current view if it's part of the open chat
       const isDuplicate = this.messages.some(
         (m) =>
           (m.id && m.id === msg.id) ||
@@ -72,21 +111,11 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
             m.content === msg.content &&
             m.receiver === msg.receiver)
       );
-      // Add timestamp to messages if not exists
-      if (!isDuplicate) {
-        // Add timestamp if not present
-        if (!msg.timestamp) {
-          msg.timestamp = new Date();
-        }
 
-        // Add to messages array
+      if (!isDuplicate) {
         this.messages.push(msg);
         this.scrollToBottom();
       }
-    });
-
-    this.authService.getAllUsers(this.userId).subscribe((res: any) => {
-      this.users = res;
     });
   }
 
@@ -151,6 +180,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     // Clear old messages
     this.messages = [];
 
+    this.unreadMap.set(receiverId, 0);
     // Fetch message history
     this.messageService
       .getMessages(this.userId, this.receiverId)

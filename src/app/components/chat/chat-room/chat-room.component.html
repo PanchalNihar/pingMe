@@ -14,14 +14,26 @@
               [class.active]="receiverId === user._id"
               (click)="startChat(user._id)"
             >
-              <div class="d-flex align-items-center">
-                <div class="avatar-circle bg-primary text-white me-3">
-                  {{ user.name.charAt(0).toUpperCase() }}
+              <div
+                class="d-flex align-items-center justify-content-between w-100"
+              >
+                <div class="d-flex align-items-center">
+                  <div class="avatar-circle bg-primary text-white me-3">
+                    {{ user.name.charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="user-info">
+                    <h6 class="mb-0">{{ user.name }}</h6>
+                    <small class="text-muted">Online</small>
+                  </div>
                 </div>
-                <div class="user-info">
-                  <h6 class="mb-0">{{ user.name }}</h6>
-                  <small class="text-muted">Online</small>
-                </div>
+
+                <!-- 🔔 Unread badge -->
+                <span
+                  class="badge bg-danger rounded-pill"
+                  *ngIf="(unreadMap.get(user._id) ?? 0) > 0"
+                >
+                  {{ unreadMap.get(user._id) }}
+                </span>
               </div>
             </li>
           </ul>
@@ -60,26 +72,26 @@
           <!-- Messages Area -->
           <div class="card-body messages-container p-3" #scrollContainer>
             <div
-  *ngFor="let msg of messages"
-  class="message-wrapper animate__animated animate__fadeInUp"
-  [class.sender]="msg.sender === userId"
-  [class.receiver]="msg.sender !== userId"
->
-  <div class="message-bubble">
-    {{ msg.content }}
-  </div>
-  <div class="message-info d-flex justify-content-between">
-    <small class="text-muted">{{ getTimeFromMessage(msg) }}</small>
+              *ngFor="let msg of messages"
+              class="message-wrapper animate__animated animate__fadeInUp"
+              [class.sender]="msg.sender === userId"
+              [class.receiver]="msg.sender !== userId"
+            >
+              <div class="message-bubble">
+                {{ msg.content }}
+              </div>
+              <div class="message-info d-flex justify-content-between">
+                <small class="text-muted">{{ getTimeFromMessage(msg) }}</small>
 
-    <!-- ✅ Seen/Delivered Status -->
-    <small
-      *ngIf="msg.sender === userId"
-      [style.color]="msg.isRead ? 'green' : 'gray'"
-    >
-      {{ msg.isRead ? '✓ Seen' : '✓ Delivered' }}
-    </small>
-  </div>
-</div>
+                <!-- ✅ Seen/Delivered Status -->
+                <small
+                  *ngIf="msg.sender === userId"
+                  [style.color]="msg.isRead ? 'green' : 'gray'"
+                >
+                  {{ msg.isRead ? "✓ Seen" : "✓ Delivered" }}
+                </small>
+              </div>
+            </div>
 
             <div
               *ngIf="messages.length === 0"
