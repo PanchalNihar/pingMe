@@ -259,8 +259,5 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     });
   }
   
-  logout() {
-    this.authService.logout();
-    this.router.navigate(['/auth/login']);
-  }
+
 }

@@ -1,0 +1,36 @@
+<div class="card">
+    <div class="card-header color text-white">
+      <h5 class="mb-0">All Users</h5>
+    </div>
+    <ul class="list-group list-group-flush">
+      <li
+        class="list-group-item d-flex align-items-center"
+        *ngFor="let user of users"
+        (click)="viewProfile(user._id)"
+        style="cursor: pointer"
+      >
+        <!-- Avatar with fallback -->
+        <div class="avatar-container me-3">
+          <img
+            *ngIf="user.avatar"
+            [src]="user.avatar"
+            class="rounded-circle"
+            width="40"
+            height="40"
+            alt="Avatar"
+          />
+          <div 
+            *ngIf="!user.avatar" 
+            class="avatar-placeholder rounded-circle d-flex justify-content-center align-items-center"
+            [style.background-color]="getAvatarColor(user.name)"
+          >
+            {{ user.name.charAt(0).toUpperCase() }}
+          </div>
+        </div>
+        <div>
+          <h6 class="mb-0">{{ user.name }}</h6>
+          <small>{{ user.email }}</small>
+        </div>
+      </li>
+    </ul>
+  </div>

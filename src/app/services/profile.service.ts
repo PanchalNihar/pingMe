@@ -13,12 +13,15 @@ export class ProfileService {
     return this.http.get(`${this.apiUrl}/profile?id=${userId}`);
   }
 
-updateProfile(data: FormData): Observable<any> {
-  const token = localStorage.getItem('token');
-  return this.http.put(`${this.apiUrl}/profile`, data, {
-    headers: {
-      Authorization: `Bearer ${token || ''}`,
-    }
-  });
-}
+  updateProfile(data: FormData): Observable<any> {
+    const token = localStorage.getItem('token');
+    return this.http.put(`${this.apiUrl}/profile`, data, {
+      headers: {
+        Authorization: `Bearer ${token || ''}`,
+      },
+    });
+  }
+  getAllusers(excludeId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/users?exclude=${excludeId}`);
+  }
 }
