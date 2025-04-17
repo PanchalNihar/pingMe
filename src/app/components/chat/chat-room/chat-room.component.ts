@@ -14,6 +14,7 @@ import { AuthService } from '../../../services/auth.service';
 import { SocketModule } from '../../../shared/socket.module';
 import { MessageService } from '../../../services/message.service';
 import { Router } from '@angular/router';
+import { ProfileService } from '../../../services/profile.service';
 
 export interface Message {
   sender: string;
@@ -27,7 +28,8 @@ export interface Message {
 interface User {
   _id: string;
   name: string;
-  email: string;
+  email?: string;
+  avatar?: string;
 }
 
 @Component({
@@ -44,6 +46,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   users: User[] = [];
   userId: string | null = null;
   receiverId: string | null = null;
+  currentReceiver: User | null = null;
   isTyping = false;
   lastMessageTimestamp = 0; // Track the last message time
   unreadMap = new Map<string, number>();
@@ -53,14 +56,17 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     @Inject(PLATFORM_ID) private platformId: object,
     private authService: AuthService,
     private messageService: MessageService,
-    private router: Router
+    private router: Router,
+    private profileService: ProfileService
   ) {}
+  
   playSound() {
     const audio = new Audio(
       'https://notificationsounds.com/notification-sounds/just-saying-613/download/mp3'
     );
     audio.play().catch(() => {});
   }
+  
   showToast(senderName: string) {
     const toast = document.createElement('div');
     toast.className = 'toast-msg';
@@ -68,13 +74,37 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
   }
+  
   ngOnInit(): void {
     this.userId = this.authService.getUserId();
     if (!this.userId) return;
 
-    // Get user list
+    // Get user list with profile information
     this.authService.getAllUsers(this.userId).subscribe((res: any) => {
       this.users = res;
+      
+      // Fetch profile information for each user to get avatars
+      this.users.forEach(user => {
+        this.profileService.getProfile(user._id).subscribe(profile => {
+          // Find and update the user with their profile information
+          const userIndex = this.users.findIndex(u => u._id === profile._id);
+          if (userIndex !== -1) {
+            this.users[userIndex] = {
+              ...this.users[userIndex],
+              avatar: profile.avatar
+            };
+          }
+          
+          // Update current receiver if it's the active chat
+          if (this.receiverId === profile._id) {
+            this.currentReceiver = {
+              _id: profile._id,
+              name: profile.name,
+              avatar: profile.avatar
+            };
+          }
+        });
+      });
     });
 
     // 🔥 Get unread counts
@@ -177,6 +207,21 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     console.log('Joining room:', roomId);
     this.socketService.joinRoom(roomId);
 
+    // Set current receiver for header display
+    const receiver = this.users.find(u => u._id === receiverId);
+    if (receiver) {
+      this.currentReceiver = receiver;
+    } else {
+      // If user not found in the list, fetch their profile
+      this.profileService.getProfile(receiverId).subscribe(profile => {
+        this.currentReceiver = {
+          _id: profile._id,
+          name: profile.name,
+          avatar: profile.avatar
+        };
+      });
+    }
+
     // Clear old messages
     this.messages = [];
 
@@ -203,7 +248,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     const name = this.getUserName(userId);
     return name.charAt(0).toUpperCase();
   }
-
+  
   getTimeFromMessage(msg: Message): string {
     if (!msg.timestamp) return '';
 
@@ -213,6 +258,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
       minute: '2-digit',
     });
   }
+  
   logout() {
     this.authService.logout();
     this.router.navigate(['/auth/login']);

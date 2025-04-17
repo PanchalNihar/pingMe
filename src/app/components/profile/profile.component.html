@@ -1,0 +1,30 @@
+<div class="container p-4">
+    <div class="card p-4 shadow">
+      <h4 class="mb-3">My Profile</h4>
+      <form (ngSubmit)="updateProfile()">
+        <div class="mb-3">
+          <label>Name</label>
+          <input class="form-control" [(ngModel)]="user.name" name="name" required />
+        </div>
+        <div class="mb-3">
+          <label>Email</label>
+          <input class="form-control" [(ngModel)]="user.email" name="email" required />
+        </div>
+        <div class="mb-3">
+          <label>Avatar URL (optional)</label>
+          <input type="file" name="avatar" class="form-control" (change)="onFileChange($event)" />
+        </div>
+        <div class="text-center">
+          <img
+            *ngIf="user.avatar"
+            [src]="user.avatar"
+            class="rounded-circle"
+            width="100"
+            alt="Avatar"
+          />
+        </div>
+        <button class="btn btn-primary mt-3" type="submit">Update Profile</button>
+      </form>
+    </div>
+  </div>
+  

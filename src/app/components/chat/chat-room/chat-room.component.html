@@ -1,127 +1,107 @@
-<div class="container-fluid py-4">
-  <div class="row chat-container">
-    <!-- User List Sidebar -->
-    <div class="col-md-4 col-lg-3 users-sidebar">
-      <div class="card shadow-sm border-0 mb-3">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i>Contacts</h5>
-        </div>
-        <div class="card-body p-0">
-          <ul class="list-group list-group-flush user-list">
-            <li
-              *ngFor="let user of users"
-              class="list-group-item user-item animate__animated animate__fadeIn"
-              [class.active]="receiverId === user._id"
-              (click)="startChat(user._id)"
-            >
-              <div
-                class="d-flex align-items-center justify-content-between w-100"
-              >
-                <div class="d-flex align-items-center">
-                  <div class="avatar-circle bg-primary text-white me-3">
-                    {{ user.name.charAt(0).toUpperCase() }}
-                  </div>
-                  <div class="user-info">
-                    <h6 class="mb-0">{{ user.name }}</h6>
-                    <small class="text-muted">Online</small>
-                  </div>
-                </div>
-
-                <!-- 🔔 Unread badge -->
-                <span
-                  class="badge bg-danger rounded-pill"
-                  *ngIf="(unreadMap.get(user._id) ?? 0) > 0"
-                >
-                  {{ unreadMap.get(user._id) }}
-                </span>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <button (click)="logout()" class="logout-btn">
-          <i class="bi bi-box-arrow-right me-2"></i>Logout
-        </button>
+<div class="app-container">
+  <div class="chat-wrapper">
+    <div class="card main-card">
+      <!-- Search Bar -->
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search">
+        <i class="bi bi-search search-icon"></i>
       </div>
-    </div>
 
-    <!-- Chat Area -->
-    <div class="col-md-8 col-lg-9 chat-area">
-      <div class="card shadow-sm border-0 h-100">
-        <div
-          *ngIf="!receiverId"
-          class="card-body d-flex flex-column justify-content-center align-items-center empty-chat"
-        >
-          <div class="text-center animate__animated animate__fadeIn">
-            <i class="bi bi-chat-dots text-muted display-1"></i>
-            <h4 class="mt-3">Select a contact to start chatting</h4>
-            <p class="text-muted">Choose from the contacts list on the left</p>
+      <div class="chat-container">
+        <!-- Users Sidebar -->
+        <div class="users-sidebar">
+          <div class="user-list">
+            <div *ngFor="let user of users" 
+                class="user-item" 
+                [class.active]="receiverId === user._id"
+                (click)="startChat(user._id)">
+              <!-- Updated avatar to support profile images -->
+              <div class="avatar-circle" *ngIf="!user.avatar">
+                {{ user.name.charAt(0).toUpperCase() }}
+              </div>
+              <img *ngIf="user.avatar" [src]="user.avatar" class="avatar-image" alt="{{ user.name }}'s avatar">
+              <div class="user-info">
+                <div class="user-name">{{ user.name }}</div>
+                <div class="user-status">Online</div>
+              </div>
+              <div class="badge-container" *ngIf="(unreadMap.get(user._id) ?? 0) > 0">
+                <span class="unread-badge">{{ unreadMap.get(user._id) }}</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div *ngIf="receiverId" class="card h-100">
-          <!-- Chat Header -->
-          <div
-            class="card-header bg-white border-bottom d-flex align-items-center"
-          >
-            <div class="avatar-circle bg-primary text-white me-2">
-              {{ getUserInitial(receiverId) }}
+        <!-- Chat Area -->
+        <div class="chat-area">
+          <!-- Empty State -->
+          <div *ngIf="!receiverId" class="empty-chat">
+            <div class="empty-chat-icon">
+              <i class="bi bi-chat-dots"></i>
             </div>
-            <h5 class="mb-0">{{ getUserName(receiverId) }}</h5>
+            <h3>Select a contact to start chatting</h3>
+            <p>Choose from the contacts list on the left</p>
           </div>
 
-          <!-- Messages Area -->
-          <div class="card-body messages-container p-3" #scrollContainer>
-            <div
-              *ngFor="let msg of messages"
-              class="message-wrapper animate__animated animate__fadeInUp"
-              [class.sender]="msg.sender === userId"
-              [class.receiver]="msg.sender !== userId"
-            >
-              <div class="message-bubble">
-                {{ msg.content }}
+          <!-- Chat Messages -->
+          <div *ngIf="receiverId" class="chat-content">
+            <!-- Receiver profile info at top -->
+            <div class="chat-header" *ngIf="currentReceiver">
+              <div class="receiver-info">
+                <!-- Show profile image or fallback initial -->
+                <div class="avatar-circle-sm" *ngIf="!currentReceiver.avatar">
+                  {{ currentReceiver.name.charAt(0).toUpperCase() }}
+                </div>
+                <img *ngIf="currentReceiver.avatar" [src]="currentReceiver.avatar" class="avatar-image-sm" alt="{{ currentReceiver.name }}'s avatar">
+                <div class="receiver-name">{{ currentReceiver.name }}</div>
               </div>
-              <div class="message-info d-flex justify-content-between">
-                <small class="text-muted">{{ getTimeFromMessage(msg) }}</small>
+            </div>
+            
+            <div class="messages-container" #scrollContainer>
+              <div *ngFor="let msg of messages" 
+                  class="message-wrapper"
+                  [class.sender]="msg.sender === userId"
+                  [class.receiver]="msg.sender !== userId">
+                <div class="message-bubble">
+                  {{ msg.content }}
+                </div>
+                <div class="message-info">
+                  <small>{{ getTimeFromMessage(msg) }}</small>
+                  <small *ngIf="msg.sender === userId" [class.seen]="msg.isRead">
+                    {{ msg.isRead ? "✓ Seen" : "✓ Delivered" }}
+                  </small>
+                </div>
+              </div>
 
-                <!-- ✅ Seen/Delivered Status -->
-                <small
-                  *ngIf="msg.sender === userId"
-                  [style.color]="msg.isRead ? 'green' : 'gray'"
-                >
-                  {{ msg.isRead ? "✓ Seen" : "✓ Delivered" }}
-                </small>
+              <div *ngIf="messages.length === 0" class="no-messages">
+                <p>No messages yet. Say hello!</p>
               </div>
             </div>
 
-            <div
-              *ngIf="messages.length === 0"
-              class="text-center text-muted pt-5"
-            >
-              <p>No messages yet. Say hello!</p>
-            </div>
-          </div>
-
-          <!-- Message Input -->
-          <div class="card-footer bg-white p-3">
-            <div class="input-group">
-              <input
-                type="text"
-                class="form-control"
-                [(ngModel)]="message"
-                placeholder="Type a message..."
+            <!-- Message Input -->
+            <div class="message-input-container">
+              <input 
+                type="text" 
+                class="message-input" 
+                [(ngModel)]="message" 
+                placeholder="Type a message..." 
                 (keyup.enter)="send()"
-              />
-              <button
-                class="btn btn-primary"
-                type="button"
-                [disabled]="!message.trim()"
-                (click)="send()"
               >
+              <button 
+                class="send-button" 
+                [disabled]="!message.trim()" 
+                (click)="send()">
                 <i class="bi bi-send-fill"></i>
               </button>
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Logout Button -->
+      <div class="logout-container">
+        <button (click)="logout()" class="logout-btn">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
       </div>
     </div>
   </div>
