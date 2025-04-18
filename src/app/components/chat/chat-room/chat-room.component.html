@@ -3,7 +3,7 @@
     <div class="card main-card">
       <!-- Search Bar -->
       <div class="search-container">
-        <input type="text" class="search-input" placeholder="Search">
+        <input type="text" class="search-input" placeholder="Search" />
         <i class="bi bi-search search-icon"></i>
       </div>
 
@@ -11,20 +11,30 @@
         <!-- Users Sidebar -->
         <div class="users-sidebar">
           <div class="user-list">
-            <div *ngFor="let user of users" 
-                class="user-item" 
-                [class.active]="receiverId === user._id"
-                (click)="startChat(user._id)">
+            <div
+              *ngFor="let user of users"
+              class="user-item"
+              [class.active]="receiverId === user._id"
+              (click)="startChat(user._id)"
+            >
               <!-- Updated avatar to support profile images -->
               <div class="avatar-circle" *ngIf="!user.avatar">
                 {{ user.name.charAt(0).toUpperCase() }}
               </div>
-              <img *ngIf="user.avatar" [src]="user.avatar" class="avatar-image" alt="{{ user.name }}'s avatar">
+              <img
+                *ngIf="user.avatar"
+                [src]="user.avatar"
+                class="avatar-image"
+                alt="{{ user.name }}'s avatar"
+              />
               <div class="user-info">
                 <div class="user-name">{{ user.name }}</div>
                 <div class="user-status">Online</div>
               </div>
-              <div class="badge-container" *ngIf="(unreadMap.get(user._id) ?? 0) > 0">
+              <div
+                class="badge-container"
+                *ngIf="(unreadMap.get(user._id) ?? 0) > 0"
+              >
                 <span class="unread-badge">{{ unreadMap.get(user._id) }}</span>
               </div>
             </div>
@@ -51,24 +61,38 @@
                 <div class="avatar-circle-sm" *ngIf="!currentReceiver.avatar">
                   {{ currentReceiver.name.charAt(0).toUpperCase() }}
                 </div>
-                <img *ngIf="currentReceiver.avatar" [src]="currentReceiver.avatar" class="avatar-image-sm" alt="{{ currentReceiver.name }}'s avatar">
+                <img
+                  *ngIf="currentReceiver.avatar"
+                  [src]="currentReceiver.avatar"
+                  class="avatar-image-sm"
+                  alt="{{ currentReceiver.name }}'s avatar"
+                />
                 <div class="receiver-name">{{ currentReceiver.name }}</div>
               </div>
             </div>
-            
+
             <div class="messages-container" #scrollContainer>
-              <div *ngFor="let msg of messages" 
-                  class="message-wrapper"
-                  [class.sender]="msg.sender === userId"
-                  [class.receiver]="msg.sender !== userId">
+              <div
+                *ngFor="let msg of messages"
+                class="message-wrapper"
+                [class.sender]="msg.sender === userId"
+                [class.receiver]="msg.sender !== userId"
+              >
                 <div class="message-bubble">
                   {{ msg.content }}
                 </div>
+
                 <div class="message-info">
                   <small>{{ getTimeFromMessage(msg) }}</small>
-                  <small *ngIf="msg.sender === userId" [class.seen]="msg.isRead">
+                  <small
+                    *ngIf="msg.sender === userId"
+                    [class.seen]="msg.isRead"
+                  >
                     {{ msg.isRead ? "✓ Seen" : "✓ Delivered" }}
                   </small>
+                </div>
+                <div *ngIf="isTyping" class="typing-indicator text-muted ms-2">
+                  {{ typingUser }} is typing...
                 </div>
               </div>
 
@@ -79,17 +103,19 @@
 
             <!-- Message Input -->
             <div class="message-input-container">
-              <input 
-                type="text" 
-                class="message-input" 
-                [(ngModel)]="message" 
-                placeholder="Type a message..." 
+              <input
+                type="text"
+                class="message-input"
+                [(ngModel)]="message"
+                placeholder="Type a message..."
+                (input)="onInput()"
                 (keyup.enter)="send()"
+              />
+              <button
+                class="send-button"
+                [disabled]="!message.trim()"
+                (click)="send()"
               >
-              <button 
-                class="send-button" 
-                [disabled]="!message.trim()" 
-                (click)="send()">
                 <i class="bi bi-send-fill"></i>
               </button>
             </div>

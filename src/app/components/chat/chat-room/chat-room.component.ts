@@ -47,10 +47,11 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   userId: string | null = null;
   receiverId: string | null = null;
   currentReceiver: User | null = null;
-  isTyping = false;
   lastMessageTimestamp = 0; // Track the last message time
   unreadMap = new Map<string, number>();
-
+  isTyping = false;
+  typingUser: string | null = null;
+  typingTimeout: any;
   constructor(
     private socketService: SocketService,
     @Inject(PLATFORM_ID) private platformId: object,
@@ -59,14 +60,14 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     private router: Router,
     private profileService: ProfileService
   ) {}
-  
+
   playSound() {
     const audio = new Audio(
       'https://notificationsounds.com/notification-sounds/just-saying-613/download/mp3'
     );
     audio.play().catch(() => {});
   }
-  
+
   showToast(senderName: string) {
     const toast = document.createElement('div');
     toast.className = 'toast-msg';
@@ -74,7 +75,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
   }
-  
+
   ngOnInit(): void {
     this.userId = this.authService.getUserId();
     if (!this.userId) return;
@@ -82,27 +83,36 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     // Get user list with profile information
     this.authService.getAllUsers(this.userId).subscribe((res: any) => {
       this.users = res;
-      
+
       // Fetch profile information for each user to get avatars
-      this.users.forEach(user => {
-        this.profileService.getProfile(user._id).subscribe(profile => {
+      this.users.forEach((user) => {
+        this.profileService.getProfile(user._id).subscribe((profile) => {
           // Find and update the user with their profile information
-          const userIndex = this.users.findIndex(u => u._id === profile._id);
+          const userIndex = this.users.findIndex((u) => u._id === profile._id);
           if (userIndex !== -1) {
             this.users[userIndex] = {
               ...this.users[userIndex],
-              avatar: profile.avatar
+              avatar: profile.avatar,
             };
           }
-          
+
           // Update current receiver if it's the active chat
           if (this.receiverId === profile._id) {
             this.currentReceiver = {
               _id: profile._id,
               name: profile.name,
-              avatar: profile.avatar
+              avatar: profile.avatar,
             };
           }
+        });
+      });
+      this.socketService.onTyping().subscribe((senderId: string) => {
+        if (senderId !== this.userId) {
+          this.typingUser = this.getUserName(senderId);
+          this.isTyping = true;
+        }
+        this.socketService.onStopTyping().subscribe(() => {
+          this.isTyping = false;
         });
       });
     });
@@ -208,16 +218,16 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     this.socketService.joinRoom(roomId);
 
     // Set current receiver for header display
-    const receiver = this.users.find(u => u._id === receiverId);
+    const receiver = this.users.find((u) => u._id === receiverId);
     if (receiver) {
       this.currentReceiver = receiver;
     } else {
       // If user not found in the list, fetch their profile
-      this.profileService.getProfile(receiverId).subscribe(profile => {
+      this.profileService.getProfile(receiverId).subscribe((profile) => {
         this.currentReceiver = {
           _id: profile._id,
           name: profile.name,
-          avatar: profile.avatar
+          avatar: profile.avatar,
         };
       });
     }
@@ -248,7 +258,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     const name = this.getUserName(userId);
     return name.charAt(0).toUpperCase();
   }
-  
+
   getTimeFromMessage(msg: Message): string {
     if (!msg.timestamp) return '';
 
@@ -258,6 +268,12 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
       minute: '2-digit',
     });
   }
-  
-
+  onInput() {
+    const roomId = [this.userId, this.receiverId].sort().join('-');
+    this.socketService.typing(roomId, this.userId!);
+    clearTimeout(this.typingTimeout);
+    this.typingTimeout = setTimeout(() => {
+      this.socketService.stopTyping(roomId);
+    }, 1000);
+  }
 }

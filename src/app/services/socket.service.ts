@@ -15,7 +15,7 @@ export class SocketService {
         this.joinRoom(this.currentRoom);
       }
     });
-    
+
     this.socket.on('disconnect', () => {
       console.log('Socket disconnected');
     });
@@ -27,10 +27,10 @@ export class SocketService {
    */
   joinRoom(roomId: string) {
     console.log('Joining room:', roomId);
-    
+
     // Store current room for reconnection handling
     this.currentRoom = roomId;
-    
+
     // Join the room
     this.socket.emit('join-room', roomId);
   }
@@ -41,13 +41,13 @@ export class SocketService {
    */
   sendMessage(data: any) {
     console.log('Sending message:', data);
-    
+
     // Make sure we have the required fields
     if (!data.sender || !data.receiver || !data.content) {
       console.error('Invalid message data', data);
       return;
     }
-    
+
     // Send the message through socket
     this.socket.emit('chat-message', data);
   }
@@ -77,6 +77,21 @@ export class SocketService {
     return this.socket.fromEvent('user-left');
   }
 
+  typing(roomId: string, sender: string) {
+    this.socket.emit('typing', { roomId, sender });
+  }
+
+  stopTyping(roomId: String) {
+    this.socket.emit('stop-typing', { roomId });
+  }
+
+  onTyping(): Observable<any> {
+    return this.socket.fromEvent('typing');
+  }
+
+  onStopTyping(): Observable<any> {
+    return this.socket.fromEvent('stop-typing');
+  }
   /**
    * Disconnect the socket when service is destroyed
    */
