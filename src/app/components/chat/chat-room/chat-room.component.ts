@@ -1,10 +1,10 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   Component,
   ElementRef,
   Inject,
   OnInit,
-  PLATFORM_ID,
+  PLATFORM_ID, 
   ViewChild,
   AfterViewChecked,
 } from '@angular/core';
@@ -23,6 +23,10 @@ export interface Message {
   isRead: boolean;
   timestamp?: Date;
   id?: string;
+  image?: {
+    data: string;
+    contentType: string;
+  };
 }
 
 interface User {
@@ -52,6 +56,9 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   isTyping = false;
   typingUser: string | null = null;
   typingTimeout: any;
+  onlineUsers: Set<string> = new Set();
+  selectedImage: File | null = null;
+
   constructor(
     private socketService: SocketService,
     @Inject(PLATFORM_ID) private platformId: object,
@@ -157,6 +164,10 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
         this.scrollToBottom();
       }
     });
+    this.socketService.registerUser(this.userId);
+    this.socketService.onOnlineUsers().subscribe((onlineIds: string[]) => {
+      this.onlineUsers = new Set(onlineIds);
+    });
   }
 
   ngAfterViewChecked() {
@@ -175,33 +186,39 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   }
 
   send() {
-    if (this.message.trim()) {
-      if (!this.userId || !this.receiverId) {
-        alert('Sender or receiver is missing!');
-        return;
-      }
+    if (!this.userId || !this.receiverId) {
+      alert('Sender or receiver is missing!');
+      return;
+    }
 
-      // Create a unique ID for this message
-      const messageId = `${this.userId}-${Date.now()}`;
+    const roomId = [this.userId, this.receiverId].sort().join('-');
 
-      // Create message object
-      const newMessage = {
-        id: messageId,
+    // If image selected, convert to base64 first
+    if (this.selectedImage) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64String = (reader.result as string).split(',')[1]; // remove data:image/...;base64, part
+        const message = {
+          sender: this.userId,
+          receiver: this.receiverId,
+          content:this.message.trim(),
+          imageBase64: base64String,
+          imageType: this.selectedImage!.type,
+        };
+        this.socketService.sendMessage(message);
+        this.selectedImage = null;
+        this.message = '';
+      };
+      reader.readAsDataURL(this.selectedImage);
+    }
+
+    else if (this.message.trim()) {
+      const message = {
         sender: this.userId,
         receiver: this.receiverId,
-        content: this.message,
-        timestamp: new Date(),
+        content: this.message.trim(),
       };
-
-      console.log('Sending message:', newMessage);
-
-      // Track this message as sent by the client
-      this.sentMessageIds.add(messageId);
-
-      // Send via socket service
-      this.socketService.sendMessage(newMessage);
-
-      // Clear input
+      this.socketService.sendMessage(message);
       this.message = '';
     }
   }
@@ -275,5 +292,12 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     this.typingTimeout = setTimeout(() => {
       this.socketService.stopTyping(roomId);
     }, 1000);
+  }
+
+  onImageSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedImage = file;
+    }
   }
 }

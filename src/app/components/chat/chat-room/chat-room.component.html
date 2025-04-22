@@ -28,9 +28,18 @@
                 alt="{{ user.name }}'s avatar"
               />
               <div class="user-info">
-                <div class="user-name">{{ user.name }}</div>
-                <div class="user-status">Online</div>
+                <h6 class="mb-0">{{ user.name }}</h6>
+                <small class="text-muted">
+                  <span
+                    class="status-dot"
+                    [class.online]="onlineUsers.has(user._id)"
+                    [class.offline]="!onlineUsers.has(user._id)"
+                  >
+                  </span>
+                  {{ onlineUsers.has(user._id) ? "Online" : "Offline" }}
+                </small>
               </div>
+
               <div
                 class="badge-container"
                 *ngIf="(unreadMap.get(user._id) ?? 0) > 0"
@@ -79,7 +88,22 @@
                 [class.receiver]="msg.sender !== userId"
               >
                 <div class="message-bubble">
-                  {{ msg.content }}
+                  <!-- Image if present -->
+                  <img
+                    *ngIf="msg.image?.data"
+                    [src]="
+                      'data:' +
+                      msg.image?.contentType +
+                      ';base64,' +
+                      msg.image?.data
+                    "
+                    class="chat-image"
+                  />
+
+                  <!-- Text if present -->
+                  <div *ngIf="msg.content">
+                    {{ msg.content }}
+                  </div>
                 </div>
 
                 <div class="message-info">
@@ -102,18 +126,38 @@
             </div>
 
             <!-- Message Input -->
-            <div class="message-input-container">
+            <!-- Message Input with Image Upload -->
+            <div
+              class="message-input-container d-flex align-items-center gap-2"
+            >
+              <!-- Image Upload Icon -->
+              <label
+                class="btn btn-outline-secondary m-0"
+                style="padding: 6px 10px"
+              >
+                <i class="bi bi-paperclip"></i>
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  (change)="onImageSelected($event)"
+                />
+              </label>
+
+              <!-- Text Input -->
               <input
                 type="text"
-                class="message-input"
+                class="form-control message-input"
                 [(ngModel)]="message"
                 placeholder="Type a message..."
                 (input)="onInput()"
                 (keyup.enter)="send()"
               />
+
+              <!-- Send Button -->
               <button
-                class="send-button"
-                [disabled]="!message.trim()"
+                class="btn btn-primary send-button"
+                [disabled]="!message.trim() && !selectedImage"
                 (click)="send()"
               >
                 <i class="bi bi-send-fill"></i>
