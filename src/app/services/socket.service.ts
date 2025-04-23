@@ -121,6 +121,12 @@ export class SocketService {
   onMessageDeleted(): Observable<any> {
     return this.socket.fromEvent('message-deleted');
   }
+  editMessage(messageId: string, newContent: string, roomId: string) {
+    this.socket.emit('edit-message', { messageId, newContent, roomId });
+  }
+  onMessageEdit(): Observable<any> {
+    return this.socket.fromEvent('message-edited');
+  }
   /**
    * Disconnect the socket when service is destroyed
    */

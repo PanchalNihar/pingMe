@@ -59,6 +59,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   typingTimeout: any;
   onlineUsers: Set<string> = new Set();
   selectedImage: File | null = null;
+  edititngMessageId: string | null = null;
 
   constructor(
     private socketService: SocketService,
@@ -162,6 +163,14 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     this.socketService.onMessageDeleted().subscribe(({ messageId }) => {
       this.messages = this.messages.filter((msg) => msg.id !== messageId);
     });
+
+    this.socketService.onMessageEdit().subscribe((updatedMsg) => {
+      const updatedId = updatedMsg.id || updatedMsg._id;
+      const index = this.messages.findIndex((m) => m.id === updatedId);
+      if (index !== -1) {
+        this.messages[index].content = updatedMsg.content;
+      }
+    });
   }
 
   ngAfterViewChecked() {
@@ -186,7 +195,16 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     }
 
     const roomId = [this.userId, this.receiverId].sort().join('-');
-
+    if (this.edititngMessageId) {
+      this.socketService.editMessage(
+        this.edititngMessageId,
+        this.message.trim(),
+        roomId
+      );
+      this.edititngMessageId = null;
+      this.message = '';
+      return;
+    }
     if (this.selectedImage) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -287,5 +305,17 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     const roomId = [this.userId, this.receiverId].sort().join('-');
     if (!messageId) return;
     this.socketService.deleteMessage(messageId, roomId);
+  }
+
+  editMessage(messageId: string) {
+    const msgToEdit = this.messages.find((m) => m.id === messageId);
+    if (msgToEdit && msgToEdit.content) {
+      this.message = msgToEdit.content;
+      this.edititngMessageId = messageId;
+    }
+  }
+  cancleEdit(){
+    this.edititngMessageId = null;
+    this.message = '';
   }
 }
