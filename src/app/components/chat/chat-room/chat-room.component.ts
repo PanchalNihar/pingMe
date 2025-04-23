@@ -4,7 +4,7 @@ import {
   ElementRef,
   Inject,
   OnInit,
-  PLATFORM_ID, 
+  PLATFORM_ID,
   ViewChild,
   AfterViewChecked,
 } from '@angular/core';
@@ -17,12 +17,13 @@ import { Router } from '@angular/router';
 import { ProfileService } from '../../../services/profile.service';
 
 export interface Message {
+  id?: string;
+  _id?: string;
   sender: string;
   receiver: string;
   content: string;
   isRead: boolean;
   timestamp?: Date;
-  id?: string;
   image?: {
     data: string;
     contentType: string;
@@ -51,7 +52,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   userId: string | null = null;
   receiverId: string | null = null;
   currentReceiver: User | null = null;
-  lastMessageTimestamp = 0; // Track the last message time
+  lastMessageTimestamp = 0;
   unreadMap = new Map<string, number>();
   isTyping = false;
   typingUser: string | null = null;
@@ -87,14 +88,10 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     this.userId = this.authService.getUserId();
     if (!this.userId) return;
 
-    // Get user list with profile information
     this.authService.getAllUsers(this.userId).subscribe((res: any) => {
       this.users = res;
-
-      // Fetch profile information for each user to get avatars
       this.users.forEach((user) => {
         this.profileService.getProfile(user._id).subscribe((profile) => {
-          // Find and update the user with their profile information
           const userIndex = this.users.findIndex((u) => u._id === profile._id);
           if (userIndex !== -1) {
             this.users[userIndex] = {
@@ -102,8 +99,6 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
               avatar: profile.avatar,
             };
           }
-
-          // Update current receiver if it's the active chat
           if (this.receiverId === profile._id) {
             this.currentReceiver = {
               _id: profile._id,
@@ -124,33 +119,27 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
       });
     });
 
-    // 🔥 Get unread counts
     this.messageService.getUnreadCounts(this.userId).subscribe((data) => {
       data.forEach((item) => {
         this.unreadMap.set(item._id, item.count);
       });
     });
 
-    // Listen to incoming messages
     this.socketService.onMessage().subscribe((msg: Message) => {
+      msg.id = msg.id || msg._id;
       const isCurrentChat =
         (msg.sender === this.userId && msg.receiver === this.receiverId) ||
         (msg.sender === this.receiverId && msg.receiver === this.userId);
-
       const isIncoming = msg.receiver === this.userId;
 
-      // 🔴 Show notification or update unread if not current chat
       if (!isCurrentChat && isIncoming) {
         const current = this.unreadMap.get(msg.sender) || 0;
         this.unreadMap.set(msg.sender, current + 1);
-
-        // Optional: sound alert or toast
         this.playSound();
         this.showToast(this.getUserName(msg.sender));
-        return; // don't show the message in current window
+        return;
       }
 
-      // ✅ Only add to current view if it's part of the open chat
       const isDuplicate = this.messages.some(
         (m) =>
           (m.id && m.id === msg.id) ||
@@ -164,9 +153,14 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
         this.scrollToBottom();
       }
     });
+
     this.socketService.registerUser(this.userId);
     this.socketService.onOnlineUsers().subscribe((onlineIds: string[]) => {
       this.onlineUsers = new Set(onlineIds);
+    });
+
+    this.socketService.onMessageDeleted().subscribe(({ messageId }) => {
+      this.messages = this.messages.filter((msg) => msg.id !== messageId);
     });
   }
 
@@ -193,15 +187,14 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
 
     const roomId = [this.userId, this.receiverId].sort().join('-');
 
-    // If image selected, convert to base64 first
     if (this.selectedImage) {
       const reader = new FileReader();
       reader.onload = () => {
-        const base64String = (reader.result as string).split(',')[1]; // remove data:image/...;base64, part
+        const base64String = (reader.result as string).split(',')[1];
         const message = {
           sender: this.userId,
           receiver: this.receiverId,
-          content:this.message.trim(),
+          content: this.message.trim(),
           imageBase64: base64String,
           imageType: this.selectedImage!.type,
         };
@@ -210,9 +203,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
         this.message = '';
       };
       reader.readAsDataURL(this.selectedImage);
-    }
-
-    else if (this.message.trim()) {
+    } else if (this.message.trim()) {
       const message = {
         sender: this.userId,
         receiver: this.receiverId,
@@ -224,22 +215,15 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   }
 
   startChat(receiverId: string) {
-    if (!this.userId) {
-      console.warn('User ID is null. Cannot start chat.');
-      return;
-    }
-
+    if (!this.userId) return;
     this.receiverId = receiverId;
     const roomId = [this.userId, this.receiverId].sort().join('-');
-    console.log('Joining room:', roomId);
     this.socketService.joinRoom(roomId);
 
-    // Set current receiver for header display
     const receiver = this.users.find((u) => u._id === receiverId);
     if (receiver) {
       this.currentReceiver = receiver;
     } else {
-      // If user not found in the list, fetch their profile
       this.profileService.getProfile(receiverId).subscribe((profile) => {
         this.currentReceiver = {
           _id: profile._id,
@@ -249,15 +233,13 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
       });
     }
 
-    // Clear old messages
     this.messages = [];
-
     this.unreadMap.set(receiverId, 0);
-    // Fetch message history
+
     this.messageService
       .getMessages(this.userId, this.receiverId)
       .subscribe((messages) => {
-        this.messages = messages;
+        this.messages = messages.map((m: any) => ({ ...m, id: m._id || m.id }));
         this.scrollToBottom();
       });
 
@@ -278,13 +260,13 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
 
   getTimeFromMessage(msg: Message): string {
     if (!msg.timestamp) return '';
-
     const timestamp = new Date(msg.timestamp);
     return timestamp.toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
     });
   }
+
   onInput() {
     const roomId = [this.userId, this.receiverId].sort().join('-');
     this.socketService.typing(roomId, this.userId!);
@@ -299,5 +281,11 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     if (file) {
       this.selectedImage = file;
     }
+  }
+
+  deleteMessage(messageId: string) {
+    const roomId = [this.userId, this.receiverId].sort().join('-');
+    if (!messageId) return;
+    this.socketService.deleteMessage(messageId, roomId);
   }
 }

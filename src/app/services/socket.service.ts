@@ -45,27 +45,26 @@ export class SocketService {
       console.error('Missing sender or receiver', data);
       return;
     }
-    
+
     // Check that we have at least text or image
     const hasText = !!data.content?.trim();
     const hasImage = !!data.imageBase64;
-    
+
     if (!hasText && !hasImage) {
       console.error('Message must contain text or image', data);
       return;
     }
-  
+
     console.log('Sending message:', {
       sender: data.sender,
       receiver: data.receiver,
       hasContent: hasText,
-      hasImage: hasImage
+      hasImage: hasImage,
     });
-  
+
     // Send the message
     this.socket.emit('chat-message', data);
   }
-  
 
   /**
    * Listen for incoming messages
@@ -115,7 +114,13 @@ export class SocketService {
   onOnlineUsers(): Observable<any> {
     return this.socket.fromEvent('online-users');
   }
-  
+
+  deleteMessage(messageId: string, roomId: string) {
+    this.socket.emit('delete-message', { messageId, roomId });
+  }
+  onMessageDeleted(): Observable<any> {
+    return this.socket.fromEvent('message-deleted');
+  }
   /**
    * Disconnect the socket when service is destroyed
    */

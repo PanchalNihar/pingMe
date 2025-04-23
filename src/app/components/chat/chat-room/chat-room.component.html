@@ -82,47 +82,43 @@
 
             <div class="messages-container" #scrollContainer>
               <div
-                *ngFor="let msg of messages"
-                class="message-wrapper"
-                [class.sender]="msg.sender === userId"
-                [class.receiver]="msg.sender !== userId"
-              >
-                <div class="message-bubble">
-                  <!-- Image if present -->
-                  <img
-                    *ngIf="msg.image?.data"
-                    [src]="
-                      'data:' +
-                      msg.image?.contentType +
-                      ';base64,' +
-                      msg.image?.data
-                    "
-                    class="chat-image"
-                  />
-
-                  <!-- Text if present -->
-                  <div *ngIf="msg.content">
-                    {{ msg.content }}
-                  </div>
+              *ngFor="let msg of messages"
+              class="message-wrapper"
+              [class.sender]="msg.sender === userId"
+              [class.receiver]="msg.sender !== userId"
+            >
+              <div class="message-bubble">
+                <!-- Image if present -->
+                <img
+                  *ngIf="msg.image?.data"
+                  [src]="'data:' + msg.image?.contentType + ';base64,' + msg.image?.data"
+                  class="chat-image"
+                />
+            
+                <!-- Text if present -->
+                <div *ngIf="msg.content">
+                  {{ msg.content }}
                 </div>
-
-                <div class="message-info">
-                  <small>{{ getTimeFromMessage(msg) }}</small>
-                  <small
-                    *ngIf="msg.sender === userId"
-                    [class.seen]="msg.isRead"
-                  >
-                    {{ msg.isRead ? "✓ Seen" : "✓ Delivered" }}
-                  </small>
-                </div>
-                <div *ngIf="isTyping" class="typing-indicator text-muted ms-2">
-                  {{ typingUser }} is typing...
-                </div>
+            
+                <!-- ✅ Delete button inside message bubble -->
+                <button *ngIf="msg.sender === userId" (click)="deleteMessage(msg.id!)">
+                  🗑️
+                </button>
               </div>
+            
+              <div class="message-info">
+                <small>{{ getTimeFromMessage(msg) }}</small>
+                <small *ngIf="msg.sender === userId" [class.seen]="msg.isRead">
+                  {{ msg.isRead ? "✓ Seen" : "✓ Delivered" }}
+                </small>
+              </div>
+            </div>
+            
 
               <div *ngIf="messages.length === 0" class="no-messages">
                 <p>No messages yet. Say hello!</p>
               </div>
+              
             </div>
 
             <!-- Message Input -->
