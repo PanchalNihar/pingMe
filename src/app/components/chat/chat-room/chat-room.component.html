@@ -3,7 +3,12 @@
     <div class="card main-card">
       <!-- Search Bar -->
       <div class="search-container">
-        <input type="text" class="search-input" placeholder="Search" />
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search"
+          [(ngModel)]="searchTerm"
+        />
         <i class="bi bi-search search-icon"></i>
       </div>
 
@@ -12,7 +17,7 @@
         <div class="users-sidebar">
           <div class="user-list">
             <div
-              *ngFor="let user of users"
+              *ngFor="let user of filtertedUser"
               class="user-item"
               [class.active]="receiverId === user._id"
               (click)="startChat(user._id)"
@@ -75,8 +80,16 @@
                   [src]="currentReceiver.avatar"
                   class="avatar-image-sm"
                   alt="{{ currentReceiver.name }}'s avatar"
+                  (click)="viewProfile(currentReceiver._id)"
+                  style="cursor: pointer"
                 />
-                <div class="receiver-name">{{ currentReceiver.name }}</div>
+                <div
+                  class="receiver-name"
+                  (click)="viewProfile(currentReceiver._id)"
+                  style="cursor: pointer"
+                >
+                  {{ currentReceiver.name }}
+                </div>
               </div>
             </div>
 

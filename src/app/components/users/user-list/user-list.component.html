@@ -1,36 +1,48 @@
-<div class="card">
-    <div class="card-header color text-black">
-      <h5 class="mb-0">All Users</h5>
-    </div>
-    <ul class="list-group list-group-flush">
-      <li
-        class="list-group-item d-flex align-items-center"
-        *ngFor="let user of users"
-        (click)="viewProfile(user._id)"
-        style="cursor: pointer"
-      >
-        <!-- Avatar with fallback -->
-        <div class="avatar-container me-3">
-          <img
-            *ngIf="user.avatar"
-            [src]="user.avatar"
-            class="rounded-circle"
-            width="40"
-            height="40"
-            alt="Avatar"
-          />
-          <div 
-            *ngIf="!user.avatar" 
-            class="avatar-placeholder rounded-circle d-flex justify-content-center align-items-center"
-            [style.background-color]="getAvatarColor(user.name)"
-          >
-            {{ user.name.charAt(0).toUpperCase() }}
-          </div>
-        </div>
-        <div>
-          <h6 class="mb-0">{{ user.name }}</h6>
-          <small>{{ user.email }}</small>
-        </div>
-      </li>
-    </ul>
+<div class="card shadow-sm border-0">
+  <div
+    class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+  >
+    <h5 class="mb-0">All Users</h5>
+    <i class="bi bi-people-fill fs-4"></i>
   </div>
+
+  <ul class="list-group list-group-flush">
+    <li
+      class="list-group-item d-flex align-items-center px-4 py-3 user-item"
+      *ngFor="let user of users"
+      style="cursor: pointer"
+      (click)="viewProfile($event, user._id)"
+    >
+      <!-- Avatar -->
+      <button
+        class="btn p-0 border-0 bg-transparent me-3"
+        (click)="viewProfile($event, user._id)"
+      >
+        <img
+          *ngIf="user.avatar"
+          [src]="user.avatar"
+          class="rounded-circle border"
+          width="48"
+          height="48"
+          alt="Avatar"
+        />
+        <div
+          *ngIf="!user.avatar"
+          class="avatar-placeholder rounded-circle text-white fw-bold d-flex justify-content-center align-items-center"
+          [style.backgroundColor]="getAvatarColor(user.name)"
+          style="width: 48px; height: 48px; font-size: 1.2rem"
+        >
+          {{ user.name.charAt(0).toUpperCase() }}
+        </div>
+      </button>
+
+      <!-- User Info -->
+      <div>
+        <div class="fw-semibold">{{ user.name }}</div>
+        <small class="text-muted">{{ user.email }}</small>
+      </div>
+
+      <i class="ms-auto bi bi-chevron-right text-muted"></i>
+    </li>
+  </ul>
+</div>

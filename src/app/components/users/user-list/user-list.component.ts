@@ -13,43 +13,48 @@ import { CommonModule } from '@angular/common';
 export class UserListComponent implements OnInit {
   users: any[] = [];
   userId: string | null = null;
-  
+
   constructor(
     private authService: AuthService,
     private profileService: ProfileService,
     private router: Router
   ) {}
-  
+
   ngOnInit(): void {
     this.userId = this.authService.getUserId();
     if (!this.userId) {
       return;
     }
-    
+
     this.authService.getAllUsers(this.userId).subscribe((res: any) => {
       this.users = res;
-      
+
       // Fetch profile information for each user
-      this.users.forEach(user => {
-        this.profileService.getProfile(user._id).subscribe(profile => {
+      this.users.forEach((user) => {
+        this.profileService.getProfile(user._id).subscribe((profile) => {
           // Find and update the user with their profile information
-          const userIndex = this.users.findIndex(u => u._id === profile._id);
+          const userIndex = this.users.findIndex((u) => u._id === profile._id);
           if (userIndex !== -1) {
             this.users[userIndex] = {
               ...this.users[userIndex],
               avatar: profile.avatar,
-              email: profile.email
+              email: profile.email,
             };
           }
         });
       });
     });
   }
-  
-  viewProfile(id: string) {
+
+  viewProfile(event: MouseEvent, id: string) {
+    event.stopPropagation();
+    event.preventDefault();
     this.router.navigate(['/users', id]);
   }
-  
+  viewChat(id: string) {
+    console.log("ID:",id)
+    this.router.navigate(['/chat', id]);
+  }
   // Generate consistent color for user avatar placeholder
   getAvatarColor(name: string): string {
     // Simple hash function to get a consistent color for the same name
@@ -57,7 +62,7 @@ export class UserListComponent implements OnInit {
     for (let i = 0; i < name.length; i++) {
       hash = name.charCodeAt(i) + ((hash << 5) - hash);
     }
-    
+
     // Convert to hex color
     const color = Math.abs(hash) % 360;
     return `hsl(${color}, 70%, 60%)`;

@@ -60,7 +60,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   onlineUsers: Set<string> = new Set();
   selectedImage: File | null = null;
   edititngMessageId: string | null = null;
-
+  searchTerm: string = '';
   constructor(
     private socketService: SocketService,
     @Inject(PLATFORM_ID) private platformId: object,
@@ -314,8 +314,16 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
       this.edititngMessageId = messageId;
     }
   }
-  cancleEdit(){
+  cancleEdit() {
     this.edititngMessageId = null;
     this.message = '';
+  }
+  get filtertedUser() {
+    return this.users.filter((user) =>
+      user.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
+  viewProfile(id: string) {
+    this.router.navigate(['/users', id]);
   }
 }
