@@ -15,7 +15,7 @@ export class UserListComponent implements OnInit {
   userId: string | null = null;
 
   constructor(
-    private authService: AuthService,
+    private authService: AuthService, 
     private profileService: ProfileService,
     private router: Router
   ) {}
