@@ -1,24 +1,471 @@
-.card {
+/* Main Container */
+.users-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+}
+
+.users-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header Section */
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding: 30px 40px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.page-subtitle {
+  color: #666;
+  font-size: 1.2rem;
+  margin: 0;
+  max-width: 600px;
+}
+
+.header-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px 30px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* Search Section */
+.search-section {
+  margin-bottom: 40px;
+}
+
+.search-container {
   max-width: 600px;
   margin: 0 auto;
 }
-.avatar-container {
-  width: 40px;
-  height: 40px;
+
+.search-input-wrapper {
   position: relative;
-}
-.user-item {
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-.user-item:hover {
-  background-color: #f5f5f5;
+.search-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  z-index: 2;
 }
-.avatar-placeholder {
-  text-transform: uppercase;
+
+.search-input {
+  width: 100%;
+  padding: 20px 20px 20px 60px;
+  border: none;
+  outline: none;
+  font-size: 1.1rem;
+  background: transparent;
+  color: #1a1a1a;
+}
+
+.search-input::placeholder {
+  color: #999;
+}
+
+/* Users Grid */
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.user-card {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.user-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.user-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.user-card:hover .card-overlay {
+  opacity: 1;
+}
+
+/* User Avatar Section */
+.user-avatar-section {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.user-avatar-container {
+  position: relative;
+  display: inline-block;
+}
+
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.user-avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  font-weight: 700;
+  border: 3px solid white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.online-indicator {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 16px;
+  height: 16px;
+  background: #28a745;
+  border: 2px solid white;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(40, 167, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+  }
+}
+
+/* User Info */
+.user-info {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.user-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 5px;
+}
+
+.user-email {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+
+.user-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #28a745;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #28a745;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-text {
+  color: #666;
+}
+
+/* Action Buttons */
+.user-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.action-btn {
+  width: 45px;
+  height: 45px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-chat {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-chat:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-profile {
+  background: #f8f9fa;
+  color: #666;
+  border: 2px solid #e1e5e9;
+}
+
+.btn-profile:hover {
+  background: #e9ecef;
+  border-color: #ced4da;
+  transform: scale(1.1);
+}
+
+/* Card Overlay */
+.card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(102, 126, 234, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 20px;
+}
+
+.overlay-content {
+  text-align: center;
+}
+
+.overlay-btn {
+  display: block;
+  width: 200px;
+  padding: 12px 20px;
+  margin: 8px auto;
+  border: none;
+  border-radius: 10px;
   font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
-.color {
-  background-color: #f5f7fa;
+
+.overlay-btn.primary {
+  background: white;
+  color: #667eea;
+}
+
+.overlay-btn.primary:hover {
+  background: #f8f9ff;
+  transform: translateY(-2px);
+}
+
+.overlay-btn.secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.overlay-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 80px 40px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.empty-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+}
+
+.empty-message {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Loading State */
+.loading-state {
+  text-align: center;
+  padding: 80px 40px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  margin-bottom: 20px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+.loading-text {
+  color: #666;
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .users-container {
+    padding: 10px;
+  }
+  
+  .users-header {
+    flex-direction: column;
+    gap: 20px;
+    padding: 25px;
+    text-align: center;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1rem;
+  }
+  
+  .users-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .user-card {
+    padding: 25px;
+  }
+  
+  .search-input {
+    padding: 15px 15px 15px 50px;
+    font-size: 1rem;
+  }
+  
+  .search-icon {
+    left: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-card {
+    padding: 20px;
+  }
+  
+  .user-avatar,
+  .user-avatar-placeholder {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .user-avatar-placeholder {
+    font-size: 1.5rem;
+  }
+  
+  .user-name {
+    font-size: 1.1rem;
+  }
+  
+  .user-email {
+    font-size: 0.9rem;
+  }
 }

@@ -70,21 +70,6 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     private profileService: ProfileService
   ) {}
 
-  playSound() {
-    const audio = new Audio(
-      'https://notificationsounds.com/notification-sounds/just-saying-613/download/mp3'
-    );
-    audio.play().catch(() => {});
-  }
-
-  showToast(senderName: string) {
-    const toast = document.createElement('div');
-    toast.className = 'toast-msg';
-    toast.innerText = `💬 New message from ${senderName}`;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-  }
-
   ngOnInit(): void {
     this.userId = this.authService.getUserId();
     if (!this.userId) return;
@@ -136,8 +121,6 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
       if (!isCurrentChat && isIncoming) {
         const current = this.unreadMap.get(msg.sender) || 0;
         this.unreadMap.set(msg.sender, current + 1);
-        this.playSound();
-        this.showToast(this.getUserName(msg.sender));
         return;
       }
 

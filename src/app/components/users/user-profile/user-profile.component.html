@@ -1,11 +1,180 @@
-<div *ngIf="loading" class="text-center py-4">
-  <div class="spinner-border text-primary"></div>
-</div>
+<div class="profile-container">
+  <div class="profile-wrapper">
+    
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+      </div>
+      <p class="loading-text">Loading profile...</p>
+    </div>
 
-<div *ngIf="!loading && user" class="card mx-auto" style="max-width: 500px">
-  <img [src]="user.avatar" class="card-img-top" alt="User Avatar" />
-  <div class="card-body">
-    <h5 class="card-title">{{ user.name }}</h5>
-    <p class="text-muted">This is a public profile view.</p>
+    <!-- Profile Content -->
+    <div class="profile-content" *ngIf="!loading && user">
+      
+      <!-- Header Section -->
+      <div class="profile-header">
+        <div class="header-top">
+          <button class="back-btn" (click)="goBack()" title="Go Back">
+            ← Back to Users
+          </button>
+          <div class="header-actions" *ngIf="!isOwnProfile">
+            <button class="action-btn primary" (click)="startChat()" title="Start Chat">
+              💬 Start Chat
+            </button>
+          </div>
+          <div class="header-actions" *ngIf="isOwnProfile">
+            <button class="action-btn secondary" (click)="editProfile()" title="Edit Profile">
+              ✏️ Edit Profile
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Profile Card -->
+      <div class="profile-main-card">
+        
+        <!-- Avatar Section -->
+        <div class="profile-avatar-section">
+          <div class="avatar-container">
+            <img
+              *ngIf="user.avatar"
+              [src]="user.avatar"
+              class="profile-avatar"
+              alt="Profile Avatar"
+            />
+            <div
+              *ngIf="!user.avatar"
+              class="profile-avatar-placeholder"
+              [style.background]="getAvatarGradient(user.name)"
+            >
+              {{ user.name?.charAt(0)?.toUpperCase() || 'U' }}
+            </div>
+            <div class="online-indicator"></div>
+          </div>
+        </div>
+
+        <!-- User Info Section -->
+        <div class="profile-info-section">
+          <h1 class="profile-name">{{ user.name || 'Unknown User' }}</h1>
+          <p class="profile-email">{{ user.email || 'No email provided' }}</p>
+          
+          <div class="profile-status">
+            <span class="status-indicator"></span>
+            <span class="status-text">{{ isOwnProfile ? 'This is your profile' : 'Available to chat' }}</span>
+          </div>
+
+          <!-- Profile Stats -->
+          <div class="profile-stats">
+            <div class="stat-item">
+              <span class="stat-number">{{ user.totalChats || 0 }}</span>
+              <span class="stat-label">Conversations</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <span class="stat-number">{{ user.friendsCount || 0 }}</span>
+              <span class="stat-label">Connections</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <span class="stat-number">{{ user.joinedDaysAgo || 0 }}</span>
+              <span class="stat-label">Days Active</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Additional Info Cards -->
+      <div class="profile-details-grid">
+        
+        <!-- About Card -->
+        <div class="detail-card">
+          <div class="card-header">
+            <h3 class="card-title">📝 About</h3>
+          </div>
+          <div class="card-content">
+            <p class="about-text">
+              {{ user.bio || user.about || 'This user hasn\'t added a bio yet. When they do, it will appear here.' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Contact Info Card -->
+        <div class="detail-card">
+          <div class="card-header">
+            <h3 class="card-title">📞 Contact Information</h3>
+          </div>
+          <div class="card-content">
+            <div class="contact-item">
+              <span class="contact-label">Email:</span>
+              <span class="contact-value">{{ user.email || 'Not provided' }}</span>
+            </div>
+            <div class="contact-item" *ngIf="user.phone">
+              <span class="contact-label">Phone:</span>
+              <span class="contact-value">{{ user.phone }}</span>
+            </div>
+            <div class="contact-item" *ngIf="user.location">
+              <span class="contact-label">Location:</span>
+              <span class="contact-value">{{ user.location }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Card -->
+        <div class="detail-card">
+          <div class="card-header">
+            <h3 class="card-title">🎯 Activity</h3>
+          </div>
+          <div class="card-content">
+            <div class="activity-item">
+              <span class="activity-label">Member since:</span>
+              <span class="activity-value">{{ formatDate(user.createdAt) }}</span>
+            </div>
+            <div class="activity-item">
+              <span class="activity-label">Last seen:</span>
+              <span class="activity-value">{{ user.lastSeen || 'Recently' }}</span>
+            </div>
+            <div class="activity-item">
+              <span class="activity-label">Status:</span>
+              <span class="activity-value status-active">Active User</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="detail-card actions-card" *ngIf="!isOwnProfile">
+          <div class="card-header">
+            <h3 class="card-title">⚡ Quick Actions</h3>
+          </div>
+          <div class="card-content">
+            <button class="quick-action-btn primary" (click)="startChat()">
+              💬 Start Conversation
+            </button>
+            <button class="quick-action-btn secondary" disabled>
+              👥 Add to Contacts
+            </button>
+            <button class="quick-action-btn secondary" disabled>
+              🔔 Get Notifications
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state" *ngIf="!loading && !user">
+      <div class="error-icon">❌</div>
+      <h3 class="error-title">Profile Not Found</h3>
+      <p class="error-message">
+        The user profile you're looking for doesn't exist or has been removed.
+      </p>
+      <button class="error-action-btn" (click)="goBack()">
+        ← Back to Users
+      </button>
+    </div>
+
   </div>
 </div>

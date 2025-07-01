@@ -1,48 +1,131 @@
-<div class="card shadow-sm border-0">
-  <div
-    class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
-  >
-    <h5 class="mb-0">All Users</h5>
-    <i class="bi bi-people-fill fs-4"></i>
-  </div>
+<div class="users-container">
+  <div class="users-wrapper">
+    
+    <!-- Header Section -->
+    <div class="users-header">
+      <div class="header-content">
+        <h1 class="page-title">
+          👥 Discover Users
+        </h1>
+        <p class="page-subtitle">
+          Connect with amazing people on PingMe and start meaningful conversations
+        </p>
+      </div>
+      <div class="header-stats">
+        <div class="stat-badge">
+          <span class="stat-number">{{ users.length }}</span>
+          <span class="stat-label">Users Available</span>
+        </div>
+      </div>
+    </div>
 
-  <ul class="list-group list-group-flush">
-    <li
-      class="list-group-item d-flex align-items-center px-4 py-3 user-item"
-      *ngFor="let user of users"
-      style="cursor: pointer"
-      (click)="viewProfile($event, user._id)"
-    >
-      <!-- Avatar -->
-      <button
-        class="btn p-0 border-0 bg-transparent me-3"
+    <!-- Search and Filter Section -->
+    <div class="search-section">
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <i class="search-icon"></i>
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Search users by name or email..."
+            [(ngModel)]="searchTerm"
+            (input)="filterUsers()"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Grid -->
+    <div class="users-grid" *ngIf="filteredUsers.length > 0">
+      <div 
+        class="user-card"
+        *ngFor="let user of filteredUsers"
         (click)="viewProfile($event, user._id)"
       >
-        <img
-          *ngIf="user.avatar"
-          [src]="user.avatar"
-          class="rounded-circle border"
-          width="48"
-          height="48"
-          alt="Avatar"
-        />
-        <div
-          *ngIf="!user.avatar"
-          class="avatar-placeholder rounded-circle text-white fw-bold d-flex justify-content-center align-items-center"
-          [style.backgroundColor]="getAvatarColor(user.name)"
-          style="width: 48px; height: 48px; font-size: 1.2rem"
-        >
-          {{ user.name.charAt(0).toUpperCase() }}
+        <!-- User Avatar -->
+        <div class="user-avatar-section">
+          <div class="user-avatar-container">
+            <img
+              *ngIf="user.avatar"
+              [src]="user.avatar"
+              class="user-avatar"
+              alt="User Avatar"
+            />
+            <div
+              *ngIf="!user.avatar"
+              class="user-avatar-placeholder"
+              [style.background]="getAvatarGradient(user.name)"
+            >
+              {{ user.name.charAt(0).toUpperCase() }}
+            </div>
+            <div class="online-indicator"></div>
+          </div>
         </div>
-      </button>
 
-      <!-- User Info -->
-      <div>
-        <div class="fw-semibold">{{ user.name }}</div>
-        <small class="text-muted">{{ user.email }}</small>
+        <!-- User Info -->
+        <div class="user-info">
+          <h3 class="user-name">{{ user.name }}</h3>
+          <p class="user-email">{{ user.email }}</p>
+          <div class="user-status">
+            <span class="status-dot"></span>
+            <span class="status-text">Available to chat</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="user-actions">
+          <button 
+            class="action-btn btn-chat"
+            (click)="viewChat(user._id); $event.stopPropagation()"
+            title="Start Chat"
+          >
+            💬
+          </button>
+          <button 
+            class="action-btn btn-profile"
+            (click)="viewProfile($event, user._id)"
+            title="View Profile"
+          >
+            👁️
+          </button>
+        </div>
+
+        <!-- Hover Overlay -->
+        <div class="card-overlay">
+          <div class="overlay-content">
+            <button 
+              class="overlay-btn primary"
+              (click)="viewChat(user._id); $event.stopPropagation()"
+            >
+              💬 Start Chat
+            </button>
+            <button 
+              class="overlay-btn secondary"
+              (click)="viewProfile($event, user._id)"
+            >
+              👁️ View Profile
+            </button>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <i class="ms-auto bi bi-chevron-right text-muted"></i>
-    </li>
-  </ul>
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredUsers.length === 0 && users.length > 0">
+      <div class="empty-icon"></div>
+      <h3 class="empty-title">No users found</h3>
+      <p class="empty-message">
+        Try adjusting your search terms to find more users
+      </p>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="users.length === 0">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+      </div>
+      <p class="loading-text">Loading amazing people...</p>
+    </div>
+
+  </div>
 </div>
