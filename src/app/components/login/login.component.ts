@@ -16,8 +16,9 @@ import { Router, RouterLink } from '@angular/router';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
-export class LoginComponent{
+export class LoginComponent {
   loginForm: FormGroup;
+  isLoading = false;
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -33,7 +34,7 @@ export class LoginComponent{
       this.authService.login(this.loginForm.value).subscribe({
         next: (res) => {
           this.authService.savetoken(res.token);
-          this.authService.saveUserId(res.user.id)
+          this.authService.saveUserId(res.user.id);
           this.router.navigate(['/chat']);
         },
         error: (err) => {
@@ -41,5 +42,21 @@ export class LoginComponent{
         },
       });
     }
+  }
+  onGoogleSignIn() {
+    this.isLoading = true;
+    this.authService.signInWithGoogle().subscribe({
+      next: (res: any) => {
+        this.authService.savetoken(res.token);
+        this.authService.saveUserId(res.user.id);
+        this.router.navigate(['/chat']);
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Google sign-in error:', err);
+        alert('Google sign-in failed. Please try again.');
+        this.isLoading = false;
+      },
+    });
   }
 }

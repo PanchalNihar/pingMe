@@ -17,6 +17,7 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class RegisterComponent {
   registerForm: FormGroup;
+  isLoading=false
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -42,5 +43,21 @@ export class RegisterComponent {
         },
       });
     }
+  }
+  onGoogleSignIn() {
+    this.isLoading = true;
+    this.authService.signInWithGoogle().subscribe({
+      next: (res: any) => {
+        this.authService.savetoken(res.token);
+        this.authService.saveUserId(res.user.id);
+        this.router.navigate(['/chat']);
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Google sign-in error:', err);
+        alert('Google sign-in failed. Please try again.');
+        this.isLoading = false;
+      }
+    });
   }
 }
