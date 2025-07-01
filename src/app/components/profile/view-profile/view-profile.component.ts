@@ -11,10 +11,12 @@ import { CommonModule } from '@angular/common';
 })
 export class ViewProfileComponent implements OnInit {
   user: any = null;
+  
   constructor(
     private authService: AuthService,
     private profileService: ProfileService
   ) {}
+  
   ngOnInit(): void {
     const userId = this.authService.getUserId();
     if (!userId) {
@@ -23,5 +25,10 @@ export class ViewProfileComponent implements OnInit {
     this.profileService.getProfile(userId).subscribe((res) => {
       this.user = res;
     });
+  }
+
+  // Helper method to generate random profile views for demo
+  getRandomViews(): number {
+    return Math.floor(Math.random() * 100) + 10;
   }
 }

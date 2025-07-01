@@ -1,26 +1,164 @@
-<div *ngIf="!user" class="text-center py-4">
-  <div class="spinner-border text-primary"></div>
-</div>
+<div class="profile-container">
+  <!-- Loading State -->
+  <div *ngIf="!user" class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading profile...</p>
+    </div>
+  </div>
 
-<div *ngIf="user" class="card mx-auto shadow-lg p-3 mb-5 bg-white rounded" style="max-width: 500px">
-  <img [src]="user.avatar" class="card-img-top rounded-top" alt="User Avatar" style="max-height: 450px; object-fit: cover;" />
-  <div class="card-body text-center">
-    <h4 class="card-title mb-2">{{ user.name }}</h4>
-    <p class="text-muted">Public profile view</p>
-
-    <div class="d-flex justify-content-center mt-3">
-      <div class="me-4 text-center">
-        <i class="bi bi-envelope-fill text-primary"></i>
-        <p class="mb-0">{{ user.email }}</p>
+  <!-- Profile Content -->
+  <div *ngIf="user" class="profile-wrapper">
+    
+    <!-- Left Sidebar - Profile Info -->
+    <div class="profile-sidebar">
+      <div class="profile-avatar-section">
+        <div class="avatar-container">
+          <div class="profile-avatar">
+            <img 
+              *ngIf="user.avatar" 
+              [src]="user.avatar" 
+              alt="Profile Avatar"
+              class="profile-avatar"
+            />
+            <span *ngIf="!user.avatar" class="avatar-placeholder">👤</span>
+          </div>
+        </div>
+        
+        <h3 class="profile-name">{{ user.name || 'Anonymous User' }}</h3>
+        <p class="profile-email">{{ user.email || 'No email provided' }}</p>
+        <div class="profile-badge">
+          🌟 Public Profile
+        </div>
       </div>
-      <div class="text-center">
-        <i class="bi bi-calendar-check text-success"></i>
-        <p class="mb-0">Joined recently</p>
+      
+      <div class="profile-stats">
+        <div class="stat-item">
+          <span class="stat-label">Member Since</span>
+          <span class="stat-value">Recently</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Profile Views</span>
+          <span class="stat-value">{{ getRandomViews() }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Status</span>
+          <span class="stat-value">🟢 Available</span>
+        </div>
       </div>
     </div>
 
-    <hr />
+    <!-- Right Content - Profile Details -->
+    <div class="profile-content">
+      <div class="content-header">
+        <h1 class="page-title">
+          👁️ Profile View
+        </h1>
+        <p class="page-subtitle">
+          Public profile information for {{ user.name || 'this user' }}
+        </p>
+      </div>
 
-    <p class="text-secondary">Feel free to connect and chat!</p>
+      <div class="profile-details">
+        
+        <!-- Contact Information Section -->
+        <div class="details-section">
+          <h3 class="section-title">
+            📬 Contact Information
+          </h3>
+          
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-icon">📧</div>
+              <div class="info-content">
+                <div class="info-label">Email Address</div>
+                <div class="info-value">{{ user.email || 'Not provided' }}</div>
+              </div>
+            </div>
+            
+            <div class="info-item">
+              <div class="info-icon">👤</div>
+              <div class="info-content">
+                <div class="info-label">Display Name</div>
+                <div class="info-value">{{ user.name || 'Anonymous' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account Information Section -->
+        <div class="details-section">
+          <h3 class="section-title">
+            🔍 Account Details
+          </h3>
+          
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-icon">📅</div>
+              <div class="info-content">
+                <div class="info-label">Join Date</div>
+                <div class="info-value">Recently joined PingMe</div>
+              </div>
+            </div>
+            
+            <div class="info-item">
+              <div class="info-icon">🔒</div>
+              <div class="info-content">
+                <div class="info-label">Privacy</div>
+                <div class="info-value">Public Profile</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Section -->
+        <div class="details-section">
+          <h3 class="section-title">
+            📊 Activity Overview
+          </h3>
+          
+          <div class="activity-cards">
+            <div class="activity-card">
+              <div class="activity-icon">💬</div>
+              <div class="activity-info">
+                <div class="activity-number">Active</div>
+                <div class="activity-label">Chat Status</div>
+              </div>
+            </div>
+            
+            <div class="activity-card">
+              <div class="activity-icon">🌟</div>
+              <div class="activity-info">
+                <div class="activity-number">New</div>
+                <div class="activity-label">Member</div>
+              </div>
+            </div>
+            
+            <div class="activity-card">
+              <div class="activity-icon">🔗</div>
+              <div class="activity-info">
+                <div class="activity-number">Open</div>
+                <div class="activity-label">To Connect</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="profile-actions">
+          <button class="btn btn-primary">
+            💬 Start Chat
+          </button>
+          <button class="btn btn-secondary">
+            👥 Add Friend
+          </button>
+          <button class="btn btn-outline">
+            📤 Share Profile
+          </button>
+        </div>
+        
+      </div>
+    </div>
+    
   </div>
 </div>

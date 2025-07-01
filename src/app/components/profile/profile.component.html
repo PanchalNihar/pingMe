@@ -1,30 +1,157 @@
-<div class="container p-4">
-    <div class="card p-4 shadow">
-      <h4 class="mb-3">My Profile</h4>
-      <form (ngSubmit)="updateProfile()">
-        <div class="mb-3">
-          <label>Name</label>
-          <input class="form-control" [(ngModel)]="user.name" name="name" required />
-        </div>
-        <div class="mb-3">
-          <label>Email</label>
-          <input class="form-control" [(ngModel)]="user.email" name="email" required />
-        </div>
-        <div class="mb-3">
-          <label>Avatar URL (optional)</label>
-          <input type="file" name="avatar" class="form-control" (change)="onFileChange($event)" />
-        </div>
-        <div class="text-center">
-          <img
-            *ngIf="user.avatar"
-            [src]="user.avatar"
-            class="rounded-circle"
-            width="100"
-            alt="Avatar"
+<div class="profile-container">
+  <div class="profile-wrapper">
+    
+    <!-- Left Sidebar - Profile Info -->
+    <div class="profile-sidebar">
+      <div class="profile-avatar-section">
+        <div class="avatar-container">
+          <div class="profile-avatar">
+            <img 
+              *ngIf="user.avatar" 
+              [src]="user.avatar" 
+              alt="Profile Avatar"
+              class="profile-avatar"
+            />
+            <span *ngIf="!user.avatar">👤</span>
+          </div>
+          <div class="avatar-upload-btn" (click)="avatarInput.click()">
+            📷
+          </div>
+          <input 
+            #avatarInput
+            type="file" 
+            class="avatar-upload-input"
+            accept="image/*"
+            (change)="onFileChange($event)"
           />
         </div>
-        <button class="btn btn-primary mt-3" type="submit">Update Profile</button>
+        
+        <h3 class="profile-name">{{ user.name || 'Your Name' }}</h3>
+        <p class="profile-email">{{ user.email || 'your.email@example.com' }}</p>
+      </div>
+      
+      <div class="profile-stats">
+        <div class="stat-item">
+          <span class="stat-label">Member Since</span>
+          <span class="stat-value">Jan 2024</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Total Chats</span>
+          <span class="stat-value">42</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Status</span>
+          <span class="stat-value">🟢 Online</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Content - Profile Form -->
+    <div class="profile-content">
+      <div class="content-header">
+        <h1 class="page-title">
+          ⚙️ Profile Settings
+        </h1>
+        <p class="page-subtitle">
+          Manage your account information and customize your PingMe experience
+        </p>
+      </div>
+
+      <form class="profile-form" (ngSubmit)="updateProfile()">
+        
+        <!-- Personal Information Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            👤 Personal Information
+          </h3>
+          
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input 
+              class="form-input" 
+              [(ngModel)]="user.name" 
+              name="name" 
+              type="text"
+              placeholder="Enter your full name"
+              required 
+            />
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input 
+              class="form-input" 
+              [(ngModel)]="user.email" 
+              name="email" 
+              type="email"
+              placeholder="Enter your email address"
+              required 
+            />
+          </div>
+        </div>
+
+        <!-- Avatar Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            🖼️ Profile Picture
+          </h3>
+          
+          <div class="form-group">
+            <label class="form-label">Upload New Avatar</label>
+            <div class="file-upload-area" (click)="fileInput.click()">
+              <div class="upload-icon">📸</div>
+              <div class="upload-text">Choose a profile picture</div>
+              <div class="upload-subtext">
+                {{ selectedFile ? selectedFile.name : 'Drag and drop or click to browse' }}
+              </div>
+            </div>
+            <input 
+              #fileInput
+              type="file" 
+              class="avatar-upload-input"
+              accept="image/*"
+              (change)="onFileChange($event)"
+            />
+          </div>
+        </div>
+
+        <!-- Account Status Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            🔐 Account Status
+          </h3>
+          
+          <div class="form-group">
+            <label class="form-label">Account Type</label>
+            <input 
+              class="form-input" 
+              value="Free Account"
+              disabled
+            />
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Last Login</label>
+            <input 
+              class="form-input" 
+              value="Today at 2:30 PM"
+              disabled
+            />
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary">
+            ↺ Reset Changes
+          </button>
+          <button type="submit" class="btn btn-primary">
+            💾 Save Changes
+          </button>
+        </div>
+        
       </form>
     </div>
+    
   </div>
-  
+</div>
