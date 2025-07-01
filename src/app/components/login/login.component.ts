@@ -30,6 +30,7 @@ export class LoginComponent{
   }
   onSubmit() {
     if (this.loginForm.valid) {
+      console.log(this.loginForm.value);
       this.authService.login(this.loginForm.value).subscribe({
         next: (res) => {
           this.authService.savetoken(res.token);
@@ -37,7 +38,8 @@ export class LoginComponent{
           this.router.navigate(['/chat']);
         },
         error: (err) => {
-          alert(err.error.message);
+          console.error('Login failed', err);
+          alert(err.error?.message || 'Login failed. Please try again.');
         },
       });
     }
