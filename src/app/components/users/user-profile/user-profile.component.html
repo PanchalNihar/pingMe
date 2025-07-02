@@ -20,12 +20,12 @@
           </button>
           <div class="header-actions" *ngIf="!isOwnProfile">
             <button class="action-btn primary" (click)="startChat()" title="Start Chat">
-              💬 Start Chat
+               Start Chat
             </button>
           </div>
           <div class="header-actions" *ngIf="isOwnProfile">
             <button class="action-btn secondary" (click)="editProfile()" title="Edit Profile">
-              ✏️ Edit Profile
+              Edit Profile
             </button>
           </div>
         </div>
@@ -63,24 +63,6 @@
             <span class="status-indicator"></span>
             <span class="status-text">{{ isOwnProfile ? 'This is your profile' : 'Available to chat' }}</span>
           </div>
-
-          <!-- Profile Stats -->
-          <div class="profile-stats">
-            <div class="stat-item">
-              <span class="stat-number">{{ user.totalChats || 0 }}</span>
-              <span class="stat-label">Conversations</span>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <span class="stat-number">{{ user.friendsCount || 0 }}</span>
-              <span class="stat-label">Connections</span>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <span class="stat-number">{{ user.joinedDaysAgo || 0 }}</span>
-              <span class="stat-label">Days Active</span>
-            </div>
-          </div>
         </div>
 
       </div>
@@ -91,7 +73,7 @@
         <!-- About Card -->
         <div class="detail-card">
           <div class="card-header">
-            <h3 class="card-title">📝 About</h3>
+            <h3 class="card-title">About</h3>
           </div>
           <div class="card-content">
             <p class="about-text">
@@ -103,7 +85,7 @@
         <!-- Contact Info Card -->
         <div class="detail-card">
           <div class="card-header">
-            <h3 class="card-title">📞 Contact Information</h3>
+            <h3 class="card-title"> Contact Information</h3>
           </div>
           <div class="card-content">
             <div class="contact-item">
@@ -124,7 +106,7 @@
         <!-- Activity Card -->
         <div class="detail-card">
           <div class="card-header">
-            <h3 class="card-title">🎯 Activity</h3>
+            <h3 class="card-title"> Activity</h3>
           </div>
           <div class="card-content">
             <div class="activity-item">
@@ -145,17 +127,11 @@
         <!-- Quick Actions Card -->
         <div class="detail-card actions-card" *ngIf="!isOwnProfile">
           <div class="card-header">
-            <h3 class="card-title">⚡ Quick Actions</h3>
+            <h3 class="card-title">Quick Actions</h3>
           </div>
           <div class="card-content">
             <button class="quick-action-btn primary" (click)="startChat()">
-              💬 Start Conversation
-            </button>
-            <button class="quick-action-btn secondary" disabled>
-              👥 Add to Contacts
-            </button>
-            <button class="quick-action-btn secondary" disabled>
-              🔔 Get Notifications
+              Start Conversation
             </button>
           </div>
         </div>

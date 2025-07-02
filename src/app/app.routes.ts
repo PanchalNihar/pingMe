@@ -35,6 +35,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'chat/:id',
+        loadComponent: () =>
+          import('./components/chat/chat-room/chat-room.component').then(
+            (m) => m.ChatRoomComponent
+          ),
+      },
+      {
         path: 'profile',
         component: ProfileComponent,
       },

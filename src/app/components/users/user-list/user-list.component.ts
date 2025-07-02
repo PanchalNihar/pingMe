@@ -7,9 +7,10 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-user-list',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './user-list.component.html',
-  styleUrl: './user-list.component.css',
+  styleUrls: ['./user-list.component.css'], // ✅ corrected `styleUrl` to `styleUrls`
 })
 export class UserListComponent implements OnInit {
   users: any[] = [];
@@ -33,10 +34,8 @@ export class UserListComponent implements OnInit {
       this.users = res;
       this.filteredUsers = [...this.users];
 
-      // Fetch profile information for each user
       this.users.forEach((user) => {
         this.profileService.getProfile(user._id).subscribe((profile) => {
-          // Find and update the user with their profile information
           const userIndex = this.users.findIndex((u) => u._id === profile._id);
           if (userIndex !== -1) {
             this.users[userIndex] = {
@@ -44,7 +43,6 @@ export class UserListComponent implements OnInit {
               avatar: profile.avatar,
               email: profile.email,
             };
-            // Update filtered users as well
             const filteredIndex = this.filteredUsers.findIndex((u) => u._id === profile._id);
             if (filteredIndex !== -1) {
               this.filteredUsers[filteredIndex] = {
@@ -66,11 +64,10 @@ export class UserListComponent implements OnInit {
   }
 
   viewChat(id: string) {
-    console.log("ID:", id);
+    console.log("Navigating to chat with ID:", id);
     this.router.navigate(['/chat', id]);
   }
 
-  // Filter users based on search term
   filterUsers() {
     if (!this.searchTerm.trim()) {
       this.filteredUsers = [...this.users];
@@ -83,15 +80,12 @@ export class UserListComponent implements OnInit {
     }
   }
 
-  // Generate consistent gradient for user avatar placeholder
   getAvatarGradient(name: string): string {
-    // Simple hash function to get a consistent color for the same name
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
       hash = name.charCodeAt(i) + ((hash << 5) - hash);
     }
 
-    // Array of beautiful gradient combinations
     const gradients = [
       'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
@@ -105,12 +99,10 @@ export class UserListComponent implements OnInit {
       'linear-gradient(135deg, #fad0c4 0%, #ffd1ff 100%)'
     ];
 
-    // Use hash to select a gradient
     const gradientIndex = Math.abs(hash) % gradients.length;
     return gradients[gradientIndex];
   }
 
-  // Legacy method for backward compatibility
   getAvatarColor(name: string): string {
     let hash = 0;
     for (let i = 0; i < name.length; i++) {

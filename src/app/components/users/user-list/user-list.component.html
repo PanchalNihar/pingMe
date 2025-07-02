@@ -5,7 +5,7 @@
     <div class="users-header">
       <div class="header-content">
         <h1 class="page-title">
-          👥 Discover Users
+          Discover Users
         </h1>
         <p class="page-subtitle">
           Connect with amazing people on PingMe and start meaningful conversations
@@ -75,38 +75,23 @@
         <!-- Action Buttons -->
         <div class="user-actions">
           <button 
+            type="button"
             class="action-btn btn-chat"
             (click)="viewChat(user._id); $event.stopPropagation()"
             title="Start Chat"
           >
-            💬
+            Start Chat
           </button>
           <button 
+            type="button"
             class="action-btn btn-profile"
             (click)="viewProfile($event, user._id)"
             title="View Profile"
           >
-            👁️
+            View Profile
           </button>
         </div>
 
-        <!-- Hover Overlay -->
-        <div class="card-overlay">
-          <div class="overlay-content">
-            <button 
-              class="overlay-btn primary"
-              (click)="viewChat(user._id); $event.stopPropagation()"
-            >
-              💬 Start Chat
-            </button>
-            <button 
-              class="overlay-btn secondary"
-              (click)="viewProfile($event, user._id)"
-            >
-              👁️ View Profile
-            </button>
-          </div>
-        </div>
       </div>
     </div>
 
