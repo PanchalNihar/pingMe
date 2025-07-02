@@ -15,7 +15,7 @@ export class UserProfileComponent implements OnInit {
   loading: boolean = true;
   currentUserId: string | null = null;
   isOwnProfile: boolean = false;
-
+  memberSince: string = '';
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -39,9 +39,38 @@ export class UserProfileComponent implements OnInit {
           this.loading = false;
         }
       });
+      this.profileService.getProfile(userId).subscribe((res) => {
+      this.user = res;
+      this.memberSince = this.formatMemberSince(res.createdAt);
+      console.log('User profile loaded:', this.user);
+    });
     }
   }
+  formatMemberSince(createdAt: string): string {
+    if (!createdAt) return 'Unknown';
 
+    const date = new Date(createdAt);
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'short',
+    };
+
+    return date.toLocaleDateString('en-US', options);
+  }
+
+  // Alternative format - you can choose which one you prefer
+  formatMemberSinceDetailed(createdAt: string): string {
+    if (!createdAt) return 'Unknown';
+
+    const date = new Date(createdAt);
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    };
+
+    return date.toLocaleDateString('en-US', options);
+  }
   // Navigate to chat with this user
   startChat(): void {
     if (this.user) {

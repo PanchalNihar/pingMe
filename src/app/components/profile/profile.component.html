@@ -33,7 +33,7 @@
       <div class="profile-stats">
         <div class="stat-item">
           <span class="stat-label">Member Since</span>
-          <span class="stat-value">Jan 2024</span>
+          <span class="stat-value">{{ memberSince || 'Loading...' }}</span>
         </div>
         <div class="stat-item">
           <span class="stat-label">Total Chats</span>
@@ -41,7 +41,7 @@
         </div>
         <div class="stat-item">
           <span class="stat-label">Status</span>
-          <span class="stat-value">🟢 Online</span>
+          <span class="stat-value">{{isUserOnline() ? "Online" : "Offline"}}</span>
         </div>
       </div>
     </div>

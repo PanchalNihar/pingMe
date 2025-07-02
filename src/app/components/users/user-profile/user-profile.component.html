@@ -129,7 +129,7 @@
           <div class="card-content">
             <div class="activity-item">
               <span class="activity-label">Member since:</span>
-              <span class="activity-value">{{ formatDate(user.createdAt) }}</span>
+              <span class="activity-value">{{ memberSince || 'Loading...' }}</span>
             </div>
             <div class="activity-item">
               <span class="activity-label">Last seen:</span>
