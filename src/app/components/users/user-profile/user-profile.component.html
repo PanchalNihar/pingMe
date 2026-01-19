@@ -1,155 +1,143 @@
-<div class="profile-container">
-  <div class="profile-wrapper">
+<div class="profile-wrapper">
+  
+  <div class="state-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p style="color: var(--text-secondary);">Loading profile information...</p>
+  </div>
+
+  <div class="state-container" *ngIf="!loading && !user">
+    <span class="material-icons-round" style="font-size: 48px; color: #ef4444; margin-bottom: 1rem;">error_outline</span>
+    <h3 style="margin: 0 0 0.5rem 0; color: var(--text-main);">Profile Not Found</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 2rem;">The user you are looking for does not exist.</p>
+    <button class="btn-back" (click)="goBack()" style="margin: 0 auto; display: inline-flex;">
+      <span class="material-icons-round" style="font-size: 18px;">arrow_back</span>
+      Back to Users
+    </button>
+  </div>
+
+  <div *ngIf="!loading && user">
     
-    <!-- Loading State -->
-    <div class="loading-state" *ngIf="loading">
-      <div class="loading-spinner">
-        <div class="spinner"></div>
-      </div>
-      <p class="loading-text">Loading profile...</p>
-    </div>
-
-    <!-- Profile Content -->
-    <div class="profile-content" *ngIf="!loading && user">
-      
-      <!-- Header Section -->
-      <div class="profile-header">
-        <div class="header-top">
-          <button class="back-btn" (click)="goBack()" title="Go Back">
-            ← Back to Users
-          </button>
-          <div class="header-actions" *ngIf="!isOwnProfile">
-            <button class="action-btn primary" (click)="startChat()" title="Start Chat">
-               Start Chat
-            </button>
-          </div>
-          <div class="header-actions" *ngIf="isOwnProfile">
-            <button class="action-btn secondary" (click)="editProfile()" title="Edit Profile">
-              Edit Profile
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Profile Card -->
-      <div class="profile-main-card">
-        
-        <!-- Avatar Section -->
-        <div class="profile-avatar-section">
-          <div class="avatar-container">
-            <img
-              *ngIf="user.avatar"
-              [src]="user.avatar"
-              class="profile-avatar"
-              alt="Profile Avatar"
-            />
-            <div
-              *ngIf="!user.avatar"
-              class="profile-avatar-placeholder"
-              [style.background]="getAvatarGradient(user.name)"
-            >
-              {{ user.name?.charAt(0)?.toUpperCase() || 'U' }}
-            </div>
-            <div class="online-indicator"></div>
-          </div>
-        </div>
-
-        <!-- User Info Section -->
-        <div class="profile-info-section">
-          <h1 class="profile-name">{{ user.name || 'Unknown User' }}</h1>
-          <p class="profile-email">{{ user.email || 'No email provided' }}</p>
-          
-          <div class="profile-status">
-            <span class="status-indicator"></span>
-            <span class="status-text">{{ isOwnProfile ? 'This is your profile' : 'Available to chat' }}</span>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Additional Info Cards -->
-      <div class="profile-details-grid">
-        
-        <!-- About Card -->
-        <div class="detail-card">
-          <div class="card-header">
-            <h3 class="card-title">About</h3>
-          </div>
-          <div class="card-content">
-            <p class="about-text">
-              {{ user.bio || user.about || 'This user hasn\'t added a bio yet. When they do, it will appear here.' }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Contact Info Card -->
-        <div class="detail-card">
-          <div class="card-header">
-            <h3 class="card-title"> Contact Information</h3>
-          </div>
-          <div class="card-content">
-            <div class="contact-item">
-              <span class="contact-label">Email:</span>
-              <span class="contact-value">{{ user.email || 'Not provided' }}</span>
-            </div>
-            <div class="contact-item" *ngIf="user.phone">
-              <span class="contact-label">Phone:</span>
-              <span class="contact-value">{{ user.phone }}</span>
-            </div>
-            <div class="contact-item" *ngIf="user.location">
-              <span class="contact-label">Location:</span>
-              <span class="contact-value">{{ user.location }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Activity Card -->
-        <div class="detail-card">
-          <div class="card-header">
-            <h3 class="card-title"> Activity</h3>
-          </div>
-          <div class="card-content">
-            <div class="activity-item">
-              <span class="activity-label">Member since:</span>
-              <span class="activity-value">{{ memberSince || 'Loading...' }}</span>
-            </div>
-            <div class="activity-item">
-              <span class="activity-label">Last seen:</span>
-              <span class="activity-value">{{ user.lastSeen || 'Recently' }}</span>
-            </div>
-            <div class="activity-item">
-              <span class="activity-label">Status:</span>
-              <span class="activity-value status-active">Active User</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Actions Card -->
-        <div class="detail-card actions-card" *ngIf="!isOwnProfile">
-          <div class="card-header">
-            <h3 class="card-title">Quick Actions</h3>
-          </div>
-          <div class="card-content">
-            <button class="quick-action-btn primary" (click)="startChat()">
-              Start Conversation
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- Error State -->
-    <div class="error-state" *ngIf="!loading && !user">
-      <div class="error-icon">❌</div>
-      <h3 class="error-title">Profile Not Found</h3>
-      <p class="error-message">
-        The user profile you're looking for doesn't exist or has been removed.
-      </p>
-      <button class="error-action-btn" (click)="goBack()">
-        ← Back to Users
+    <header class="nav-header">
+      <button class="btn-back" (click)="goBack()">
+        <span class="material-icons-round" style="font-size: 18px;">arrow_back</span>
+        Back to Users
       </button>
+
+      <div *ngIf="!isOwnProfile">
+        <button class="btn-action-primary" (click)="startChat()">
+          Start Chat
+        </button>
+      </div>
+      <div *ngIf="isOwnProfile">
+        <button class="btn-action-secondary" (click)="editProfile()">
+          Edit Profile
+        </button>
+      </div>
+    </header>
+
+    <div class="main-card">
+      <div class="flex flex-col items-center">
+        
+        <div class="avatar-wrapper">
+          <div class="avatar-placeholder" *ngIf="!user.avatar">
+            {{ user.name?.charAt(0)?.toUpperCase() || 'U' }}
+          </div>
+          <img 
+            *ngIf="user.avatar" 
+            [src]="user.avatar" 
+            class="avatar-img"
+            alt="Profile Avatar"
+          />
+          <div class="status-indicator-wrapper">
+            <div class="status-dot-large"></div>
+          </div>
+        </div>
+
+        <div class="user-title">
+          <h1>{{ user.name || 'Unknown User' }}</h1>
+        </div>
+        <p class="user-email">{{ user.email || 'No email provided' }}</p>
+
+        <div class="status-pill">
+          <span class="status-dot-small"></span>
+          {{ isOwnProfile ? 'This is your profile' : 'Available to chat' }}
+        </div>
+
+      </div>
+    </div>
+
+    <div class="details-grid">
+      
+      <div class="info-card">
+        <div class="card-heading">
+          <span class="material-icons-round">person_outline</span>
+          <h2>About</h2>
+        </div>
+        <div class="about-content">
+          <p class="about-text">
+            {{ user.bio || user.about || "This user hasn't added a bio yet. When they do, it will appear here." }}
+          </p>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-heading">
+          <span class="material-icons-round">alternate_email</span>
+          <h2>Contact Information</h2>
+        </div>
+        <div class="info-list">
+          <div class="info-row">
+            <span class="label">Email:</span>
+            <span class="value">{{ user.email || 'Not provided' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Phone:</span>
+            <span class="value {{ !user.phone ? 'value-dim' : '' }}">
+              {{ user.phone || 'Not specified' }}
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="label">Location:</span>
+            <span class="value {{ !user.location ? 'value-dim' : '' }}">
+              {{ user.location || 'Not specified' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-heading">
+          <span class="material-icons-round">analytics</span>
+          <h2>Activity</h2>
+        </div>
+        <div class="info-list">
+          <div class="info-row">
+            <span class="label">Member since:</span>
+            <span class="value">{{ memberSince || 'Loading...' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Last seen:</span>
+            <span class="value">{{ user.lastSeen || 'Recently' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Status:</span>
+            <span class="value-active">Active User</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="quick-actions-row" *ngIf="!isOwnProfile">
+      <div class="action-card">
+        <h2>Quick Actions</h2>
+        <button class="btn-block" (click)="startChat()">
+          <span class="material-icons-round" style="font-size: 18px;">chat_bubble</span>
+          Start Conversation
+        </button>
+      </div>
+      <div></div> 
+      <div></div>
     </div>
 
   </div>

@@ -4,7 +4,6 @@ import { RegisterComponent } from './components/register/register.component';
 import { authGuard } from './services/auth.guard';
 import { ProfileComponent } from './components/profile/profile.component';
 import { LayoutComponent } from './components/layout/layout.component';
-import { ViewProfileComponent } from './components/profile/view-profile/view-profile.component';
 import { UserListComponent } from './components/users/user-list/user-list.component';
 import { UserProfileComponent } from './components/users/user-profile/user-profile.component';
 
@@ -44,10 +43,6 @@ export const routes: Routes = [
       {
         path: 'profile',
         component: ProfileComponent,
-      },
-      {
-        path: 'profile/view',
-        component: ViewProfileComponent,
       },
       {
         path: 'users',

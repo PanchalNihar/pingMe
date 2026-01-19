@@ -1,26 +1,128 @@
+/* Import Fonts: Manrope and Material Symbols */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+:host {
+  /* Design System Variables */
+  --primary: #5c7d8a;
+  --bg-light: #f9fafb;
+  --text-main: #131516;
+  --text-muted: #6a777c;
+  --border-light: #eceeef;
+  --font-display: 'Manrope', sans-serif;
+
+  display: block;
+  font-family: var(--font-display);
+}
+
 .sidebar {
-    width: 240px;
-    height: 100vh;
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-right: 1px solid #dee2e6;
-  }
-  
-  .nav-link {
-    font-size: 1rem;
-    color: #333;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-  }
-  
-  .nav-link:hover {
-    color: #0d6efd;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  
-  .nav-link i {
-    font-size: 1.2rem;
-  }
-  
+  width: 288px; /* Standard w-72 width */
+  height: 100vh;
+  background: white;
+  border-right: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem;
+  position: fixed; /* Fixes it to the left */
+  top: 0;
+  left: 0;
+  z-index: 50;
+  transition: all 0.3s ease;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.brand-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgba(92, 125, 138, 0.1);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-text h1 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.brand-text p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin: 0;
+}
+
+.nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  background-color: var(--bg-light);
+  color: var(--text-main);
+}
+
+/* Angular Router Active State - Ensure your router adds this class */
+.nav-link.active-link {
+  background: rgba(92, 125, 138, 0.1);
+  color: var(--primary);
+}
+
+.nav-link i, 
+.nav-link .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+.btn-logout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-light);
+  border-radius: 0.5rem;
+  color: #f43f5e; /* Red color for logout */
+  font-size: 0.875rem;
+  font-weight: 700;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-logout:hover {
+  background-color: #fff1f2;
+}

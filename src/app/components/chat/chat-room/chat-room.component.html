@@ -1,188 +1,176 @@
-<div class="app-container">
-  <div class="chat-wrapper">
-    <div class="card main-card">
-      <!-- Search Bar -->
-      <div class="search-container">
+<div class="chat-interface-container">
+  
+  <div class="user-list-panel">
+    
+    <div class="search-section">
+      <div class="search-wrapper">
+        <span class="material-symbols-outlined search-icon">search</span>
         <input
           type="text"
           class="search-input"
-          placeholder="Search"
+          placeholder="Search messages..."
           [(ngModel)]="searchTerm"
         />
-        <i class="bi bi-search search-icon"></i>
-      </div>
-
-      <div class="chat-container">
-        <!-- Users Sidebar -->
-        <div class="users-sidebar">
-          <div class="user-list">
-            <div
-              *ngFor="let user of filtertedUser"
-              class="user-item"
-              [class.active]="receiverId === user._id"
-              (click)="startChat(user._id)"
-            >
-              <!-- Updated avatar to support profile images -->
-              <div class="avatar-circle" *ngIf="!user.avatar">
-                {{ user.name.charAt(0).toUpperCase() }}
-              </div>
-              <img
-                *ngIf="user.avatar"
-                [src]="user.avatar"
-                class="avatar-image"
-                alt="{{ user.name }}'s avatar"
-              />
-              <div class="user-info">
-                <h6 class="mb-0">{{ user.name }}</h6>
-                <small class="text-muted">
-                  <span
-                    class="status-dot"
-                    [class.online]="onlineUsers.has(user._id)"
-                    [class.offline]="!onlineUsers.has(user._id)"
-                  >
-                  </span>
-                  {{ onlineUsers.has(user._id) ? "Online" : "Offline" }}
-                </small>
-              </div>
-
-              <div
-                class="badge-container"
-                *ngIf="(unreadMap.get(user._id) ?? 0) > 0"
-              >
-                <span class="unread-badge">{{ unreadMap.get(user._id) }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Chat Area -->
-        <div class="chat-area">
-          <!-- Empty State -->
-          <div *ngIf="!receiverId" class="empty-chat">
-            <div class="empty-chat-icon">
-              <i class="bi bi-chat-dots"></i>
-            </div>
-            <h3>Select a contact to start chatting</h3>
-            <p>Choose from the contacts list on the left</p>
-          </div>
-
-          <!-- Chat Messages -->
-          <div *ngIf="receiverId" class="chat-content">
-            <!-- Receiver profile info at top -->
-            <div class="chat-header" *ngIf="currentReceiver">
-              <div class="receiver-info">
-                <!-- Show profile image or fallback initial -->
-                <div class="avatar-circle-sm" *ngIf="!currentReceiver.avatar">
-                  {{ currentReceiver.name.charAt(0).toUpperCase() }}
-                </div>
-                <img
-                  *ngIf="currentReceiver.avatar"
-                  [src]="currentReceiver.avatar"
-                  class="avatar-image-sm"
-                  alt="{{ currentReceiver.name }}'s avatar"
-                  (click)="viewProfile(currentReceiver._id)"
-                  style="cursor: pointer"
-                />
-                <div
-                  class="receiver-name"
-                  (click)="viewProfile(currentReceiver._id)"
-                  style="cursor: pointer"
-                >
-                  {{ currentReceiver.name }}
-                </div>
-              </div>
-            </div>
-
-            <div class="messages-container" #scrollContainer>
-              <div
-                *ngFor="let msg of messages"
-                class="message-wrapper"
-                [class.sender]="msg.sender === userId"
-                [class.receiver]="msg.sender !== userId"
-              >
-                <div class="message-bubble">
-                  <!-- Image if present -->
-                  <img
-                    *ngIf="msg.image?.data"
-                    [src]="
-                      'data:' +
-                      msg.image?.contentType +
-                      ';base64,' +
-                      msg.image?.data
-                    "
-                    class="chat-image"
-                  />
-
-                  <!-- Text if present -->
-                  <div *ngIf="msg.content">{{ msg.content }}</div>
-                </div>
-
-                <!-- Action Buttons on Hover -->
-                <div
-                  *ngIf="msg.sender === userId && msg.id"
-                  class="message-tools"
-                >
-                  <button (click)="editMessage(msg.id)">Edit</button>
-                  <button (click)="deleteMessage(msg.id)">Delete</button>
-                </div>
-
-                <div class="message-info">
-                  <small>{{ getTimeFromMessage(msg) }}</small>
-                  <small
-                    *ngIf="msg.sender === userId"
-                    [class.seen]="msg.isRead"
-                  >
-                    {{ msg.isRead ? "✓ Seen" : "✓ Delivered" }}
-                  </small>
-                </div>
-              </div>
-
-              <div *ngIf="messages.length === 0" class="no-messages">
-                <p>No messages yet. Say hello!</p>
-              </div>
-            </div>
-
-            <!-- Message Input -->
-            <!-- Message Input with Image Upload -->
-            <div
-              class="message-input-container d-flex align-items-center gap-2"
-            >
-              <!-- Image Upload Icon -->
-              <label
-                class="btn btn-outline-secondary m-0"
-                style="padding: 6px 10px"
-              >
-                <i class="bi bi-paperclip"></i>
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  (change)="onImageSelected($event)"
-                />
-              </label>
-
-              <!-- Text Input -->
-              <input
-                type="text"
-                class="form-control message-input"
-                [(ngModel)]="message"
-                placeholder="Type a message..."
-                (input)="onInput()"
-                (keyup.enter)="send()"
-              />
-
-              <!-- Send Button -->
-              <button
-                class="btn btn-primary send-button"
-                [disabled]="!message.trim() && !selectedImage"
-                (click)="send()"
-              >
-                <i class="bi bi-send-fill"></i>
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
+
+    <div class="users-scroll-area custom-scrollbar">
+      
+      <div
+        *ngFor="let user of filtertedUser"
+        class="user-item"
+        [class.active]="receiverId === user._id"
+        (click)="startChat(user._id)"
+      >
+        <div class="avatar-container">
+          <div class="avatar-circle" *ngIf="!user.avatar">
+            {{ user.name.charAt(0).toUpperCase() }}
+          </div>
+          <img
+            *ngIf="user.avatar"
+            [src]="user.avatar"
+            class="avatar-img"
+            alt="Avatar"
+          />
+          <div 
+            class="status-badge" 
+            [ngClass]="onlineUsers.has(user._id) ? 'status-online' : 'status-offline'">
+          </div>
+        </div>
+
+        <div class="user-details">
+          <div class="user-row-top">
+            <h3 class="user-name">{{ user.name }}</h3>
+            <span class="msg-time">{{ onlineUsers.has(user._id) ? 'Online' : 'Offline' }}</span>
+          </div>
+          
+          <div class="user-row-bottom">
+            <p class="last-msg-preview">
+              {{ onlineUsers.has(user._id) ? 'Active now' : 'Last seen recently' }}
+            </p>
+            <span 
+              class="unread-badge" 
+              *ngIf="(unreadMap.get(user._id) ?? 0) > 0">
+              {{ unreadMap.get(user._id) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="chat-window-panel">
+    
+    <div *ngIf="!receiverId" class="empty-state">
+      <span class="material-symbols-outlined empty-icon">forum</span>
+      <h3>Select a conversation</h3>
+      <p>Choose a contact from the left to start chatting.</p>
+    </div>
+
+    <div *ngIf="receiverId" class="d-flex flex-column h-100">
+      
+      <header class="chat-header" *ngIf="currentReceiver">
+        <div class="header-user-info" (click)="viewProfile(currentReceiver._id)">
+          <div class="header-avatar" *ngIf="!currentReceiver.avatar">
+            {{ currentReceiver.name.charAt(0).toUpperCase() }}
+          </div>
+          <img 
+            *ngIf="currentReceiver.avatar" 
+            [src]="currentReceiver.avatar" 
+            class="header-avatar" 
+            alt="Avatar"
+          />
+          <div class="header-details">
+            <h2>{{ currentReceiver.name }}</h2>
+            <p>{{ onlineUsers.has(currentReceiver._id) ? 'Online' : 'Offline' }}</p>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="action-btn" title="Video Call">
+            <span class="material-symbols-outlined">videocam</span>
+          </button>
+          <button class="action-btn" title="Voice Call">
+            <span class="material-symbols-outlined">call</span>
+          </button>
+          <button class="action-btn" title="More Options">
+            <span class="material-symbols-outlined">more_vert</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="messages-viewport custom-scrollbar" #scrollContainer>
+        
+        <div *ngIf="messages.length === 0" class="empty-state" style="height: auto; padding-top: 2rem;">
+          <p>No messages here yet. Say hello! 👋</p>
+        </div>
+
+        <div
+          *ngFor="let msg of messages"
+          class="message-group"
+          [ngClass]="msg.sender === userId ? 'group-sender' : 'group-receiver'"
+        >
+          <div class="message-bubble">
+            <img
+              *ngIf="msg.image?.data"
+              [src]="'data:' + msg.image?.contentType + ';base64,' + msg.image?.data"
+              class="chat-image"
+            />
+            
+            <div *ngIf="msg.content">
+              {{ msg.content }}
+            </div>
+          </div>
+
+          <div class="message-meta">
+            <span class="meta-time">{{ getTimeFromMessage(msg) }}</span>
+            <span 
+              *ngIf="msg.sender === userId" 
+              class="material-symbols-outlined seen-icon"
+              style="font-size: 14px;">
+              {{ msg.isRead ? 'done_all' : 'check' }}
+            </span>
+          </div>
+          
+          <div *ngIf="msg.sender === userId" class="hidden-actions">
+            </div>
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-container">
+          
+          <label class="attach-btn" title="Attach Image">
+            <span class="material-symbols-outlined">attach_file</span>
+            <input
+              type="file"
+              hidden
+              accept="image/*"
+              (change)="onImageSelected($event)"
+            />
+          </label>
+
+          <input
+            type="text"
+            class="main-input"
+            [(ngModel)]="message"
+            placeholder="Type a message..."
+            (input)="onInput()"
+            (keyup.enter)="send()"
+          />
+
+          <button
+            class="send-btn"
+            [disabled]="!message.trim() && !selectedImage"
+            (click)="send()"
+          >
+            <span class="material-symbols-outlined" style="font-size: 20px;">send</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 </div>
