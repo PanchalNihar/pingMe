@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SocketService } from '../../services/socket.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-profile',
@@ -17,15 +18,20 @@ export class ProfileComponent implements OnInit {
     name: '',
     email: '',
     avatar: '',
+    phone: '',
+    location: '',
+    bio: '',
     createdAt: null,
   };
   selectedFile: File | null = null;
   memberSince: string = '';
+  isLocating: boolean = false;
   onlineUsers: Set<string> = new Set();
   constructor(
     private profileService: ProfileService,
     private authService: AuthService,
-    private socketService: SocketService
+    private socketService: SocketService,
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
@@ -43,11 +49,42 @@ export class ProfileComponent implements OnInit {
       console.log('Online users:', this.onlineUsers);
     });
   }
- isUserOnline(): boolean {
-  const userId = this.authService.getUserId();
-  return userId ? this.onlineUsers.has(userId) : false;
-}
-
+  isUserOnline(): boolean {
+    const userId = this.authService.getUserId();
+    return userId ? this.onlineUsers.has(userId) : false;
+  }
+  fetchCurrentLocation() {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser');
+      return;
+    }
+    this.isLocating = true;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const geoApiUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+        this.http.get<any>(geoApiUrl).subscribe({
+          next: (data) => {
+            const city = data.city || data.locality || '';
+            const country = data.countryName || '';
+            this.user.location = `${city}, ${country}`;
+            this.isLocating = false;
+          },
+          error: (err) => {
+            console.error('Error fetching location details:', err);
+            this.isLocating = false;
+            alert('Failed to fetch location details');
+          },
+        });
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        this.isLocating = false;
+        alert('Failed to retrieve your location');
+      },
+    );
+  }
   // Format the createdAt date to a readable format
   formatMemberSince(createdAt: string): string {
     if (!createdAt) return 'Unknown';
@@ -83,6 +120,9 @@ export class ProfileComponent implements OnInit {
     const formData = new FormData();
     formData.append('name', this.user.name);
     formData.append('email', this.user.email);
+    formData.append('phone', this.user.phone);
+    formData.append('location', this.user.location);
+    formData.append('bio', this.user.bio);
     if (this.selectedFile) {
       formData.append('avatar', this.selectedFile);
     }
@@ -97,9 +137,9 @@ export class ProfileComponent implements OnInit {
         console.error('Profile update failed:', error);
         alert(
           'Failed to update profile: ' +
-            (error.error?.message || 'Unknown error')
+            (error.error?.message || 'Unknown error'),
         );
-      }
+      },
     );
   }
 }

@@ -30,18 +30,16 @@
     </div>
 
     <div class="card-section stats-bg">
-      <h3 class="section-label">Account Overview</h3>
-      <div class="stats-grid">
-        <div class="stat-box">
-          <p class="stat-title">Account Tier</p>
-          <p class="stat-value">Pro Plan</p>
-        </div>
-        <div class="stat-box">
-          <p class="stat-title">Member Status</p>
-          <p class="stat-value" [style.color]="isUserOnline() ? '#10b981' : '#9ca3af'">
-            {{ isUserOnline() ? 'Online Now' : 'Offline' }}
-          </p>
-        </div>
+      <h3 class="section-label">About Me</h3>
+      <div class="input-group" style="margin-bottom: 0;">
+        <textarea 
+          class="borderless-input" 
+          [(ngModel)]="user.bio" 
+          [ngModelOptions]="{standalone: true}"
+          placeholder="Write a short bio about yourself..."
+          rows="2"
+          style="resize: none;"
+        ></textarea>
       </div>
     </div>
 
@@ -77,18 +75,31 @@
             <input 
               class="borderless-input" 
               type="tel" 
-              value="+1 (555) 000-1234"
-              disabled
+              [(ngModel)]="user.phone"
+              name="phone"
+              placeholder="+1 (555) 000-0000"
             />
           </div>
           
           <div class="input-group">
-            <label class="input-label">Location</label>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label class="input-label">Location</label>
+              <button 
+                type="button" 
+                (click)="fetchCurrentLocation()"
+                class="location-btn"
+                [disabled]="isLocating"
+                title="Get current location">
+                <span class="material-symbols-outlined" style="font-size: 16px;">my_location</span>
+                {{ isLocating ? 'Locating...' : 'Auto-Detect' }}
+              </button>
+            </div>
             <input 
               class="borderless-input" 
               type="text" 
-              value="San Francisco, CA"
-              disabled
+              [(ngModel)]="user.location"
+              name="location"
+              placeholder="City, Country"
             />
           </div>
 
@@ -105,7 +116,7 @@
             <p class="text-sm font-semibold text-[#131516]">
               {{ selectedFile ? selectedFile.name : 'Change Avatar' }}
             </p>
-            <p class="text-sm text-[#6a777c]">JPG, GIF or PNG. Max size 2MB</p>
+            <p class="text-sm text-[#6a777c]">JPG, JPEG or PNG. Max size 2MB</p>
           </div>
           <input 
             #fileInput
