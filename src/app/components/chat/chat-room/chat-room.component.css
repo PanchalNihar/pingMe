@@ -1,32 +1,32 @@
 /* Import Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
 
 :host {
   /* Variables aligned with the new design system */
   --primary: #3b82f6;
   --primary-soft: rgba(59, 130, 246, 0.1);
   --primary-hover: #2563eb;
-  
+
   --bg-app: #f8fafc; /* background-light */
   --bg-surface: #ffffff; /* surface-light */
-  
+
   --text-main: #0f172a;
   --text-secondary: #64748b;
   --text-light: #94a3b8;
-  
+
   --border-color: #f1f5f9;
-  
-  --font-body: 'Manrope', sans-serif;
-  --font-display: 'Plus Jakarta Sans', sans-serif;
+
+  --font-body: "Manrope", sans-serif;
+  --font-display: "Plus Jakarta Sans", sans-serif;
 
   display: block;
   font-family: var(--font-body);
   background-color: var(--bg-app);
   height: 100vh;
   /* Left margin for the App Sidebar (Sidebar Component) */
-  margin-left: 288px; 
+  margin-left: 288px;
   padding: 2rem;
   box-sizing: border-box;
   overflow: hidden; /* Prevent body scroll, handle internally */
@@ -124,7 +124,8 @@
   flex-shrink: 0;
 }
 
-.avatar-circle, .avatar-img {
+.avatar-circle,
+.avatar-img {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
@@ -157,8 +158,12 @@
   border: 2px solid white;
 }
 
-.status-online { background-color: #10b981; } /* Emerald-500 */
-.status-offline { background-color: #94a3b8; } /* Slate-400 */
+.status-online {
+  background-color: #10b981;
+} /* Emerald-500 */
+.status-offline {
+  background-color: #94a3b8;
+} /* Slate-400 */
 
 .user-details {
   flex: 1;
@@ -471,7 +476,155 @@
   background: #e2e8f0;
   border-radius: 10px;
 }
+.attachment-preview {
+  padding: 0.75rem 1.5rem;
+  background-color: #f8fafc;
+  border-top: 1px solid #e8eaed;
+}
 
+.preview-card {
+  display: inline-flex;
+  align-items: center;
+  background: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  gap: 0.75rem;
+}
+
+.file-icon {
+  color: #4285f4;
+}
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.file-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #1e293b;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-size {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+}
+
+.remove-btn:hover {
+  background-color: #f1f5f9;
+  color: #ef4444;
+}
+
+.hidden-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  justify-content: flex-end; /* Align to right for sender */
+}
+
+/* Show actions when hovering over the message group */
+.message-group:hover .hidden-actions {
+  opacity: 1;
+}
+
+.msg-action-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  color: #94a3b8; /* text-light */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.msg-action-btn .material-symbols-outlined {
+  font-size: 16px; /* Small icons */
+}
+
+.msg-action-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.msg-action-btn.edit:hover {
+  color: #3b82f6; /* Blue */
+}
+
+.msg-action-btn.delete:hover {
+  color: #ef4444; /* Red */
+}
+
+/* --- Edit Mode Banner --- */
+.edit-banner {
+  background-color: #f0f9ff; /* Light blue bg */
+  border-top: 1px solid #e0f2fe;
+  padding: 0.5rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #0369a1;
+  font-size: 0.875rem;
+  animation: slideUp 0.2s ease-out;
+}
+
+.edit-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.edit-info .icon {
+  font-size: 18px;
+}
+
+.cancel-edit-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #0369a1;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 50%;
+}
+
+.cancel-edit-btn:hover {
+  background-color: rgba(3, 105, 161, 0.1);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
 /* Responsive adjustments */
 @media (max-width: 1024px) {
   :host {

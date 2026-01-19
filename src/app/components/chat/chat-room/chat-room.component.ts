@@ -7,6 +7,7 @@ import {
   PLATFORM_ID,
   ViewChild,
   AfterViewChecked,
+  viewChild,
 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SocketService } from '../../../services/socket.service';
@@ -45,6 +46,7 @@ interface User {
 })
 export class ChatRoomComponent implements OnInit, AfterViewChecked {
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  @ViewChild('fileInput') private fileInput!: ElementRef;
   private sentMessageIds = new Set<string>();
   message = '';
   messages: Message[] = [];
@@ -200,7 +202,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
           imageType: this.selectedImage!.type,
         };
         this.socketService.sendMessage(message);
-        this.selectedImage = null;
+        this.clearImage()
         this.message = '';
       };
       reader.readAsDataURL(this.selectedImage);
@@ -236,6 +238,8 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
 
     this.messages = [];
     this.unreadMap.set(receiverId, 0);
+    this.clearImage()
+    this.message = '';
 
     this.messageService
       .getMessages(this.userId, this.receiverId)
@@ -280,10 +284,19 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   onImageSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
+      if(file.size > 5 * 1024 * 1024){
+        alert('File size exceeds 5MB limit.');
+        return;
+      }
       this.selectedImage = file;
     }
   }
-
+  clearImage(){
+    this.selectedImage = null;
+    if(this.fileInput){
+      this.fileInput.nativeElement.value = '';
+    }
+  }
   deleteMessage(messageId: string) {
     const roomId = [this.userId, this.receiverId].sort().join('-');
     if (!messageId) return;
