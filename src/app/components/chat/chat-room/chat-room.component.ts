@@ -16,7 +16,7 @@ import { SocketModule } from '../../../shared/socket.module';
 import { MessageService } from '../../../services/message.service';
 import { Router } from '@angular/router';
 import { ProfileService } from '../../../services/profile.service';
-
+import {PickerComponent} from '@ctrl/ngx-emoji-mart';
 export interface Message {
   id?: string;
   _id?: string;
@@ -29,6 +29,7 @@ export interface Message {
     data: string;
     contentType: string;
   };
+  reactions?: { sender: string; emoji: string }[];
 }
 
 interface User {
@@ -40,7 +41,7 @@ interface User {
 
 @Component({
   selector: 'app-chat-room',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule,PickerComponent],
   templateUrl: './chat-room.component.html',
   styleUrl: './chat-room.component.css',
 })
@@ -63,6 +64,9 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   selectedImage: File | null = null;
   edititngMessageId: string | null = null;
   searchTerm: string = '';
+  showEmojiPicker = false; // For the input bar
+  activeReactionMessageId: string | null = null; // For the message popover
+  quickReactions = ['👍', '❤️', '😂', '😮', '😢', '😡'];
   constructor(
     private socketService: SocketService,
     @Inject(PLATFORM_ID) private platformId: object,
@@ -154,6 +158,12 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
       const index = this.messages.findIndex((m) => m.id === updatedId);
       if (index !== -1) {
         this.messages[index].content = updatedMsg.content;
+      }
+    });
+    this.socketService.onMessageReaction().subscribe((data: any) => {
+      const msgIndex = this.messages.findIndex(m => (m.id || m._id) === data.messageId);
+      if (msgIndex > -1) {
+        this.messages[msgIndex].reactions = data.reactions;
       }
     });
   }
@@ -321,5 +331,49 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   }
   viewProfile(id: string) {
     this.router.navigate(['/users', id]);
+  }
+  toggleEmojiPicker() {
+    this.showEmojiPicker = !this.showEmojiPicker;
+  }
+
+  addEmoji(event: any) {
+    this.message += event.emoji.native;
+    // Keep picker open or close it? Let's keep it open for multiple emojis
+  }
+
+  // --- Message Reactions ---
+  toggleReactionMenu(messageId: string) {
+    if (this.activeReactionMessageId === messageId) {
+      this.activeReactionMessageId = null;
+    } else {
+      this.activeReactionMessageId = messageId;
+    }
+  }
+
+  sendReaction(messageId: string, emoji: string) {
+    const roomId = [this.userId, this.receiverId].sort().join('-');
+    this.socketService.sendReaction({
+      messageId,
+      emoji,
+      userId: this.userId,
+      roomId
+    });
+    this.activeReactionMessageId = null; // Close menu
+  }
+
+  // Helper to group reactions for display (e.g., "👍 2")
+  getReactionCounts(msg: Message) {
+    if (!msg.reactions) return [];
+    
+    const counts: { [key: string]: number } = {};
+    msg.reactions.forEach(r => {
+      counts[r.emoji] = (counts[r.emoji] || 0) + 1;
+    });
+
+    return Object.keys(counts).map(emoji => ({
+      emoji,
+      count: counts[emoji],
+      hasReacted: msg.reactions?.some(r => r.emoji === emoji && r.sender === this.userId)
+    }));
   }
 }

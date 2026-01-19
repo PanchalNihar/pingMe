@@ -127,6 +127,13 @@ export class SocketService {
   onMessageEdit(): Observable<any> {
     return this.socket.fromEvent('message-edited');
   }
+  sendReaction(data: any) {
+  this.socket.emit('add-reaction', data);
+}
+
+onMessageReaction(): Observable<any> {
+  return this.socket.fromEvent('message-reaction-updated');
+}
   /**
    * Disconnect the socket when service is destroyed
    */

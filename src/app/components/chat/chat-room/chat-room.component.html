@@ -130,7 +130,21 @@
             />
             <div *ngIf="msg.content">{{ msg.content }}</div>
           </div>
-
+          <div class="reactions-list" *ngIf="msg.reactions && msg.reactions.length > 0">
+              <div *ngFor="let reaction of getReactionCounts(msg)" 
+                   class="reaction-pill"
+                   [class.active]="reaction.hasReacted"
+                   (click)="sendReaction(msg.id!, reaction.emoji)">
+                {{ reaction.emoji }} <span class="count">{{ reaction.count }}</span>
+              </div>
+            </div>
+            <div class="reaction-popup" *ngIf="activeReactionMessageId === msg.id">
+              <button *ngFor="let emoji of quickReactions" 
+                      (click)="sendReaction(msg.id!, emoji)"
+                      class="quick-reaction-btn">
+                {{ emoji }}
+              </button>
+            </div>
           <div class="message-meta">
             <span class="meta-time">{{ getTimeFromMessage(msg) }}</span>
             <span
@@ -143,6 +157,9 @@
           </div>
 
           <div *ngIf="msg.sender === userId" class="hidden-actions">
+            <button class="msg-action-btn react" (click)="toggleReactionMenu(msg.id!)" title="Add Reaction">
+                <span class="material-symbols-outlined">add_reaction</span>
+              </button>
             <button
               class="msg-action-btn edit"
               (click)="editMessage(msg.id!)"
@@ -187,6 +204,14 @@
       </div>
 
       <div class="input-area">
+        <div class="emoji-picker-wrapper" *ngIf="showEmojiPicker">
+          <emoji-mart 
+            (emojiClick)="addEmoji($event)" 
+            [darkMode]="false" 
+            [showPreview]="false"
+            color="#3b82f6">
+          </emoji-mart>
+        </div>
         <div class="input-container">
           <label class="btn attach-btn" title="Attach Image">
             <span class="material-symbols-outlined">attach_file</span>
@@ -198,7 +223,9 @@
               (change)="onImageSelected($event)"
             />
           </label>
-
+          <button class="btn emoji-btn" (click)="toggleEmojiPicker()" title="Insert Emoji">
+            <span class="material-symbols-outlined">sentiment_satisfied</span>
+          </button>
           <input
             type="text"
             class="main-input"

@@ -614,7 +614,116 @@
 .cancel-edit-btn:hover {
   background-color: rgba(3, 105, 161, 0.1);
 }
+/* --- Emoji Picker --- */
+.emoji-picker-wrapper {
+  position: absolute;
+  bottom: 80px; /* Position above input */
+  left: 20px;
+  z-index: 100;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
 
+.emoji-btn {
+  color: #64748b;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.emoji-btn:hover {
+  background-color: #f1f5f9;
+  color: #fbbf24; /* Yellow-ish for smiley hover */
+}
+
+/* --- Reaction Pills (Under message) --- */
+.reactions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.reaction-pill {
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.reaction-pill:hover {
+  background-color: #e2e8f0;
+}
+
+.reaction-pill.active {
+  background-color: #eff6ff; /* Light blue */
+  border-color: #bfdbfe;
+  color: #3b82f6;
+}
+
+/* --- Quick Reaction Popup --- */
+.reaction-popup {
+  position: absolute;
+  bottom: 100%; /* Above the message */
+  right: 0; /* Align right relative to bubble container */
+  background: white;
+  padding: 6px;
+  border-radius: 24px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  display: flex;
+  gap: 4px;
+  z-index: 50;
+  border: 1px solid #f1f5f9;
+  animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.quick-reaction-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  line-height: 1;
+}
+
+.quick-reaction-btn:hover {
+  transform: scale(1.3);
+  background-color: #f8fafc;
+}
+
+/* Fix message meta row alignment */
+.message-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Always right align meta */
+  gap: 8px;
+  margin-top: 2px;
+  min-height: 20px; /* Prevent jump when actions appear */
+}
+
+/* Update hidden-actions to include React button */
+.msg-action-btn.react:hover {
+  color: #f59e0b; /* Amber */
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.5) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
 @keyframes slideUp {
   from {
     transform: translateY(10px);
