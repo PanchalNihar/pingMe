@@ -1,0 +1,29 @@
+<div class="modal-backdrop" *ngIf="state?.isOpen">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>{{ state?.title }}</h3>
+      <button class="close-icon" (click)="close()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <p>{{ state?.message }}</p>
+    </div>
+
+    <div class="modal-footer">
+      <ng-container *ngIf="state?.type === 'alert'">
+        <button class="btn-primary" (click)="close()">OK</button>
+      </ng-container>
+
+      <ng-container *ngIf="state?.type === 'confirm'">
+        <button class="btn-secondary" (click)="close()">
+          {{ state?.cancelLabel || 'Cancel' }}
+        </button>
+        <button class="btn-primary" (click)="confirm()">
+          {{ state?.confirmLabel || 'Confirm' }}
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</div>

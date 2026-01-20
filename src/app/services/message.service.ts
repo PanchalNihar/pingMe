@@ -51,4 +51,13 @@ export class MessageService {
   getGroups(userId: string): Observable<any> {
     return this.http.get<any[]>(`${this.apiUrl}/groups?userId=${userId}`);
   }
+  updateGroup(groupId:string,name:string,avatar:string|null=null,userId:string){
+    return this.http.put(`${this.apiUrl}/groups/${groupId}`,{name,avatar,userId});
+  }
+  addGroupParticipant(groupId:string,userId:string,adminId:string){
+    return this.http.put(`${this.apiUrl}/groups/${groupId}/add`,{userId,adminId});
+  }
+  removeGroupParticipant(groupId:string,userId:string,adminId:string){
+    return this.http.put(`${this.apiUrl}/groups/${groupId}/remove`,{userId,adminId});
+  }
 }

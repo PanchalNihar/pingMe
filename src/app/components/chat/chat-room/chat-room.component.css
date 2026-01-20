@@ -833,3 +833,159 @@
     border-bottom: 1px solid var(--border-color);
   }
 }
+/* Group Info Modal Styles */
+
+.group-header-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+.group-icon-wrapper {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.large-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #8b5cf6;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+}
+
+.edit-icon-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--primary);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid white;
+}
+
+.edit-icon-btn span { font-size: 16px; }
+
+.group-name-edit {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.name-input {
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.btn-save-mini, .btn-add-mini {
+    padding: 0 1rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+/* Participants List */
+.participants-section h4, .add-member-section h4 {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.participants-list {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.participant-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.p-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.p-avatar, .p-avatar-placeholder {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.p-avatar-placeholder {
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.p-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.p-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.admin-badge {
+    font-size: 0.65rem;
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 1px 6px;
+    border-radius: 4px;
+    width: fit-content;
+    font-weight: 600;
+}
+
+.btn-remove-member {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.btn-remove-member:hover {
+    background: #fef2f2;
+}
+
+.add-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}

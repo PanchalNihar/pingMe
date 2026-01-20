@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterLink } from '@angular/router';
+import { ModalService } from '../../services/modal.service';
 @Component({
   selector: 'app-register',
   imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
@@ -20,7 +21,8 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private modalService: ModalService,
   ) {
     this.registerForm = this.fb.group({
       name: ['', Validators.required],
@@ -34,11 +36,11 @@ export class RegisterComponent {
       this.authService.register(this.registerForm.value).subscribe({
         next: (res) => {
           this.authService.savetoken(res.token);
-          this.authService.saveUserId(res.user.id)
+          this.authService.saveUserId(res.user.id);
           this.router.navigate(['/chat']);
         },
         error: (err) => {
-          alert(err.error.message);
+          this.modalService.alert(err.error.message);
         },
       });
     }

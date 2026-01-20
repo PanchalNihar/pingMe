@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SocketService } from '../../services/socket.service';
 import { HttpClient } from '@angular/common/http';
+import { ModalService } from '../../services/modal.service';
 
 @Component({
   selector: 'app-profile',
@@ -32,6 +33,7 @@ export class ProfileComponent implements OnInit {
     private authService: AuthService,
     private socketService: SocketService,
     private http: HttpClient,
+    private modalService: ModalService
   ) {}
 
   ngOnInit(): void {
@@ -55,7 +57,7 @@ export class ProfileComponent implements OnInit {
   }
   fetchCurrentLocation() {
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser');
+      this.modalService.alert('Geolocation is not supported by your browser');
       return;
     }
     this.isLocating = true;
@@ -74,14 +76,14 @@ export class ProfileComponent implements OnInit {
           error: (err) => {
             console.error('Error fetching location details:', err);
             this.isLocating = false;
-            alert('Failed to fetch location details');
+            this.modalService.alert('Failed to fetch location details');
           },
         });
       },
       (error) => {
         console.error('Geolocation error:', error);
         this.isLocating = false;
-        alert('Failed to retrieve your location');
+        this.modalService.alert('Failed to retrieve your location');
       },
     );
   }
@@ -131,11 +133,11 @@ export class ProfileComponent implements OnInit {
       (res) => {
         this.user = res;
         console.log('Updated user info:', this.user);
-        alert('Profile updated successfully');
+        this.modalService.alert('Profile updated successfully');
       },
       (error) => {
         console.error('Profile update failed:', error);
-        alert(
+        this.modalService.alert(
           'Failed to update profile: ' +
             (error.error?.message || 'Unknown error'),
         );
