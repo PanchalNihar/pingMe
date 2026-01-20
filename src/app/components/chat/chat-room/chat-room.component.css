@@ -1104,3 +1104,134 @@
   border-radius: 6px;
   cursor: pointer;
 }
+.smart-replies-container {
+  padding: 0.5rem 1.5rem;
+  background-color: var(--bg-surface);
+  /* border-top: 1px solid var(--border-color); */
+  animation: slideUpFade 0.3s ease-out;
+}
+
+.ai-thinking {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--primary);
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.sparkle-icon {
+  font-size: 1rem;
+  animation: pulse 1.5s infinite;
+}
+
+.chips-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 4px; /* Space for scrollbar if needed */
+}
+
+.ai-label {
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  margin-right: 0.25rem;
+}
+
+.ai-label span {
+  font-size: 1.1rem;
+}
+
+.reply-chip {
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: var(--text-main);
+  padding: 0.4rem 1rem;
+  border-radius: 9999px; /* Pill shape */
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: var(--font-body);
+}
+
+.reply-chip:hover {
+  background-color: var(--primary-soft);
+  color: var(--primary);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.reply-chip:active {
+  transform: translateY(0);
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+}
+
+/* AI Button Styling */
+.ai-btn {
+  color: #8b5cf6; /* Violet color */
+  transition: all 0.2s;
+}
+
+.ai-btn:hover {
+  background-color: #f3f4f6;
+  color: #7c3aed;
+  transform: scale(1.1);
+}
+
+.ai-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Animation when AI is loading */
+.sparkle-anim {
+  animation: spin-pulse 1.5s infinite linear;
+}
+
+@keyframes spin-pulse {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 1;
+  }
+}
