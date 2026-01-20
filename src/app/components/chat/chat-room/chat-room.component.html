@@ -17,6 +17,15 @@
       >
         <span class="material-symbols-outlined">group_add</span>
       </button>
+      <div class="search-section">
+        <button
+          class="btn-create-group"
+          (click)="openAddFriendModal()"
+          title="Add Friend"
+        >
+          <span class="material-symbols-outlined">person_add</span>
+        </button>
+      </div>
     </div>
 
     <div class="users-scroll-area custom-scrollbar">
@@ -537,6 +546,106 @@
                 <span class="material-symbols-outlined">person_remove</span>
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" *ngIf="showAddFriendModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Manage Connections</h3>
+      <button class="close-btn" (click)="closeAddFriendModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="modal-tabs">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'add'"
+        (click)="switchTab('add')"
+      >
+        Add New
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'requests'"
+        (click)="switchTab('requests')"
+      >
+        Requests
+        <span class="badge" *ngIf="pendingRequests.length > 0">{{
+          pendingRequests.length
+        }}</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div *ngIf="activeTab === 'add'" class="add-friend-view">
+        <div class="search-row">
+          <input
+            type="email"
+            class="modal-input"
+            [(ngModel)]="searchEmail"
+            placeholder="Enter user email..."
+            (keyup.enter)="searchUser()"
+          />
+          <button class="btn-primary-mini" (click)="searchUser()">
+            Search
+          </button>
+        </div>
+
+        <div class="found-user-card" *ngIf="foundUser">
+          <div class="user-info">
+            <div class="avatar-circle small">
+              <img *ngIf="foundUser.avatar" [src]="foundUser.avatar" />
+              <span *ngIf="!foundUser.avatar">{{
+                foundUser.name.charAt(0)
+              }}</span>
+            </div>
+            <span>{{ foundUser.name }}</span>
+          </div>
+          <button class="btn-add-mini" (click)="sendRequest()">
+            Send Request
+          </button>
+        </div>
+      </div>
+
+      <div
+        *ngIf="activeTab === 'requests'"
+        class="requests-view custom-scrollbar"
+      >
+        <div *ngIf="pendingRequests.length === 0" class="empty-state-mini">
+          No pending requests
+        </div>
+
+        <div *ngFor="let req of pendingRequests" class="request-row">
+          <div class="user-info">
+            <div class="avatar-circle small">
+              <img *ngIf="req.sender.avatar" [src]="req.sender.avatar" />
+              <span *ngIf="!req.sender.avatar">{{
+                req.sender.name.charAt(0)
+              }}</span>
+            </div>
+            <div class="details">
+              <span class="name">{{ req.sender.name }}</span>
+              <span class="email">{{ req.sender.email }}</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button
+              class="btn-accept"
+              (click)="respondToRequest(req.sender._id, 'accept')"
+            >
+              Accept
+            </button>
+            <button
+              class="btn-reject"
+              (click)="respondToRequest(req.sender._id, 'reject')"
+            >
+              Reject
+            </button>
           </div>
         </div>
       </div>

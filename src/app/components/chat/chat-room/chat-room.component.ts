@@ -87,6 +87,12 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   isGroupAdmin = false;
   editGroupName = '';
   newMemberId = '';
+
+  showAddFriendModal = false;
+  searchEmail = '';
+  foundUser: any = null;
+  pendingRequests: any[] = [];
+  activeTab: 'add' | 'requests' = 'add';
   constructor(
     private socketService: SocketService,
     @Inject(PLATFORM_ID) private platformId: object,
@@ -94,49 +100,45 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     private messageService: MessageService,
     private router: Router,
     private profileService: ProfileService,
-    private modalService:ModalService
+    private modalService: ModalService,
   ) {}
 
   ngOnInit(): void {
     this.userId = this.authService.getUserId();
     if (!this.userId) return;
 
-    this.authService.getAllUsers(this.userId).subscribe((res: any) => {
-      this.users = res;
-      this.users.forEach((user) => {
-        this.profileService.getProfile(user._id).subscribe((profile) => {
-          const userIndex = this.users.findIndex((u) => u._id === profile._id);
-          if (userIndex !== -1) {
-            this.users[userIndex] = {
-              ...this.users[userIndex],
-              avatar: profile.avatar,
-            };
-          }
-          if (this.receiverId === profile._id) {
-            this.currentReceiver = {
-              _id: profile._id,
-              name: profile.name,
-              avatar: profile.avatar,
-            };
-          }
-        });
-      });
-      this.socketService.onTyping().subscribe((senderId: string) => {
-        if (senderId !== this.userId) {
-          this.typingUser = this.getUserName(senderId);
-          this.isTyping = true;
-        }
-        this.socketService.onStopTyping().subscribe(() => {
-          this.isTyping = false;
-        });
-      });
-    });
-    this.fetchGroups();
-    // this.messageService.getUnreadCounts(this.userId).subscribe((data) => {
-    //   data.forEach((item) => {
-    //     this.unreadMap.set(item._id, item.count);
+    // this.authService.getMyFriends(this.userId).subscribe((res: any) => {
+    //   this.users = res;
+    //   this.users.forEach((user) => {
+    //     this.profileService.getProfile(user._id).subscribe((profile) => {
+    //       const userIndex = this.users.findIndex((u) => u._id === profile._id);
+    //       if (userIndex !== -1) {
+    //         this.users[userIndex] = {
+    //           ...this.users[userIndex],
+    //           avatar: profile.avatar,
+    //         };
+    //       }
+    //       if (this.receiverId === profile._id) {
+    //         this.currentReceiver = {
+    //           _id: profile._id,
+    //           name: profile.name,
+    //           avatar: profile.avatar,
+    //         };
+    //       }
+    //     });
+    //   });
+    //   this.socketService.onTyping().subscribe((senderId: string) => {
+    //     if (senderId !== this.userId) {
+    //       this.typingUser = this.getUserName(senderId);
+    //       this.isTyping = true;
+    //     }
+    //     this.socketService.onStopTyping().subscribe(() => {
+    //       this.isTyping = false;
+    //     });
     //   });
     // });
+    this.loadFriends();
+    this.fetchGroups();
 
     this.socketService.onMessage().subscribe((msg: Message) => {
       msg.id = msg.id || msg._id;
@@ -225,7 +227,38 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
       console.error('Error scrolling to bottom:', err);
     }
   }
-
+  loadFriends() {
+    this.authService.getMyFriends(this.userId!).subscribe((res: any) => {
+      this.users = res;
+      this.users.forEach((user) => {
+        this.profileService.getProfile(user._id).subscribe((profile) => {
+          const userIndex = this.users.findIndex((u) => u._id === profile._id);
+          if (userIndex !== -1) {
+            this.users[userIndex] = {
+              ...this.users[userIndex],
+              avatar: profile.avatar,
+            };
+          }
+          if (this.receiverId === profile._id) {
+            this.currentReceiver = {
+              _id: profile._id,
+              name: profile.name,
+              avatar: profile.avatar,
+            };
+          }
+        });
+      });
+      this.socketService.onTyping().subscribe((senderId: string) => {
+        if (senderId !== this.userId) {
+          this.typingUser = this.getUserName(senderId);
+          this.isTyping = true;
+        }
+        this.socketService.onStopTyping().subscribe(() => {
+          this.isTyping = false;
+        });
+      });
+    });
+  }
   send() {
     if (!this.userId) return;
     if (!this.receiverId && !this.selectedGroupId) return; // Must have destination
@@ -453,7 +486,9 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   }
   createGroup() {
     if (!this.newGroupName.trim() || this.selectedParticipants.size === 0) {
-      this.modalService.alert('Group name and at least one participant are required.');
+      this.modalService.alert(
+        'Group name and at least one participant are required.',
+      );
       return;
     }
     this.messageService
@@ -543,7 +578,13 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   removeMember(participantId: string) {
     if (!this.currentGroup || !this.userId) return;
 
-    if (!confirm('Are you sure you want to remove this user?')) return;
+    this.modalService
+      .confirm('Remove user', 'Are you sure you want to remove this user?')
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.removeMember(participantId);
+        this.modalService.close()
+      });
 
     this.messageService
       .removeGroupParticipant(this.currentGroup._id, participantId, this.userId)
@@ -553,6 +594,80 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   }
   isMemberOfGroup(userId: string): boolean {
     if (!this.currentGroup || !this.currentGroup.participants) return false;
-    return this.currentGroup.participants.some((p: any) => (p._id || p) === userId);
+    return this.currentGroup.participants.some(
+      (p: any) => (p._id || p) === userId,
+    );
+  }
+  openAddFriendModal() {
+    this.showAddFriendModal = true;
+    this.searchEmail = '';
+    this.foundUser = null;
+    this.fetchPendingRequests();
+  }
+
+  closeAddFriendModal() {
+    this.showAddFriendModal = false;
+  }
+
+  switchTab(tab: 'add' | 'requests') {
+    this.activeTab = tab;
+    if (tab === 'requests') {
+      this.fetchPendingRequests();
+    }
+  }
+
+  searchUser() {
+    if (!this.searchEmail.trim()) return;
+    this.authService.searchUser(this.searchEmail).subscribe({
+      next: (user) => {
+        // Don't show yourself
+        if (user._id === this.userId) {
+          this.modalService.alert('You cannot add yourself.');
+          this.foundUser = null;
+          return;
+        }
+        this.foundUser = user;
+      },
+      error: () => {
+        this.foundUser = null;
+        this.modalService.alert('User not found');
+      },
+    });
+  }
+
+  sendRequest() {
+    if (!this.foundUser || !this.userId) return;
+    this.authService
+      .sendFriendRequest(this.userId, this.foundUser._id)
+      .subscribe({
+        next: () => {
+          this.modalService.alert('Friend request sent!');
+          this.foundUser = null;
+          this.searchEmail = '';
+        },
+        error: (err) => {
+          this.modalService.alert(err.error.msg || 'Failed to send request');
+        },
+      });
+  }
+
+  fetchPendingRequests() {
+    if (!this.userId) return;
+    this.authService.getFriendRequests(this.userId).subscribe((reqs: any) => {
+      this.pendingRequests = reqs;
+    });
+  }
+
+  respondToRequest(requesterId: string, action: 'accept' | 'reject') {
+    if (!this.userId) return;
+    this.authService
+      .respondToRequest(this.userId, requesterId, action)
+      .subscribe(() => {
+        this.fetchPendingRequests(); // Refresh list
+        if (action === 'accept') {
+          this.loadFriends(); // Refresh main chat list
+          this.modalService.alert('Friend added!');
+        }
+      });
   }
 }
