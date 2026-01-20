@@ -328,6 +328,38 @@
         </div>
       </div>
 
+      <div
+        class="smart-replies-container"
+        *ngIf="suggestedReplies.length > 0 || isAiLoading"
+      >
+        <div
+          *ngIf="isAiLoading && suggestedReplies.length === 0"
+          class="ai-thinking"
+        >
+          <span class="material-symbols-outlined sparkle-icon"
+            >auto_awesome</span
+          >
+          <span>AI is thinking...</span>
+        </div>
+
+        <div
+          *ngIf="!isAiLoading && suggestedReplies.length > 0"
+          class="chips-row custom-scrollbar"
+        >
+          <div class="ai-label">
+            <span class="material-symbols-outlined">auto_awesome</span>
+          </div>
+
+          <button
+            *ngFor="let reply of suggestedReplies"
+            class="reply-chip"
+            (click)="useReply(reply)"
+          >
+            {{ reply }}
+          </button>
+        </div>
+      </div>
+
       <div class="input-area" style="position: relative">
         <div class="emoji-picker-wrapper" *ngIf="showEmojiPicker">
           <emoji-mart
@@ -349,6 +381,20 @@
               (change)="onImageSelected($event)"
             />
           </label>
+
+          <button
+            class="btn ai-btn"
+            (click)="triggerSmartReplies()"
+            [disabled]="isAiLoading"
+            title="Generate AI Reply"
+          >
+            <span
+              class="material-symbols-outlined"
+              [class.sparkle-anim]="isAiLoading"
+              >auto_awesome</span
+            >
+          </button>
+
           <button
             class="btn emoji-btn"
             (click)="toggleEmojiPicker()"
@@ -356,6 +402,7 @@
           >
             <span class="material-symbols-outlined">sentiment_satisfied</span>
           </button>
+
           <input
             type="text"
             class="main-input"

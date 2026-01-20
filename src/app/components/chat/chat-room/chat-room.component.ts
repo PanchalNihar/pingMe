@@ -93,6 +93,10 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   foundUser: any = null;
   pendingRequests: any[] = [];
   activeTab: 'add' | 'requests' = 'add';
+
+  suggestedReplies: string[] = [];
+  isAiLoading = false;
+
   constructor(
     private socketService: SocketService,
     @Inject(PLATFORM_ID) private platformId: object,
@@ -178,6 +182,11 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
       if (!isDuplicate) {
         this.messages.push(msg);
         this.scrollToBottom();
+        if (!this.isCurrentUser(msg.sender)) {
+          const roomId = this.selectedGroupId;
+          const user1 = this.userId;
+          const user2 = this.receiverId;
+        }
       }
     });
 
@@ -305,6 +314,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     this.messages = [];
     this.message = '';
     this.selectedImage = null;
+    this.suggestedReplies = [];
 
     if (isGroup) {
       // GROUP MODE
@@ -312,7 +322,6 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
       this.receiverId = null; // Clear 1-on-1 receiver
       this.currentGroup = entity;
       this.currentReceiver = null;
-
       // Join room (Room ID = Group ID)
       this.socketService.joinRoom(entity._id);
 
@@ -583,7 +592,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
       .subscribe((confirmed) => {
         if (!confirmed) return;
         this.removeMember(participantId);
-        this.modalService.close()
+        this.modalService.close();
       });
 
     this.messageService
@@ -669,5 +678,53 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
           this.modalService.alert('Friend added!');
         }
       });
+  }
+
+  //AI Smart Replies
+  triggerSmartReplies() {
+    const roomId = this.selectedGroupId;
+    const user1 = this.userId;
+    const user2 = this.receiverId;
+
+    // Reuse your existing logic, just triggered manually now
+    this.fetchSmartReplies(user1, user2, roomId);
+  }
+
+  // Keep fetchSmartReplies as is, but ensure it clears old replies first
+  fetchSmartReplies(
+    user1: string | null,
+    user2: string | null,
+    roomId: string | null,
+  ) {
+    this.suggestedReplies = []; // Clear previous suggestions immediately
+    this.isAiLoading = true;
+
+    if (roomId) {
+      this.messageService.AIRepliesForGroup(roomId).subscribe({
+        next: (res: any) => {
+          this.suggestedReplies = res.replies || [];
+          this.isAiLoading = false;
+        },
+        error: () => {
+          this.isAiLoading = false;
+        },
+      });
+    } else if (user1 && user2) {
+      this.messageService.AIRepliesForChat(user1, user2).subscribe({
+        next: (res: any) => {
+          this.suggestedReplies = res.replies || [];
+          this.isAiLoading = false;
+        },
+        error: () => {
+          this.isAiLoading = false;
+        },
+      });
+    } else {
+      this.isAiLoading = false;
+    }
+  }
+  useReply(reply: string) {
+    this.message = reply;
+    this.suggestedReplies = [];
   }
 }

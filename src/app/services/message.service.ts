@@ -60,4 +60,10 @@ export class MessageService {
   removeGroupParticipant(groupId:string,userId:string,adminId:string){
     return this.http.put(`${this.apiUrl}/groups/${groupId}/remove`,{userId,adminId});
   }
+  AIRepliesForGroup(groupId:string){
+    return this.http.post<{replies:string[]}>(`${this.apiUrl}/smart-replies`,{roomId:groupId});
+  }
+  AIRepliesForChat(user1:string,user2:string){
+    return this.http.post<{replies:string[]}>(`${this.apiUrl}/smart-replies`,{user1,user2});
+  }
 }
