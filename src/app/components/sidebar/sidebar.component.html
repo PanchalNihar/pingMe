@@ -1,4 +1,15 @@
-<aside class="sidebar">
+<button class="mobile-toggle-btn" (click)="toggleSidebar()">
+  <span class="material-symbols-outlined">menu</span>
+</button>
+
+<div class="sidebar-backdrop" [class.show]="isOpen" (click)="closeSidebar()"></div>
+
+<aside class="sidebar" [class.open]="isOpen">
+  
+  <button class="mobile-close-btn" (click)="closeSidebar()">
+    <span class="material-symbols-outlined">close</span>
+  </button>
+
   <div class="flex flex-col gap-10">
     <div class="sidebar-header">
       <div class="brand-icon">
@@ -6,24 +17,25 @@
       </div>
       <div class="brand-text">
         <h1>PingMe</h1>
+        <p>{{user.name}}</p>
       </div>
     </div>
     
     <ul class="nav-list">
       <li>
-        <a class="nav-link" routerLink="/profile" routerLinkActive="active-link">
+        <a class="nav-link" routerLink="/profile" routerLinkActive="active-link" (click)="closeSidebar()">
           <span class="material-symbols-outlined">settings</span>
           <span>Settings</span>
         </a>
       </li>
       <li>
-        <a class="nav-link" routerLink="/users" routerLinkActive="active-link">
+        <a class="nav-link" routerLink="/users" routerLinkActive="active-link" (click)="closeSidebar()">
           <span class="material-symbols-outlined">group</span>
           <span>Browse Users</span>
         </a>
       </li>
       <li>
-        <a class="nav-link" routerLink="/chat" routerLinkActive="active-link">
+        <a class="nav-link" routerLink="/chat" routerLinkActive="active-link" (click)="closeSidebar()">
           <span class="material-symbols-outlined">chat_bubble</span>
           <span>Chat</span>
         </a>

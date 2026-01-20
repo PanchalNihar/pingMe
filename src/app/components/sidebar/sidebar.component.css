@@ -1,22 +1,21 @@
-/* Import Fonts: Manrope and Material Symbols */
+/* Import Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
 :host {
-  /* Design System Variables */
   --primary: #5c7d8a;
   --bg-light: #f9fafb;
   --text-main: #131516;
   --text-muted: #6a777c;
   --border-light: #eceeef;
   --font-display: 'Manrope', sans-serif;
-
   display: block;
   font-family: var(--font-display);
 }
 
+/* --- Default Desktop Styles --- */
 .sidebar {
-  width: 288px; /* Standard w-72 width */
+  width: 288px;
   height: 100vh;
   background: white;
   border-right: 1px solid var(--border-light);
@@ -24,11 +23,11 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 2rem;
-  position: fixed; /* Fixes it to the left */
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: 50;
-  transition: all 0.3s ease;
+  z-index: 100; /* High z-index to stay on top */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar-header {
@@ -95,13 +94,11 @@
   color: var(--text-main);
 }
 
-/* Angular Router Active State - Ensure your router adds this class */
 .nav-link.active-link {
   background: rgba(92, 125, 138, 0.1);
   color: var(--primary);
 }
 
-.nav-link i, 
 .nav-link .material-symbols-outlined {
   font-size: 1.25rem;
 }
@@ -115,7 +112,7 @@
   padding: 0.75rem;
   border: 1px solid var(--border-light);
   border-radius: 0.5rem;
-  color: #f43f5e; /* Red color for logout */
+  color: #f43f5e;
   font-size: 0.875rem;
   font-weight: 700;
   background: transparent;
@@ -125,4 +122,79 @@
 
 .btn-logout:hover {
   background-color: #fff1f2;
+}
+
+/* --- Mobile Elements (Hidden by default on Desktop) --- */
+.mobile-toggle-btn,
+.mobile-close-btn,
+.sidebar-backdrop {
+  display: none;
+}
+
+/* --- Responsive Media Query --- */
+@media (max-width: 1024px) {
+  
+  /* Hide sidebar by default on mobile by moving it off-screen */
+  .sidebar {
+    transform: translateX(-100%);
+    box-shadow: none;
+  }
+
+  /* Slide in when open */
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 10px 0 25px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Hamburger Menu Button */
+  .mobile-toggle-btn {
+    display: flex;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 90; /* Below sidebar (100) but above content */
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-main);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+
+  /* Close 'X' Button inside Sidebar */
+  .mobile-close-btn {
+    display: flex;
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  /* Dark Backdrop Overlay */
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 95; /* Between content and sidebar */
+    opacity: 0;
+    pointer-events: none; /* Let clicks pass through when hidden */
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(2px);
+  }
+
+  .sidebar-backdrop.show {
+    opacity: 1;
+    pointer-events: all; /* Catch clicks to close */
+  }
 }

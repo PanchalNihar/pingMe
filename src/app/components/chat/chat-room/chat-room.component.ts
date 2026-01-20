@@ -12,16 +12,16 @@ import {
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SocketService } from '../../../services/socket.service';
 import { AuthService } from '../../../services/auth.service';
-import { SocketModule } from '../../../shared/socket.module';
 import { MessageService } from '../../../services/message.service';
 import { Router } from '@angular/router';
 import { ProfileService } from '../../../services/profile.service';
-import {PickerComponent} from '@ctrl/ngx-emoji-mart';
+import { PickerComponent } from '@ctrl/ngx-emoji-mart';
 export interface Message {
   id?: string;
   _id?: string;
-  sender: string;
-  receiver: string;
+  sender: string | { _id: string; name: string ; avatar?: string };
+  receiver?: string;
+  chatRoom?:string
   content: string;
   isRead: boolean;
   timestamp?: Date;
@@ -31,7 +31,13 @@ export interface Message {
   };
   reactions?: { sender: string; emoji: string }[];
 }
-
+interface ChatGroup {
+  _id: string;
+  name: string;
+  isGroup: boolean;
+  avatar?: string;
+  participants: string[];
+}
 interface User {
   _id: string;
   name: string;
@@ -41,7 +47,7 @@ interface User {
 
 @Component({
   selector: 'app-chat-room',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule,PickerComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, PickerComponent],
   templateUrl: './chat-room.component.html',
   styleUrl: './chat-room.component.css',
 })
@@ -64,16 +70,23 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   selectedImage: File | null = null;
   edititngMessageId: string | null = null;
   searchTerm: string = '';
-  showEmojiPicker = false; // For the input bar
-  activeReactionMessageId: string | null = null; // For the message popover
+  showEmojiPicker = false;
+  activeReactionMessageId: string | null = null;
   quickReactions = ['👍', '❤️', '😂', '😮', '😢', '😡'];
+  groups: ChatGroup[] = [];
+  selectedGroupId: string | null = null;
+  currentGroup: ChatGroup | null = null;
+
+  showCreateGroupModal = false;
+  newGroupName = '';
+  selectedParticipants: Set<string> = new Set();
   constructor(
     private socketService: SocketService,
     @Inject(PLATFORM_ID) private platformId: object,
     private authService: AuthService,
     private messageService: MessageService,
     private router: Router,
-    private profileService: ProfileService
+    private profileService: ProfileService,
   ) {}
 
   ngOnInit(): void {
@@ -110,33 +123,41 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
         });
       });
     });
-
-    this.messageService.getUnreadCounts(this.userId).subscribe((data) => {
-      data.forEach((item) => {
-        this.unreadMap.set(item._id, item.count);
-      });
-    });
+    this.fetchGroups();
+    // this.messageService.getUnreadCounts(this.userId).subscribe((data) => {
+    //   data.forEach((item) => {
+    //     this.unreadMap.set(item._id, item.count);
+    //   });
+    // });
 
     this.socketService.onMessage().subscribe((msg: Message) => {
       msg.id = msg.id || msg._id;
+      
+      const senderId = this.getSenderId(msg.sender);
+      
+      // FIX: Check if the message belongs to the SPECIFIC Group currently open
       const isCurrentChat =
-        (msg.sender === this.userId && msg.receiver === this.receiverId) ||
-        (msg.sender === this.receiverId && msg.receiver === this.userId);
+        (this.selectedGroupId && msg.chatRoom === this.selectedGroupId) || 
+        (!this.selectedGroupId && senderId === this.userId && msg.receiver === this.receiverId) ||
+        (!this.selectedGroupId && senderId === this.receiverId && msg.receiver === this.userId);
+
       const isIncoming = msg.receiver === this.userId;
 
+      // Handle unread counts (for 1-on-1 only currently)
       if (!isCurrentChat && isIncoming) {
-        const current = this.unreadMap.get(msg.sender) || 0;
-        this.unreadMap.set(msg.sender, current + 1);
-        return;
+        const current = this.unreadMap.get(senderId) || 0;
+        this.unreadMap.set(senderId, current + 1);
+        return; 
       }
 
-      const isDuplicate = this.messages.some(
-        (m) =>
-          (m.id && m.id === msg.id) ||
-          (m.sender === msg.sender &&
-            m.content === msg.content &&
-            m.receiver === msg.receiver)
-      );
+      // ... (Rest of your duplicate check and push logic) ...
+      const isDuplicate = this.messages.some((m) => {
+        const mSenderId = this.getSenderId(m.sender);
+        return (
+          (m.id || m._id) === msg.id || 
+          (mSenderId === senderId && m.content === msg.content && m.timestamp === msg.timestamp)
+        );
+      });
 
       if (!isDuplicate) {
         this.messages.push(msg);
@@ -161,13 +182,21 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
       }
     });
     this.socketService.onMessageReaction().subscribe((data: any) => {
-      const msgIndex = this.messages.findIndex(m => (m.id || m._id) === data.messageId);
+      const msgIndex = this.messages.findIndex(
+        (m) => (m.id || m._id) === data.messageId,
+      );
       if (msgIndex > -1) {
         this.messages[msgIndex].reactions = data.reactions;
       }
     });
   }
-
+  getSenderId(sender: string | any): string {
+    if (typeof sender === 'string') return sender;
+    return sender._id || ''; 
+  }
+  isCurrentUser(sender: string | any): boolean {
+    return this.getSenderId(sender) === this.userId;
+  }
   ngAfterViewChecked() {
     this.scrollToBottom();
   }
@@ -184,87 +213,99 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   }
 
   send() {
-    if (!this.userId || !this.receiverId) {
-      alert('Sender or receiver is missing!');
-      return;
+    if (!this.userId) return;
+    if (!this.receiverId && !this.selectedGroupId) return; // Must have destination
+
+    // Prepare common payload
+    const payload: any = {
+      sender: this.userId,
+      content: this.message.trim(),
+    };
+
+    if (this.selectedGroupId) {
+      payload.chatRoomId = this.selectedGroupId;
+    } else {
+      payload.receiver = this.receiverId;
     }
 
-    const roomId = [this.userId, this.receiverId].sort().join('-');
-    if (this.edititngMessageId) {
-      this.socketService.editMessage(
-        this.edititngMessageId,
-        this.message.trim(),
-        roomId
-      );
-      this.edititngMessageId = null;
-      this.message = '';
-      return;
-    }
+    // Handle Image vs Text
     if (this.selectedImage) {
       const reader = new FileReader();
       reader.onload = () => {
-        const base64String = (reader.result as string).split(',')[1];
-        const message = {
-          sender: this.userId,
-          receiver: this.receiverId,
-          content: this.message.trim(),
-          imageBase64: base64String,
-          imageType: this.selectedImage!.type,
-        };
-        this.socketService.sendMessage(message);
-        this.clearImage()
+        payload.imageBase64 = (reader.result as string).split(',')[1];
+        payload.imageType = this.selectedImage!.type;
+        this.socketService.sendMessage(payload);
+        this.clearImage();
         this.message = '';
       };
       reader.readAsDataURL(this.selectedImage);
     } else if (this.message.trim()) {
-      const message = {
-        sender: this.userId,
-        receiver: this.receiverId,
-        content: this.message.trim(),
-      };
-      this.socketService.sendMessage(message);
+      this.socketService.sendMessage(payload);
       this.message = '';
     }
   }
-
-  startChat(receiverId: string) {
+  fetchGroups() {
     if (!this.userId) return;
-    this.receiverId = receiverId;
-    const roomId = [this.userId, this.receiverId].sort().join('-');
-    this.socketService.joinRoom(roomId);
-
-    const receiver = this.users.find((u) => u._id === receiverId);
-    if (receiver) {
-      this.currentReceiver = receiver;
-    } else {
-      this.profileService.getProfile(receiverId).subscribe((profile) => {
-        this.currentReceiver = {
-          _id: profile._id,
-          name: profile.name,
-          avatar: profile.avatar,
-        };
-      });
-    }
+    this.messageService.getGroups(this.userId).subscribe(groups=>{
+      this.groups = groups;
+      const groupIds=this.groups.map(g=>g._id)
+      this.socketService.joinGroups(groupIds)
+    })
+  }
+  startChat(entity: any, isGroup: boolean) {
+    if (!this.userId) return;
 
     this.messages = [];
-    this.unreadMap.set(receiverId, 0);
-    this.clearImage()
     this.message = '';
+    this.selectedImage = null;
 
-    this.messageService
-      .getMessages(this.userId, this.receiverId)
-      .subscribe((messages) => {
-        this.messages = messages.map((m: any) => ({ ...m, id: m._id || m.id }));
+    if (isGroup) {
+      // GROUP MODE
+      this.selectedGroupId = entity._id;
+      this.receiverId = null; // Clear 1-on-1 receiver
+      this.currentGroup = entity;
+      this.currentReceiver = null;
+      
+      // Join room (Room ID = Group ID)
+      this.socketService.joinRoom(entity._id);
+
+      this.messageService.getMessages(null, null, entity._id).subscribe(msgs => {
+        this.messages = msgs.map((m: any) => ({ ...m, id: m._id || m.id }));
         this.scrollToBottom();
       });
 
-    this.messageService
-      .markMessagesAsRead(this.receiverId!, this.userId!)
-      .subscribe();
+    } else {
+      // 1-on-1 MODE (Legacy logic)
+      this.selectedGroupId = null;
+      this.receiverId = entity._id;
+      this.currentGroup = null;
+      // ... find currentReceiver logic ...
+      const receiver = this.users.find(u => u._id === entity._id);
+      if (receiver) this.currentReceiver = receiver;
+
+      const roomId = [this.userId, this.receiverId].sort().join('-');
+      this.socketService.joinRoom(roomId);
+
+      this.messageService.getMessages(this.userId, this.receiverId!).subscribe(msgs => {
+        this.messages = msgs.map((m: any) => ({ ...m, id: m._id || m.id }));
+        this.scrollToBottom();
+      });
+    }
   }
 
-  getUserName(userId: string): string {
-    const user = this.users.find((u) => u._id === userId);
+  getUserName(sender: string | any): string {
+    const senderId = this.getSenderId(sender);
+    
+    // Check if it's the current user
+    if (senderId === this.userId) return 'You';
+    
+    // If sender is a populated object, use the name directly (More efficient)
+    if (typeof sender === 'object' && sender?.name) {
+      return sender.name;
+    }
+
+    // Fallback: Look up in the users list
+    const user = this.users.find((u) => u._id === senderId);
     return user ? user.name : 'Unknown User';
   }
 
@@ -294,16 +335,16 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   onImageSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      if(file.size > 5 * 1024 * 1024){
+      if (file.size > 5 * 1024 * 1024) {
         alert('File size exceeds 5MB limit.');
         return;
       }
       this.selectedImage = file;
     }
   }
-  clearImage(){
+  clearImage() {
     this.selectedImage = null;
-    if(this.fileInput){
+    if (this.fileInput) {
       this.fileInput.nativeElement.value = '';
     }
   }
@@ -326,7 +367,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   }
   get filtertedUser() {
     return this.users.filter((user) =>
-      user.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      user.name.toLowerCase().includes(this.searchTerm.toLowerCase()),
     );
   }
   viewProfile(id: string) {
@@ -356,24 +397,57 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
       messageId,
       emoji,
       userId: this.userId,
-      roomId
+      roomId,
     });
     this.activeReactionMessageId = null; // Close menu
   }
 
-  // Helper to group reactions for display (e.g., "👍 2")
   getReactionCounts(msg: Message) {
     if (!msg.reactions) return [];
-    
+
     const counts: { [key: string]: number } = {};
-    msg.reactions.forEach(r => {
+    msg.reactions.forEach((r) => {
       counts[r.emoji] = (counts[r.emoji] || 0) + 1;
     });
 
-    return Object.keys(counts).map(emoji => ({
+    return Object.keys(counts).map((emoji) => ({
       emoji,
       count: counts[emoji],
-      hasReacted: msg.reactions?.some(r => r.emoji === emoji && r.sender === this.userId)
+      hasReacted: msg.reactions?.some(
+        (r) => r.emoji === emoji && r.sender === this.userId,
+      ),
     }));
+  }
+
+  openGroupModal(){
+    this.showCreateGroupModal = true;
+    this.newGroupName = '';
+    this.selectedParticipants.clear();
+  }
+  closeGroupModal(){
+    this.showCreateGroupModal = false;
+  }
+  toggleParticipant(userId:string){
+    if(this.selectedParticipants.has(userId)){
+      this.selectedParticipants.delete(userId);
+    }else{
+      this.selectedParticipants.add(userId);
+    }
+  }
+  createGroup(){
+    if(!this.newGroupName.trim() || this.selectedParticipants.size===0){
+      alert('Group name and at least one participant are required.');
+      return;
+    }
+    this.messageService.createGroup(
+      this.newGroupName,
+      Array.from(this.selectedParticipants),
+      this.userId!
+    ).subscribe(newGroup=>{
+      this.groups.push(newGroup);
+      this.socketService.joinGroups([newGroup._id]);
+      this.closeGroupModal();
+      this.startChat(newGroup,true);
+    })
   }
 }

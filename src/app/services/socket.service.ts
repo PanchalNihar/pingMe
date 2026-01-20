@@ -41,8 +41,8 @@ export class SocketService {
    */
   sendMessage(data: any) {
     // Check that we have sender and receiver
-    if (!data.sender || !data.receiver) {
-      console.error('Missing sender or receiver', data);
+    if (!data.sender || (!data.receiver && !data.chatRoomId) ){
+      console.error('Missing sender or DESTINATION(receiver/chatRoomId)', data);
       return;
     }
 
@@ -58,6 +58,7 @@ export class SocketService {
     console.log('Sending message:', {
       sender: data.sender,
       receiver: data.receiver,
+      chatRoomId: data.chatRoomId,
       hasContent: hasText,
       hasImage: hasImage,
     });
@@ -128,15 +129,15 @@ export class SocketService {
     return this.socket.fromEvent('message-edited');
   }
   sendReaction(data: any) {
-  this.socket.emit('add-reaction', data);
-}
+    this.socket.emit('add-reaction', data);
+  }
 
-onMessageReaction(): Observable<any> {
-  return this.socket.fromEvent('message-reaction-updated');
-}
-  /**
-   * Disconnect the socket when service is destroyed
-   */
+  onMessageReaction(): Observable<any> {
+    return this.socket.fromEvent('message-reaction-updated');
+  }
+  joinGroups(groupId: string[]) {
+    this.socket.emit('join-group-rooms', groupId);
+  }
   disconnect() {
     this.socket.disconnect();
   }
