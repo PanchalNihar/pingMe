@@ -226,15 +226,30 @@
             <div class="message-bubble">
               <img
                 *ngIf="msg.image?.data"
-                [src]="
-                  'data:' +
-                  msg.image?.contentType +
-                  ';base64,' +
-                  msg.image?.data
-                "
+                [src]="'data:' + msg.image?.contentType + ';base64,' + msg.image?.data"
                 class="chat-image"
               />
-              <div *ngIf="msg.content">{{ msg.content }}</div>
+
+              <div *ngIf="msg.content && msg.content !== 'Voice message'">
+                 {{ msg.content }}
+              </div>
+              
+              <div *ngIf="msg.content === 'Voice message' && !msg.audio?.data" class="italic-text">
+                 <span class="material-symbols-outlined" style="font-size: 12px; vertical-align: middle;">mic</span> Voice Message (Processing...)
+              </div>
+
+              <div *ngIf="msg.audio?.data" class="audio-player-wrapper">
+                <audio controls controlsList="nodownload noplaybackrate">
+                  <source [src]="getSafeAudioUrl(msg)" [type]="msg.audio?.contentType">
+                  Your browser does not support audio.
+                </audio>
+              </div>
+
+              <!-- <div *ngIf="msg.translatedContent" class="translated-text">
+                 <div class="t-divider"></div>
+                 <span class="material-symbols-outlined t-icon">translate</span>
+                 {{ msg.translatedContent }}
+              </div> -->
             </div>
 
             <div
@@ -374,57 +389,86 @@
         </div>
 
         <div class="input-container">
-          <label class="btn attach-btn" title="Attach Image">
-            <span class="material-symbols-outlined">attach_file</span>
-            <input
-              #fileInput
-              type="file"
-              hidden
-              accept="image/*"
-              (change)="onImageSelected($event)"
-            />
-          </label>
+          
+          <div *ngIf="isRecording" class="recording-ui">
+            <div class="rec-indicator">
+              <span class="rec-dot"></span>
+              <span>{{ formatDuration(recordingDuration) }}</span>
+            </div>
+            <span class="rec-text">Recording...</span>
+            <button class="btn-cancel-rec" (click)="cancelRecording()" title="Cancel">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+            <button class="btn-send-rec" (click)="stopRecording()" title="Send Voice Note">
+              <span class="material-symbols-outlined">send</span>
+            </button>
+          </div>
 
-          <button
-            class="btn ai-btn"
-            (click)="triggerSmartReplies()"
-            [disabled]="isAiLoading"
-            title="Generate AI Reply"
-          >
-            <span
-              class="material-symbols-outlined"
-              [class.sparkle-anim]="isAiLoading"
-              >auto_awesome</span
+          <ng-container *ngIf="!isRecording">
+            <label class="btn attach-btn" title="Attach Image">
+              <span class="material-symbols-outlined">attach_file</span>
+              <input
+                #fileInput
+                type="file"
+                hidden
+                accept="image/*"
+                (change)="onImageSelected($event)"
+              />
+            </label>
+
+            <button
+              class="btn ai-btn"
+              (click)="triggerSmartReplies()"
+              [disabled]="isAiLoading"
+              title="Generate AI Reply"
             >
-          </button>
+              <span
+                class="material-symbols-outlined"
+                [class.sparkle-anim]="isAiLoading"
+                >auto_awesome</span
+              >
+            </button>
 
-          <button
-            class="btn emoji-btn"
-            (click)="toggleEmojiPicker()"
-            title="Insert Emoji"
-          >
-            <span class="material-symbols-outlined">sentiment_satisfied</span>
-          </button>
+            <button
+              class="btn emoji-btn"
+              (click)="toggleEmojiPicker()"
+              title="Insert Emoji"
+            >
+              <span class="material-symbols-outlined">sentiment_satisfied</span>
+            </button>
 
-          <input
-            type="text"
-            class="main-input"
-            [(ngModel)]="message"
-            [placeholder]="
-              edititngMessageId ? 'Update your message...' : 'Type a message...'
-            "
-            (input)="onInput()"
-            (keyup.enter)="send()"
-          />
-          <button
-            class="send-btn"
-            [disabled]="!message.trim() && !selectedImage"
-            (click)="send()"
-          >
-            <span class="material-symbols-outlined" style="font-size: 20px">
-              {{ edititngMessageId ? "check" : "send" }}
-            </span>
-          </button>
+            <input
+              type="text"
+              class="main-input"
+              [(ngModel)]="message"
+              [placeholder]="
+                edititngMessageId
+                  ? 'Update your message...'
+                  : 'Type a message...'
+              "
+              (input)="onInput()"
+              (keyup.enter)="send()"
+            />
+
+            <button
+              class="send-btn"
+              *ngIf="message.trim() || selectedImage"
+              (click)="send()"
+            >
+              <span class="material-symbols-outlined" style="font-size: 20px">
+                {{ edititngMessageId ? "check" : "send" }}
+              </span>
+            </button>
+
+            <button
+              class="mic-btn"
+              *ngIf="!message.trim() && !selectedImage"
+              (click)="startRecording()"
+              title="Record Voice Note"
+            >
+              <span class="material-symbols-outlined">mic</span>
+            </button>
+          </ng-container>
         </div>
       </div>
     </div>
