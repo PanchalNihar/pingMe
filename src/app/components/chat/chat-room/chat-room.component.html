@@ -176,6 +176,9 @@
         </div>
 
         <div class="header-actions">
+          <button class="action-btn" (click)="generateSummary()" title="Summarize Chat">
+            <span class="material-symbols-outlined">wysiwyg</span>
+          </button>
           <button class="action-btn">
             <span class="material-symbols-outlined">videocam</span>
           </button>
@@ -699,3 +702,32 @@
     </div>
   </div>
 </div>
+<div class="modal-overlay" *ngIf="showSummaryModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Chat Summary</h3>
+        <button class="close-btn" (click)="closeSummaryModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body summary-body">
+        <div *ngIf="isGeneratingSummary" class="loading-summary">
+          <span class="material-symbols-outlined spin-icon">sync</span>
+          <p>Analyzing conversation...</p>
+        </div>
+
+        <div *ngIf="!isGeneratingSummary" class="summary-content">
+          <div class="ai-badge">
+            <span class="material-symbols-outlined">auto_awesome</span> 
+            <span>AI Generated Summary</span>
+          </div>
+          <p class="summary-text">{{ summaryContent }}</p>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn-create" (click)="closeSummaryModal()">Close</button>
+      </div>
+    </div>
+  </div>
