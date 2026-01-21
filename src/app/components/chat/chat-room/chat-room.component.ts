@@ -97,6 +97,9 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   suggestedReplies: string[] = [];
   isAiLoading = false;
 
+  showSummaryModal = false;
+  summaryContent = '';
+  isGeneratingSummary = false;
   constructor(
     private socketService: SocketService,
     @Inject(PLATFORM_ID) private platformId: object,
@@ -726,5 +729,26 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   useReply(reply: string) {
     this.message = reply;
     this.suggestedReplies = [];
+  }
+  generateSummary() {
+    this.isGeneratingSummary = true;
+    this.showSummaryModal = true;
+    this.summaryContent = '';
+    this.messageService
+      .getChatSummary(this.userId, this.receiverId, this.selectedGroupId)
+      .subscribe({
+        next: (res) => {
+          this.summaryContent = res.summary || 'No summary available.';
+          this.isGeneratingSummary = false;
+        },
+        error: () => {
+          this.isGeneratingSummary = false;
+          this.summaryContent = 'Failed to generate summary.';
+        },
+      });
+  }
+  closeSummaryModal() {
+    this.showSummaryModal = false;
+    this.summaryContent = '';
   }
 }

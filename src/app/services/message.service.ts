@@ -17,7 +17,9 @@ export class MessageService {
     roomId: string | null = null,
   ): Observable<Message[]> {
     if (roomId) {
-      return this.http.get<Message[]>(`${this.apiUrl}/messages?roomId=${roomId}`);
+      return this.http.get<Message[]>(
+        `${this.apiUrl}/messages?roomId=${roomId}`,
+      );
     }
     if (user1 && user2) {
       return this.http.get<Message[]>(
@@ -51,19 +53,57 @@ export class MessageService {
   getGroups(userId: string): Observable<any> {
     return this.http.get<any[]>(`${this.apiUrl}/groups?userId=${userId}`);
   }
-  updateGroup(groupId:string,name:string,avatar:string|null=null,userId:string){
-    return this.http.put(`${this.apiUrl}/groups/${groupId}`,{name,avatar,userId});
+  updateGroup(
+    groupId: string,
+    name: string,
+    avatar: string | null = null,
+    userId: string,
+  ) {
+    return this.http.put(`${this.apiUrl}/groups/${groupId}`, {
+      name,
+      avatar,
+      userId,
+    });
   }
-  addGroupParticipant(groupId:string,userId:string,adminId:string){
-    return this.http.put(`${this.apiUrl}/groups/${groupId}/add`,{userId,adminId});
+  addGroupParticipant(groupId: string, userId: string, adminId: string) {
+    return this.http.put(`${this.apiUrl}/groups/${groupId}/add`, {
+      userId,
+      adminId,
+    });
   }
-  removeGroupParticipant(groupId:string,userId:string,adminId:string){
-    return this.http.put(`${this.apiUrl}/groups/${groupId}/remove`,{userId,adminId});
+  removeGroupParticipant(groupId: string, userId: string, adminId: string) {
+    return this.http.put(`${this.apiUrl}/groups/${groupId}/remove`, {
+      userId,
+      adminId,
+    });
   }
-  AIRepliesForGroup(groupId:string){
-    return this.http.post<{replies:string[]}>(`${this.apiUrl}/smart-replies`,{roomId:groupId});
+  AIRepliesForGroup(groupId: string) {
+    return this.http.post<{ replies: string[] }>(
+      `${this.apiUrl}/smart-replies`,
+      { roomId: groupId },
+    );
   }
-  AIRepliesForChat(user1:string,user2:string){
-    return this.http.post<{replies:string[]}>(`${this.apiUrl}/smart-replies`,{user1,user2});
+  AIRepliesForChat(user1: string, user2: string) {
+    return this.http.post<{ replies: string[] }>(
+      `${this.apiUrl}/smart-replies`,
+      { user1, user2 },
+    );
+  }
+  getChatSummary(
+    user1: string | null,
+    user2: string | null,
+    roomId: string | null,
+  ) {
+    const payload: any = {};
+    if (roomId) {
+      payload.roomId = roomId;
+    } else {
+      payload.user1 = user1;
+      payload.user2 = user2;
+    }
+    return this.http.post<{ summary: string }>(
+      `${this.apiUrl}/summarize`,
+      payload,
+    );
   }
 }
