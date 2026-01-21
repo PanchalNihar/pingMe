@@ -1215,7 +1215,91 @@
   cursor: not-allowed;
   transform: none;
 }
+/* Language Selector */
+.language-selector-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: #f1f5f9; /* Light gray background */
+  border-radius: 0.75rem;
+  padding: 0 0.5rem;
+  margin-right: 0.5rem;
+  height: 2.5rem; /* Match other buttons */
+}
 
+.lang-icon {
+  font-size: 1.1rem;
+  color: #64748b;
+  pointer-events: none; /* Let clicks pass through */
+}
+
+.lang-dropdown {
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  padding: 0 0.5rem;
+  cursor: pointer;
+  outline: none;
+  appearance: none; /* Removes default browser arrow */
+  min-width: 80px;
+}
+
+.lang-dropdown:hover {
+  color: var(--primary);
+}
+
+/* Optional: Add custom arrow if appearance:none removes it */
+.language-selector-wrapper::after {
+  content: "expand_more";
+  font-family: "Material Symbols Outlined";
+  font-size: 1rem;
+  color: #64748b;
+  pointer-events: none;
+}
+/* Translation Result in Bubble */
+.translated-text {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  font-size: 0.9em;
+  color: #4b5563; /* slightly darker gray */
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  font-style: italic;
+  display: flex;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+/* Different color for sender bubble to remain readable */
+.group-sender .translated-text {
+  color: #e0e7ff; /* light blue-white */
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.t-icon {
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+/* Header Toggle Active State */
+.action-btn.active-btn {
+  background-color: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+/* Translate Action Button */
+.msg-action-btn.translate:hover {
+  color: #10b981; /* Green */
+}
+
+.translating-spinner {
+  font-size: 12px;
+  opacity: 0.7;
+  animation: pulse 1s infinite;
+}
 /* Animation when AI is loading */
 .sparkle-anim {
   animation: spin-pulse 1.5s infinite linear;

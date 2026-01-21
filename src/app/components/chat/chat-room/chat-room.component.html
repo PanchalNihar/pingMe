@@ -176,7 +176,32 @@
         </div>
 
         <div class="header-actions">
-          <button class="action-btn" (click)="generateSummary()" title="Summarize Chat">
+          <div class="language-selector-wrapper">
+            <span class="material-symbols-outlined lang-icon">language</span>
+            <select
+              [(ngModel)]="selectedLanguage"
+              class="lang-dropdown"
+              title="Select Target Language"
+            >
+              <option *ngFor="let lang of supportedLanguages" [value]="lang">
+                {{ lang }}
+              </option>
+            </select>
+          </div>
+
+          <button
+            class="action-btn"
+            [class.active-btn]="autoTranslate"
+            (click)="toggleAutoTranslate()"
+            title="Auto-Translate Incoming Messages to {{ selectedLanguage }}"
+          >
+            <span class="material-symbols-outlined">translate</span>
+          </button>
+          <button
+            class="action-btn"
+            (click)="generateSummary()"
+            title="Summarize Chat"
+          >
             <span class="material-symbols-outlined">wysiwyg</span>
           </button>
           <button class="action-btn">
@@ -703,31 +728,31 @@
   </div>
 </div>
 <div class="modal-overlay" *ngIf="showSummaryModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Chat Summary</h3>
-        <button class="close-btn" (click)="closeSummaryModal()">
-          <span class="material-symbols-outlined">close</span>
-        </button>
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Chat Summary</h3>
+      <button class="close-btn" (click)="closeSummaryModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body summary-body">
+      <div *ngIf="isGeneratingSummary" class="loading-summary">
+        <span class="material-symbols-outlined spin-icon">sync</span>
+        <p>Analyzing conversation...</p>
       </div>
 
-      <div class="modal-body summary-body">
-        <div *ngIf="isGeneratingSummary" class="loading-summary">
-          <span class="material-symbols-outlined spin-icon">sync</span>
-          <p>Analyzing conversation...</p>
+      <div *ngIf="!isGeneratingSummary" class="summary-content">
+        <div class="ai-badge">
+          <span class="material-symbols-outlined">auto_awesome</span>
+          <span>AI Generated Summary</span>
         </div>
-
-        <div *ngIf="!isGeneratingSummary" class="summary-content">
-          <div class="ai-badge">
-            <span class="material-symbols-outlined">auto_awesome</span> 
-            <span>AI Generated Summary</span>
-          </div>
-          <p class="summary-text">{{ summaryContent }}</p>
-        </div>
-      </div>
-      
-      <div class="modal-footer">
-        <button class="btn-create" (click)="closeSummaryModal()">Close</button>
+        <p class="summary-text">{{ summaryContent }}</p>
       </div>
     </div>
+
+    <div class="modal-footer">
+      <button class="btn-create" (click)="closeSummaryModal()">Close</button>
+    </div>
   </div>
+</div>
