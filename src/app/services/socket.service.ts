@@ -49,9 +49,9 @@ export class SocketService {
     // Check that we have at least text or image
     const hasText = !!data.content?.trim();
     const hasImage = !!data.imageBase64;
-
-    if (!hasText && !hasImage) {
-      console.error('Message must contain text or image', data);
+    const hasAudio = !!data.audioBase64;
+    if (!hasText && !hasImage && !hasAudio) {
+      console.error('Message must contain text, image, or audio', data);
       return;
     }
 
@@ -61,6 +61,7 @@ export class SocketService {
       chatRoomId: data.chatRoomId,
       hasContent: hasText,
       hasImage: hasImage,
+      hasAudio: hasAudio,
     });
 
     // Send the message

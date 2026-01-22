@@ -17,6 +17,7 @@ import { Router } from '@angular/router';
 import { ProfileService } from '../../../services/profile.service';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
 import { ModalService } from '../../../services/modal.service';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 export interface Message {
   id?: string;
   _id?: string;
@@ -33,6 +34,10 @@ export interface Message {
   reactions?: { sender: string; emoji: string }[];
   translatedContent?: string;
   isTranslating?: boolean;
+  audio?: {
+    data: string;
+    contentType: string;
+  };
 }
 interface ChatGroup {
   _id: string;
@@ -116,6 +121,11 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     'Gujarati',
   ];
   selectedLanguage = this.userLanguage;
+  isRecording = false;
+  mediaRecorder: MediaRecorder | null = null;
+  audioChunks: any[] = [];
+  recordingDuration = 0;
+  recordingTimer: any;
   constructor(
     private socketService: SocketService,
     @Inject(PLATFORM_ID) private platformId: object,
@@ -124,48 +134,23 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     private router: Router,
     private profileService: ProfileService,
     private modalService: ModalService,
+    private sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit(): void {
     this.userId = this.authService.getUserId();
     if (!this.userId) return;
-
-    // this.authService.getMyFriends(this.userId).subscribe((res: any) => {
-    //   this.users = res;
-    //   this.users.forEach((user) => {
-    //     this.profileService.getProfile(user._id).subscribe((profile) => {
-    //       const userIndex = this.users.findIndex((u) => u._id === profile._id);
-    //       if (userIndex !== -1) {
-    //         this.users[userIndex] = {
-    //           ...this.users[userIndex],
-    //           avatar: profile.avatar,
-    //         };
-    //       }
-    //       if (this.receiverId === profile._id) {
-    //         this.currentReceiver = {
-    //           _id: profile._id,
-    //           name: profile.name,
-    //           avatar: profile.avatar,
-    //         };
-    //       }
-    //     });
-    //   });
-    //   this.socketService.onTyping().subscribe((senderId: string) => {
-    //     if (senderId !== this.userId) {
-    //       this.typingUser = this.getUserName(senderId);
-    //       this.isTyping = true;
-    //     }
-    //     this.socketService.onStopTyping().subscribe(() => {
-    //       this.isTyping = false;
-    //     });
-    //   });
-    // });
     this.loadFriends();
     this.fetchGroups();
 
-    this.socketService.onMessage().subscribe((msg: Message) => {
+    this.socketService.onMessage().subscribe((msg: any) => {
       msg.id = msg.id || msg._id;
-
+      if (msg.audioBase64 && !msg.audio) {
+        msg.audio = {
+          data: msg.audioBase64,
+          contentType: msg.audioType || 'audio/webm'
+        };
+      }
       const senderId = this.getSenderId(msg.sender);
 
       // FIX: Check if the message belongs to the SPECIFIC Group currently open
@@ -788,5 +773,100 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
         msg.isTranslating = false;
       }
     });
+
+  async startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.mediaRecorder = new MediaRecorder(stream);
+      this.audioChunks = [];
+      this.isRecording = true;
+      this.recordingDuration = 0;
+
+      // Start Timer
+      this.recordingTimer = setInterval(() => {
+        this.recordingDuration++;
+      }, 1000);
+
+      this.mediaRecorder.ondataavailable = (event) => {
+        this.audioChunks.push(event.data);
+      };
+
+      this.mediaRecorder.onstop = () => {
+        this.sendAudioMessage();
+      };
+
+      this.mediaRecorder.start();
+    } catch (err) {
+      console.error('Error accessing microphone:', err);
+      this.modalService.alert('Could not access microphone.');
+    }
+  }
+
+  stopRecording() {
+    if (this.mediaRecorder && this.isRecording) {
+      this.mediaRecorder.stop(); // Triggers onstop -> sendAudioMessage
+      this.isRecording = false;
+      clearInterval(this.recordingTimer);
+
+      // Stop all tracks to release microphone
+      this.mediaRecorder.stream.getTracks().forEach((track) => track.stop());
+    }
+  }
+
+  cancelRecording() {
+    if (this.mediaRecorder && this.isRecording) {
+      this.mediaRecorder.stop();
+      this.isRecording = false;
+      clearInterval(this.recordingTimer);
+      this.audioChunks = []; // Clear chunks so we don't send
+      this.mediaRecorder.stream.getTracks().forEach((track) => track.stop());
+      // Override onstop to do nothing
+      this.mediaRecorder.onstop = null;
+    }
+  }
+
+  sendAudioMessage() {
+    if (this.audioChunks.length === 0) return;
+
+    const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+    const reader = new FileReader();
+
+    reader.readAsDataURL(audioBlob);
+    reader.onloadend = () => {
+      const base64Audio = (reader.result as string).split(',')[1];
+
+      // Prepare Payload
+      const payload: any = {
+        sender: this.userId,
+        content: 'Voice message', // Empty content for voice notes
+        audioBase64: base64Audio,
+        audioType: 'audio/webm',
+      };
+
+      if (this.selectedGroupId) {
+        payload.chatRoomId = this.selectedGroupId;
+      } else {
+        payload.receiver = this.receiverId;
+      }
+
+      // Send via Socket
+      this.socketService.sendMessage(payload);
+    };
+  }
+
+  // Helper for timer display (e.g. "0:12")
+  formatDuration(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  }
+  getSafeAudioUrl(msg: Message): SafeUrl {
+    if (!msg.audio || !msg.audio.data) return '';
+
+    // Construct the base64 string
+    const base64String = `data:${msg.audio.contentType};base64,${msg.audio.data}`;
+
+    // Bypass Angular security to allow playback
+    return this.sanitizer.bypassSecurityTrustUrl(base64String);
   }
 }
