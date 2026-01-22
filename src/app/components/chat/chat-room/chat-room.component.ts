@@ -773,7 +773,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
         msg.isTranslating = false;
       }
     });
-
+  }
   async startRecording() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
