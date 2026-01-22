@@ -773,8 +773,9 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
         msg.isTranslating = false;
       }
     });
+  }
 
-  async startRecording() {
+   async startRecording() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       this.mediaRecorder = new MediaRecorder(stream);
@@ -860,6 +861,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   }
+
   getSafeAudioUrl(msg: Message): SafeUrl {
     if (!msg.audio || !msg.audio.data) return '';
 
