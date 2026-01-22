@@ -1,0 +1,24 @@
+<div class="verify-container">
+  <div class="card">
+    <div *ngIf="status === 'loading'" class="state">
+      <div class="spinner"></div>
+      <h2>Verifying...</h2>
+      <p>Please wait while we activate your account.</p>
+    </div>
+
+    <div *ngIf="status === 'success'" class="state success">
+      <span class="material-symbols-outlined icon">check_circle</span>
+      <h2>Verified!</h2>
+      <p>{{ message }}</p>
+      <p class="sub-text">Redirecting to login...</p>
+      <button routerLink="/login" class="btn-primary">Login Now</button>
+    </div>
+
+    <div *ngIf="status === 'error'" class="state error">
+      <span class="material-symbols-outlined icon">error</span>
+      <h2>Verification Failed</h2>
+      <p>{{ message }}</p>
+      <button routerLink="/login" class="btn-secondary">Back to Login</button>
+    </div>
+  </div>
+</div>

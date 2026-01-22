@@ -1,5 +1,4 @@
 <div class="login-container">
-  
   <div class="brand-panel">
     <div class="brand-bg-pattern">
       <div class="bg-line line-1"></div>
@@ -9,18 +8,22 @@
     <div class="brand-content">
       <h1 class="brand-title">PingMe</h1>
       <p class="brand-description">
-        A professional communication hub designed for the modern enterprise. 
+        A professional communication hub designed for the modern enterprise.
         Connect with your team instantly, securely, and efficiently.
       </p>
 
       <div class="feature-list">
         <div class="feature-item">
           <div class="dot"></div>
-          <span class="feature-text">Enterprise-grade security and encryption.</span>
+          <span class="feature-text"
+            >Enterprise-grade security and encryption.</span
+          >
         </div>
         <div class="feature-item">
           <div class="dot"></div>
-          <span class="feature-text">Seamless cross-platform synchronization.</span>
+          <span class="feature-text"
+            >Seamless cross-platform synchronization.</span
+          >
         </div>
         <div class="feature-item">
           <div class="dot"></div>
@@ -29,82 +32,103 @@
       </div>
     </div>
 
-    <div class="brand-footer">
-      © 2026 PingMe Systems International
-    </div>
+    <div class="brand-footer">© 2026 PingMe Systems International</div>
   </div>
 
   <div class="form-panel">
     <div class="form-wrapper">
-      
       <div class="mobile-brand">
         <h1>PingMe</h1>
       </div>
 
       <div class="form-header">
         <h2 class="form-title">Login</h2>
-        <p class="form-subtitle">Please enter your credentials to access your account.</p>
+        <p class="form-subtitle">
+          Please enter your credentials to access your account.
+        </p>
       </div>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        
         <div class="form-group">
-          <label class="label" for="email">Email Address</label>
-          <input 
+          <label class="label" for="email">Email Address or Phone Number</label>
+          <input
             id="email"
-            type="email" 
+            type="text"
             formControlName="email"
-            class="input-field" 
-            placeholder="name@company.com"
-            [ngClass]="{'is-error': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}"
+            class="input-field"
+            placeholder="name@company.com or 9876543210"
+            [ngClass]="{
+              'is-error':
+                loginForm.get('email')?.invalid &&
+                loginForm.get('email')?.touched,
+            }"
           />
-          <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error-text">
-            <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</span>
-            <span *ngIf="loginForm.get('email')?.errors?.['email']">Please enter a valid email address</span>
+          <div
+            *ngIf="
+              loginForm.get('email')?.invalid && loginForm.get('email')?.touched
+            "
+            class="error-text"
+          >
+            <span *ngIf="loginForm.get('email')?.errors?.['required']"
+              >Email or Phone is required</span
+            >
           </div>
         </div>
 
         <div class="form-group">
           <div class="label-row">
-            <label class="label" for="password" style="margin-bottom: 0;">Password</label>
-            <a href="javascript:void(0)" class="link-forgot">Forgot Password?</a>
+            <label class="label" for="password" style="margin-bottom: 0"
+              >Password</label
+            >
+            <a href="javascript:void(0)" class="link-forgot"
+              >Forgot Password?</a
+            >
           </div>
-          <input 
+          <input
             id="password"
-            type="password" 
+            type="password"
             formControlName="password"
-            class="input-field" 
+            class="input-field"
             placeholder="••••••••"
-            [ngClass]="{'is-error': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"
+            [ngClass]="{
+              'is-error':
+                loginForm.get('password')?.invalid &&
+                loginForm.get('password')?.touched,
+            }"
           />
-          <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-text">
-            <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required</span>
+          <div
+            *ngIf="
+              loginForm.get('password')?.invalid &&
+              loginForm.get('password')?.touched
+            "
+            class="error-text"
+          >
+            <span *ngIf="loginForm.get('password')?.errors?.['required']"
+              >Password is required</span
+            >
           </div>
         </div>
 
         <div class="checkbox-group">
-          <input type="checkbox" id="remember-me" class="checkbox">
-          <label for="remember-me" class="checkbox-label">Remember this device</label>
+          <input type="checkbox" id="remember-me" class="checkbox" />
+          <label for="remember-me" class="checkbox-label"
+            >Remember this device</label
+          >
         </div>
 
-        <button 
-          type="submit" 
-          class="btn-submit"
-          [disabled]="loginForm.invalid"
-        >
+        <button type="submit" class="btn-submit" [disabled]="loginForm.invalid">
           Login Now
         </button>
-
       </form>
 
       <div class="form-footer">
         <p class="footer-text">
-          New to PingMe? 
-          <a routerLink="/auth/register" class="footer-link">Create an account</a>
+          New to PingMe?
+          <a routerLink="/auth/register" class="footer-link"
+            >Create an account</a
+          >
         </p>
       </div>
-
     </div>
   </div>
-
 </div>

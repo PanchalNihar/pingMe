@@ -1,4 +1,10 @@
 <div class="chat-interface-container">
+  <div *ngIf="!isEmailVerified" class="verification-banner">
+    <div class="banner-content">
+      <span class="material-symbols-outlined">warning</span>
+      <span>Your email is not verified. Please check your inbox to enable all features.</span>
+    </div>
+    </div>
   <div class="user-list-panel">
     <div class="search-section">
       <div class="search-wrapper">

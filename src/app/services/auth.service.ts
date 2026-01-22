@@ -18,7 +18,9 @@ export class AuthService {
   register(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, data);
   }
-
+  verifyEmail(token: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-email`, { token });
+  }
   login(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, data);
   }

@@ -6,6 +6,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { LayoutComponent } from './components/layout/layout.component';
 import { UserListComponent } from './components/users/user-list/user-list.component';
 import { UserProfileComponent } from './components/users/user-profile/user-profile.component';
+import { VerifyEmailComponent } from './components/verify-email/verify-email.component';
 
 export const routes: Routes = [
   {
@@ -22,6 +23,10 @@ export const routes: Routes = [
     component: RegisterComponent,
   },
   {
+    path: 'verify-email',
+    component: VerifyEmailComponent,
+  },
+  {
     path: '',
     component: LayoutComponent,
     canActivate: [authGuard],
@@ -30,14 +35,14 @@ export const routes: Routes = [
         path: 'chat',
         loadComponent: () =>
           import('./components/chat/chat-room/chat-room.component').then(
-            (m) => m.ChatRoomComponent
+            (m) => m.ChatRoomComponent,
           ),
       },
       {
         path: 'chat/:id',
         loadComponent: () =>
           import('./components/chat/chat-room/chat-room.component').then(
-            (m) => m.ChatRoomComponent
+            (m) => m.ChatRoomComponent,
           ),
       },
       {
@@ -56,6 +61,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo:'auth/login'
+    redirectTo: 'auth/login',
   },
 ];

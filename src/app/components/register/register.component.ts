@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -10,14 +10,17 @@ import {
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { ModalService } from '../../services/modal.service';
+
 @Component({
   selector: 'app-register',
+  standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css',
+  styleUrls: ['./register.component.css'],
 })
 export class RegisterComponent {
   registerForm: FormGroup;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -27,22 +30,35 @@ export class RegisterComponent {
     this.registerForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]],
+      phoneNumber: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('^[0-9]+$'),
+          Validators.maxLength(10),
+        ],
+      ],
+      password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
   onSubmit() {
     if (this.registerForm.valid) {
       this.authService.register(this.registerForm.value).subscribe({
-        next: (res) => {
-          this.authService.savetoken(res.token);
-          this.authService.saveUserId(res.user.id);
-          this.router.navigate(['/chat']);
+        next: (res: any) => {
+          // FIX: Do not login immediately. Show verification message.
+          this.modalService.alert(
+            res.message ||
+              'Registration successful! Please check your email to verify your account.',
+          );
+          this.router.navigate(['/auth/login']);
         },
         error: (err) => {
-          this.modalService.alert(err.error.message);
+          this.modalService.alert(err.error?.message || 'Registration failed');
         },
       });
+    } else {
+      this.registerForm.markAllAsTouched();
     }
   }
 }

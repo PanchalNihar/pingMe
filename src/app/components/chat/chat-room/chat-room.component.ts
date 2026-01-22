@@ -52,6 +52,7 @@ interface User {
   name: string;
   email?: string;
   avatar?: string;
+  isVerified?: boolean;
 }
 
 @Component({
@@ -85,7 +86,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   groups: ChatGroup[] = [];
   selectedGroupId: string | null = null;
   currentGroup: ChatGroup | null = null;
-
+  isEmailVerified = true;
   showCreateGroupModal = false;
   newGroupName = '';
   selectedParticipants: Set<string> = new Set();
@@ -140,6 +141,9 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     this.userId = this.authService.getUserId();
     if (!this.userId) return;
+    this.profileService.getProfile(this.userId).subscribe((user: any) => {
+       this.isEmailVerified = (user.isVerified === true); 
+    });
     this.loadFriends();
     this.fetchGroups();
 
