@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Message } from '../components/chat/chat-room/chat-room.component';
 import { count } from 'node:console';
 import { environment } from '../../environments/environment';
+import { observableToBeFn } from 'rxjs/internal/testing/TestScheduler';
 
 @Injectable({
   providedIn: 'root',
@@ -104,6 +105,15 @@ export class MessageService {
     return this.http.post<{ summary: string }>(
       `${this.apiUrl}/summarize`,
       payload,
+    );
+  }
+  translateMessage(
+    text: string,
+    targetLanguage: string,
+  ): Observable<{ translatedText: string }> {
+    return this.http.post<{ translatedText: string }>(
+      `${this.apiUrl}/translate`,
+      { text, targetLanguage },
     );
   }
 }

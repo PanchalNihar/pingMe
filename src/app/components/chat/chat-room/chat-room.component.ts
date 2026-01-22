@@ -32,6 +32,8 @@ export interface Message {
     contentType: string;
   };
   reactions?: { sender: string; emoji: string }[];
+  translatedContent?: string;
+  isTranslating?: boolean;
   audio?: {
     data: string;
     contentType: string;
@@ -106,6 +108,19 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   summaryContent = '';
   isGeneratingSummary = false;
 
+  userLanguage = 'English';
+  autoTranslate = false;
+  supportedLanguages = [
+    'English',
+    'Hindi',
+    'Spanish',
+    'French',
+    'German',
+    'Japanese',
+    'Russian',
+    'Gujarati',
+  ];
+  selectedLanguage = this.userLanguage;
   isRecording = false;
   mediaRecorder: MediaRecorder | null = null;
   audioChunks: any[] = [];
@@ -175,6 +190,9 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
           const roomId = this.selectedGroupId;
           const user1 = this.userId;
           const user2 = this.receiverId;
+        }
+        if (this.autoTranslate && !this.isCurrentUser(msg.sender)) {
+          this.translateMessage(msg);
         }
       }
     });
@@ -737,6 +755,24 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     this.showSummaryModal = false;
     this.summaryContent = '';
   }
+ toggleAutoTranslate() {
+    this.autoTranslate = !this.autoTranslate;
+  }
+
+  translateMessage(msg: Message) {
+    if (!msg.content || msg.translatedContent) return;
+
+    msg.isTranslating = true;
+
+    this.messageService.translateMessage(msg.content, this.selectedLanguage).subscribe({
+      next: (res: any) => {
+        msg.translatedContent = res.translatedText; 
+        msg.isTranslating = false;
+      },
+      error: () => {
+        msg.isTranslating = false;
+      }
+    });
 
   async startRecording() {
     try {
