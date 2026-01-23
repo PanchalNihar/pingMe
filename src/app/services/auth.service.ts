@@ -54,8 +54,8 @@ export class AuthService {
   getAllUsers(excludeId: string) {
     return this.http.get(`${this.apiUrl}/users?exclude=${excludeId}`);
   }
-  searchUser(email: string): Observable<any> {
-    return this.http.get(`${this.friendUrl}/search?email=${email}`);
+  searchUser(name: string): Observable<any> {
+    return this.http.get(`${this.friendUrl}/search?name=${name}`);
   }
 
   sendFriendRequest(fromUserId: string, toUserId: string): Observable<any> {

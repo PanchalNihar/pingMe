@@ -97,7 +97,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   newMemberId = '';
 
   showAddFriendModal = false;
-  searchEmail = '';
+  searchName = '';
   foundUser: any = null;
   pendingRequests: any[] = [];
   activeTab: 'add' | 'requests' = 'add';
@@ -620,7 +620,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   }
   openAddFriendModal() {
     this.showAddFriendModal = true;
-    this.searchEmail = '';
+    this.searchName = '';
     this.foundUser = null;
     this.fetchPendingRequests();
   }
@@ -637,8 +637,8 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
   }
 
   searchUser() {
-    if (!this.searchEmail.trim()) return;
-    this.authService.searchUser(this.searchEmail).subscribe({
+    if (!this.searchName.trim()) return;
+    this.authService.searchUser(this.searchName).subscribe({
       next: (user) => {
         // Don't show yourself
         if (user._id === this.userId) {
@@ -663,7 +663,7 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
         next: () => {
           this.modalService.alert('Friend request sent!');
           this.foundUser = null;
-          this.searchEmail = '';
+          this.searchName = '';
         },
         error: (err) => {
           this.modalService.alert(err.error.msg || 'Failed to send request');

@@ -710,10 +710,10 @@
       <div *ngIf="activeTab === 'add'" class="add-friend-view">
         <div class="search-row">
           <input
-            type="email"
+            type="text"
             class="modal-input"
-            [(ngModel)]="searchEmail"
-            placeholder="Enter user email..."
+            [(ngModel)]="searchName"
+            placeholder="Enter user name..."
             (keyup.enter)="searchUser()"
           />
           <button class="btn-primary-mini" (click)="searchUser()">
