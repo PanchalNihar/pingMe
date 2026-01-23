@@ -13,7 +13,6 @@ export class SocketService {
   constructor() {
     // 1. Get the URL from environment (Production vs Local)
     const url = environment.apiUrl; 
-    console.log('🔌 Initializing Socket with URL:', url);
 
     // 2. Initialize the connection directly
     this.socket = io(url, {
