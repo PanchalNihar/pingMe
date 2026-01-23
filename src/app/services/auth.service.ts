@@ -84,9 +84,12 @@ export class AuthService {
   getMyFriends(userId: string): Observable<any> {
     return this.http.get(`${this.friendUrl}/list?userId=${userId}`);
   }
+  googleLogin(token:string):Observable<any>{
+    return this.http.post(`${this.apiUrl}/google-login`,{token});
+  }
   logout() {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.clear(); // Fixed: This should be a method call, not a property
+      localStorage.clear();
     }
   }
 }

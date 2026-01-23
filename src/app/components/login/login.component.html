@@ -48,6 +48,42 @@
         </p>
       </div>
 
+      <div
+        style="display: flex; justify-content: center; margin-bottom: 1.5rem"
+      >
+        <asl-google-signin-button
+          type="standard"
+          size="large"
+          [width]="320"
+        ></asl-google-signin-button>
+      </div>
+
+      <div
+        style="position: relative; text-align: center; margin-bottom: 1.5rem"
+      >
+        <div
+          style="
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background-color: #e2e8f0;
+          "
+        ></div>
+        <span
+          style="
+            position: relative;
+            background-color: white;
+            padding: 0 10px;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-weight: 500;
+          "
+        >
+          OR LOGIN WITH EMAIL
+        </span>
+      </div>
+
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
           <label class="label" for="email">Email Address or Phone Number</label>
