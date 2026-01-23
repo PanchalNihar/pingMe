@@ -1,9 +1,12 @@
 import { NgModule } from '@angular/core';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
-
+import { environment } from '../../environments/environment';
 const config: SocketIoConfig = {
-  url: 'http://localhost:5000',
-  options: {},
+  url: environment.apiUrl,
+  options: {
+    transports: ['websocket', 'polling'],
+    autoConnect:true,
+  },
 };
 
 @NgModule({
