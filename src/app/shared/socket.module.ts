@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.prod';
 const config: SocketIoConfig = {
   url: environment.apiUrl,
   options: {
