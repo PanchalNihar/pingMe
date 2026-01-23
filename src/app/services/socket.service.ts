@@ -1,145 +1,159 @@
 import { Injectable } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
 import { Observable } from 'rxjs';
+import { io, Socket } from 'socket.io-client';
+import { environment } from '../../environments/environment.prod';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class SocketService {
+  private socket: Socket;
   private currentRoom: string | null = null;
 
-  constructor(private socket: Socket) {
-    // Listen for connection events for debugging
+  constructor() {
+    // 1. Get the URL from environment (Production vs Local)
+    const url = environment.apiUrl; 
+    console.log('🔌 Initializing Socket with URL:', url);
+
+    // 2. Initialize the connection directly
+    this.socket = io(url, {
+      transports: ['websocket', 'polling'],
+      withCredentials: true,
+      autoConnect: true,
+      path: '/socket.io/' // Standard path
+    });
+
+    // 3. Setup Connection Listeners
     this.socket.on('connect', () => {
-      console.log('Socket connected');
-      // Rejoin room if there was one active
+      console.log('✅ Socket connected successfully via:', this.socket.io.engine.transport.name);
+      
+      // Rejoin room if we reconnected
       if (this.currentRoom) {
         this.joinRoom(this.currentRoom);
       }
     });
 
-    this.socket.on('disconnect', () => {
-      console.log('Socket disconnected');
+    this.socket.on('connect_error', (err) => {
+      console.error('❌ Socket Connection Error:', err.message);
+    });
+
+    this.socket.on('disconnect', (reason) => {
+      console.warn('⚠️ Socket disconnected:', reason);
     });
   }
 
   /**
    * Join a chat room
-   * @param roomId The room identifier
    */
   joinRoom(roomId: string) {
-    console.log('Joining room:', roomId);
-
-    // Store current room for reconnection handling
     this.currentRoom = roomId;
-
-    // Join the room
     this.socket.emit('join-room', roomId);
   }
 
+  joinGroups(groupIds: string[]) {
+    this.socket.emit('join-group-rooms', groupIds);
+  }
+
   /**
-   * Send a message to the current room
-   * @param data Message data
+   * Send a message
    */
   sendMessage(data: any) {
-    // Check that we have sender and receiver
-    if (!data.sender || (!data.receiver && !data.chatRoomId) ){
-      console.error('Missing sender or DESTINATION(receiver/chatRoomId)', data);
+    if (!data.sender || (!data.receiver && !data.chatRoomId)) {
+      console.error('Missing sender or destination', data);
       return;
     }
-
-    // Check that we have at least text or image
-    const hasText = !!data.content?.trim();
-    const hasImage = !!data.imageBase64;
-    const hasAudio = !!data.audioBase64;
-    if (!hasText && !hasImage && !hasAudio) {
-      console.error('Message must contain text, image, or audio', data);
-      return;
-    }
-
-    console.log('Sending message:', {
-      sender: data.sender,
-      receiver: data.receiver,
-      chatRoomId: data.chatRoomId,
-      hasContent: hasText,
-      hasImage: hasImage,
-      hasAudio: hasAudio,
-    });
-
-    // Send the message
     this.socket.emit('chat-message', data);
   }
 
   /**
    * Listen for incoming messages
-   * @returns Observable for chat messages
+   * Wraps standard socket.on() in an Observable for Angular
    */
   onMessage(): Observable<any> {
-    // Return an observable of messages from the socket
-    return this.socket.fromEvent('chat-message');
+    return new Observable(observer => {
+      this.socket.on('chat-message', (data) => observer.next(data));
+    });
   }
 
-  /**
-   * Get notification when a user joins a room
-   * @returns Observable for join events
-   */
   onUserJoined(): Observable<any> {
-    return this.socket.fromEvent('user-joined');
+    return new Observable(observer => {
+      this.socket.on('user-joined', (data) => observer.next(data));
+    });
   }
 
-  /**
-   * Get notification when a user leaves a room
-   * @returns Observable for leave events
-   */
   onUserLeft(): Observable<any> {
-    return this.socket.fromEvent('user-left');
+    return new Observable(observer => {
+      this.socket.on('user-left', (data) => observer.next(data));
+    });
   }
 
+  // --- TYPING ---
   typing(roomId: string, sender: string) {
     this.socket.emit('typing', { roomId, sender });
   }
 
-  stopTyping(roomId: String) {
+  stopTyping(roomId: string) {
     this.socket.emit('stop-typing', { roomId });
   }
 
   onTyping(): Observable<any> {
-    return this.socket.fromEvent('typing');
+    return new Observable(observer => {
+      this.socket.on('typing', (data) => observer.next(data));
+    });
   }
 
   onStopTyping(): Observable<any> {
-    return this.socket.fromEvent('stop-typing');
+    return new Observable(observer => {
+      this.socket.on('stop-typing', (data) => observer.next(data));
+    });
   }
 
+  // --- USER STATUS ---
   registerUser(userId: string) {
     this.socket.emit('register-users', userId);
   }
 
   onOnlineUsers(): Observable<any> {
-    return this.socket.fromEvent('online-users');
+    return new Observable(observer => {
+      this.socket.on('online-users', (data) => observer.next(data));
+    });
   }
 
+  // --- MESSAGE ACTIONS ---
   deleteMessage(messageId: string, roomId: string) {
     this.socket.emit('delete-message', { messageId, roomId });
   }
+
   onMessageDeleted(): Observable<any> {
-    return this.socket.fromEvent('message-deleted');
+    return new Observable(observer => {
+      this.socket.on('message-deleted', (data) => observer.next(data));
+    });
   }
+
   editMessage(messageId: string, newContent: string, roomId: string) {
     this.socket.emit('edit-message', { messageId, newContent, roomId });
   }
+
   onMessageEdit(): Observable<any> {
-    return this.socket.fromEvent('message-edited');
+    return new Observable(observer => {
+      this.socket.on('message-edited', (data) => observer.next(data));
+    });
   }
+
+  // --- REACTIONS ---
   sendReaction(data: any) {
     this.socket.emit('add-reaction', data);
   }
 
   onMessageReaction(): Observable<any> {
-    return this.socket.fromEvent('message-reaction-updated');
+    return new Observable(observer => {
+      this.socket.on('message-reaction-updated', (data) => observer.next(data));
+    });
   }
-  joinGroups(groupId: string[]) {
-    this.socket.emit('join-group-rooms', groupId);
-  }
+
   disconnect() {
-    this.socket.disconnect();
+    if (this.socket) {
+      this.socket.disconnect();
+    }
   }
 }

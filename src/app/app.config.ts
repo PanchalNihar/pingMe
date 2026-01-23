@@ -7,7 +7,6 @@ import {
   withEventReplay,
 } from '@angular/platform-browser';
 import { provideHttpClient, withFetch } from '@angular/common/http';
-import { socketProviders } from './socket.providers';
 import {SocialAuthServiceConfig,GoogleLoginProvider} from "@abacritt/angularx-social-login"
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -31,7 +30,6 @@ export const appConfig: ApplicationConfig = {
         },
       } as SocialAuthServiceConfig,
     },
-    ...socketProviders,
     provideClientHydration(withEventReplay()),
   ],
 };
