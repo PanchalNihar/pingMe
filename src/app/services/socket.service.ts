@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../environments/environment';
-
+import { environmentProd } from '../../environments/environment.prod';
 @Injectable({
   providedIn: 'root'
 })
@@ -12,7 +12,7 @@ export class SocketService {
 
   constructor() {
     // 1. Get the URL from environment (Production vs Local)
-    const url = environment.apiUrl; 
+    const url = `${environmentProd.apiUrl}` || `${environment.apiUrl}`;
 
     // 2. Initialize the connection directly
     this.socket = io(url, {

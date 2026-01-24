@@ -2,14 +2,15 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { environmentProd } from '../../environments/environment.prod';
 import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = `${environment.apiUrl}/api/auth`;
-  private friendUrl = `${environment.apiUrl}/api/friends`;
+  private apiUrl = `${environmentProd.apiUrl}/api/auth` || `${environment.apiUrl}/api/auth`;
+  private friendUrl = `${environmentProd.apiUrl}/api/friends` || `${environment.apiUrl}/api/friends`;
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
