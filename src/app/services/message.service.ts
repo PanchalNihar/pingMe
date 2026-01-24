@@ -4,14 +4,13 @@ import { Observable } from 'rxjs';
 import { Message } from '../components/chat/chat-room/chat-room.component';
 import { count } from 'node:console';
 import { environment } from '../../environments/environment';
-import { environmentProd } from '../../environments/environment.prod';
 import { observableToBeFn } from 'rxjs/internal/testing/TestScheduler';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MessageService {
-  private apiUrl =  `${environmentProd.apiUrl}/chat` ||`${environment.apiUrl}/chat` ;
+  private apiUrl = `${environment.apiUrl}/chat`;
   constructor(private http: HttpClient) {}
   getMessages(
     user1: string | null = null,
