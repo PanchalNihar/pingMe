@@ -87,6 +87,9 @@ export class AuthService {
   googleLogin(token:string):Observable<any>{
     return this.http.post(`${this.apiUrl}/google-login`,{token});
   }
+  resendVerification(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/resend-verification`, { email });
+  }
   logout() {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.clear();

@@ -1,25 +1,25 @@
 /* Import Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined");
 
 :host {
   /* Design Variables - Slate Enterprise Theme */
   --primary: #1e293b; /* Slate 800 */
   --primary-hover: #0f172a; /* Slate 900 */
-  
+
   --bg-dark: #0f172a;
   --bg-panel: #1e293b; /* The Navy Left Panel */
   --bg-light: #ffffff;
-  
+
   --text-white: #ffffff;
   --text-main: #0f172a;
   --text-muted: #64748b; /* Slate 500 */
   --text-light: #94a3b8; /* Slate 400 */
-  
+
   --border-color: #e2e8f0; /* Slate 200 */
   --error-color: #ef4444;
-  
-  --font-family: 'Inter', sans-serif;
+
+  --font-family: "Inter", sans-serif;
 
   display: block;
   min-height: 100vh;
@@ -57,7 +57,8 @@
   position: absolute;
   inset: 0;
   opacity: 0.1;
-  background-image: linear-gradient(var(--text-white) 1px, transparent 1px),
+  background-image:
+    linear-gradient(var(--text-white) 1px, transparent 1px),
     linear-gradient(90deg, var(--text-white) 1px, transparent 1px);
   background-size: 40px 40px;
   pointer-events: none;
@@ -285,4 +286,18 @@
 
 .link-highlight:hover {
   text-decoration: underline;
+}
+.spin {
+  animation: spin 1s linear infinite;
+  font-size: 1.2rem;
+}
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.disabled-btn {
+  opacity: 0.7;
+  cursor: wait;
 }

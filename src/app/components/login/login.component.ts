@@ -76,9 +76,24 @@ export class LoginComponent implements OnInit {
 
           // FIX: Handle Unverified Account specifically
           if (err.status === 401 && err.error?.message?.includes('verify')) {
-            this.modalService.alert(
-              'Account not verified. Please check your email inbox.',
-            );
+            this.modalService
+              .confirm(
+                'Account Unverified',
+                'Your email is not verified. Do you want to resend the verification link?',
+                'Resend Email',
+                'Cancel',
+              )
+              .subscribe((confirm) => {
+                if (confirm) {
+                  this.authService
+                    .resendVerification(this.loginForm.get('email')?.value)
+                    .subscribe(() =>
+                      this.modalService.alert(
+                        'Email sent! Check your inbox.',
+                      ),
+                    );
+                }
+              });
           } else {
             this.modalService.alert(
               err.error?.message ||

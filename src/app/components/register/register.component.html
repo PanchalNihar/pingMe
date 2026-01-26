@@ -1,26 +1,32 @@
 <div class="register-container">
-  
   <div class="info-panel">
     <div class="bg-pattern"></div>
-    
+
     <div class="panel-content">
       <div class="brand-header">
-        <span class="material-icons-outlined" style="font-size: 28px;">chat_bubble_outline</span>
+        <span class="material-icons-outlined" style="font-size: 28px"
+          >chat_bubble_outline</span
+        >
         <span class="brand-name">PingMe</span>
       </div>
 
       <h1 class="hero-text">
-        The professional standard for <span class="hero-highlight">secure</span> team communication.
+        The professional standard for
+        <span class="hero-highlight">secure</span> team communication.
       </h1>
 
       <div class="feature-list">
         <div class="feature-item">
           <span class="material-icons-outlined check-icon">check_circle</span>
-          <span>End-to-end encryption for all enterprise internal messaging.</span>
+          <span
+            >End-to-end encryption for all enterprise internal messaging.</span
+          >
         </div>
         <div class="feature-item">
           <span class="material-icons-outlined check-icon">check_circle</span>
-          <span>Unified workspace across desktop, mobile, and web interfaces.</span>
+          <span
+            >Unified workspace across desktop, mobile, and web interfaces.</span
+          >
         </div>
         <div class="feature-item">
           <span class="material-icons-outlined check-icon">check_circle</span>
@@ -36,42 +42,68 @@
 
   <div class="form-panel">
     <div class="form-wrapper">
-      
       <div class="form-header">
         <h2 class="page-title">Create Account</h2>
-        <p class="page-subtitle">Join your team on PingMe and start collaborating.</p>
+        <p class="page-subtitle">
+          Join your team on PingMe and start collaborating.
+        </p>
       </div>
 
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-        
         <div class="form-group">
           <label class="label" for="full-name">Full Name</label>
-          <input 
+          <input
             id="full-name"
-            type="text" 
+            type="text"
             formControlName="name"
-            class="input-field" 
+            class="input-field"
             placeholder="John Doe"
-            [ngClass]="{'is-invalid': registerForm.get('name')?.invalid && registerForm.get('name')?.touched}" 
+            [ngClass]="{
+              'is-invalid':
+                registerForm.get('name')?.invalid &&
+                registerForm.get('name')?.touched,
+            }"
           />
-          <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched" class="error-text">
-            <span *ngIf="registerForm.get('name')?.errors?.['required']">Name is required</span>
+          <div
+            *ngIf="
+              registerForm.get('name')?.invalid &&
+              registerForm.get('name')?.touched
+            "
+            class="error-text"
+          >
+            <span *ngIf="registerForm.get('name')?.errors?.['required']"
+              >Name is required</span
+            >
           </div>
         </div>
 
         <div class="form-group">
           <label class="label" for="email">Email Address</label>
-          <input 
+          <input
             id="email"
-            type="email" 
+            type="email"
             formControlName="email"
-            class="input-field" 
+            class="input-field"
             placeholder="name@company.com"
-            [ngClass]="{'is-invalid': registerForm.get('email')?.invalid && registerForm.get('email')?.touched}" 
+            [ngClass]="{
+              'is-invalid':
+                registerForm.get('email')?.invalid &&
+                registerForm.get('email')?.touched,
+            }"
           />
-          <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="error-text">
-            <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required</span>
-            <span *ngIf="registerForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+          <div
+            *ngIf="
+              registerForm.get('email')?.invalid &&
+              registerForm.get('email')?.touched
+            "
+            class="error-text"
+          >
+            <span *ngIf="registerForm.get('email')?.errors?.['required']"
+              >Email is required</span
+            >
+            <span *ngIf="registerForm.get('email')?.errors?.['email']"
+              >Please enter a valid email</span
+            >
           </div>
         </div>
 
@@ -83,36 +115,75 @@
             formControlName="phoneNumber"
             class="input-field"
             placeholder="e.g. 9876543210"
-            [ngClass]="{'is-invalid': registerForm.get('phoneNumber')?.invalid && registerForm.get('phoneNumber')?.touched}"
+            [ngClass]="{
+              'is-invalid':
+                registerForm.get('phoneNumber')?.invalid &&
+                registerForm.get('phoneNumber')?.touched,
+            }"
           />
-          <div *ngIf="registerForm.get('phoneNumber')?.invalid && registerForm.get('phoneNumber')?.touched" class="error-text">
-            <span *ngIf="registerForm.get('phoneNumber')?.errors?.['required']">Phone number is required</span>
+          <div
+            *ngIf="
+              registerForm.get('phoneNumber')?.invalid &&
+              registerForm.get('phoneNumber')?.touched
+            "
+            class="error-text"
+          >
+            <span *ngIf="registerForm.get('phoneNumber')?.errors?.['required']"
+              >Phone number is required</span
+            >
           </div>
         </div>
 
         <div class="form-group">
           <label class="label" for="password">Password</label>
-          <input 
+          <input
             id="password"
-            type="password" 
+            type="password"
             formControlName="password"
-            class="input-field" 
+            class="input-field"
             placeholder="Create a strong password"
-            [ngClass]="{'is-invalid': registerForm.get('password')?.invalid && registerForm.get('password')?.touched}" 
+            [ngClass]="{
+              'is-invalid':
+                registerForm.get('password')?.invalid &&
+                registerForm.get('password')?.touched,
+            }"
           />
-          <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="error-text">
-            <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required</span>
+          <div
+            *ngIf="
+              registerForm.get('password')?.invalid &&
+              registerForm.get('password')?.touched
+            "
+            class="error-text"
+          >
+            <span *ngIf="registerForm.get('password')?.errors?.['required']"
+              >Password is required</span
+            >
           </div>
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           class="btn-register"
-          [disabled]="registerForm.invalid"
+          [disabled]="registerForm.invalid || isSubmitting"
+          [class.disabled-btn]="isSubmitting"
         >
-          Register
+          @if (!isSubmitting) {
+            <span>Register</span>
+          }
+          @if (isSubmitting) {
+            <span
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+              "
+            >
+              <span class="material-symbols-outlined spin">sync</span>
+              Processing...
+            </span>
+          }
         </button>
-
       </form>
 
       <div class="form-footer">
@@ -121,14 +192,14 @@
             <a href="javascript:void(0)" class="link">Terms of Service</a>
             <a href="javascript:void(0)" class="link">Privacy Policy</a>
           </div>
-          <p style="margin: 0;">
-            Already have an account? 
-            <a routerLink="/auth/login" class="link-highlight">Sign in instead</a>
+          <p style="margin: 0">
+            Already have an account?
+            <a routerLink="/auth/login" class="link-highlight"
+              >Sign in instead</a
+            >
           </p>
         </div>
       </div>
-
     </div>
   </div>
-
 </div>

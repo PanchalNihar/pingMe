@@ -20,7 +20,7 @@ import { ModalService } from '../../services/modal.service';
 })
 export class RegisterComponent {
   registerForm: FormGroup;
-
+  isSubmitting = false;
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -44,8 +44,10 @@ export class RegisterComponent {
 
   onSubmit() {
     if (this.registerForm.valid) {
+      this.isSubmitting = true;
       this.authService.register(this.registerForm.value).subscribe({
         next: (res: any) => {
+          this.isSubmitting = false;
           // FIX: Do not login immediately. Show verification message.
           this.modalService.alert(
             res.message ||
@@ -54,6 +56,7 @@ export class RegisterComponent {
           this.router.navigate(['/auth/login']);
         },
         error: (err) => {
+          this.isSubmitting = false;
           this.modalService.alert(err.error?.message || 'Registration failed');
         },
       });
