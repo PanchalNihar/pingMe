@@ -1,0 +1,135 @@
+<div
+  *ngIf="messages.length === 0"
+  class="empty-state"
+  style="height: auto; padding-top: 2rem"
+>
+  <p>No messages here yet. Say hello! 👋</p>
+</div>
+
+<div
+  *ngFor="let msg of messages"
+  class="message-group"
+  [ngClass]="isCurrentUserFn(msg.sender) ? 'group-sender' : 'group-receiver'"
+>
+  <div class="message-bubble-container" style="position: relative">
+    <div
+      *ngIf="currentGroup && !isCurrentUserFn(msg.sender)"
+      class="sender-name-label"
+    >
+      {{ getUserNameFn(msg.sender) }}
+    </div>
+
+    <div class="message-bubble">
+      <img
+        *ngIf="msg.image?.data"
+        [src]="'data:' + msg.image?.contentType + ';base64,' + msg.image?.data"
+        class="chat-image"
+      />
+
+      <div *ngIf="msg.content && msg.content !== 'Voice message'">
+        {{ msg.content }}
+      </div>
+
+      <div
+        *ngIf="msg.content === 'Voice message' && !msg.audio?.data"
+        class="italic-text"
+      >
+        <span
+          class="material-symbols-outlined"
+          style="font-size: 12px; vertical-align: middle"
+          >mic</span
+        >
+        Voice Message (Processing...)
+      </div>
+
+      <div *ngIf="msg.audio?.data" class="audio-player-wrapper">
+        <audio controls controlsList="nodownload noplaybackrate">
+          <source
+            [src]="getSafeAudioUrlFn(msg)"
+            [type]="msg.audio?.contentType"
+          />
+          Your browser does not support audio.
+        </audio>
+      </div>
+
+      <div *ngIf="msg.translatedContent" class="translated-text">
+        <span class="material-symbols-outlined t-icon">translate</span>
+        {{ msg.translatedContent }}
+      </div>
+    </div>
+
+    <div
+      class="reactions-list"
+      *ngIf="msg.reactions && msg.reactions.length > 0"
+    >
+      <div
+        *ngFor="let reaction of getReactionCountsFn(msg)"
+        class="reaction-pill"
+        [class.active]="reaction.hasReacted"
+        (click)="
+          sendReaction.emit({
+            messageId: msg.id || msg._id,
+            emoji: reaction.emoji,
+          })
+        "
+      >
+        {{ reaction.emoji }}
+        <span class="count">{{ reaction.count }}</span>
+      </div>
+    </div>
+
+    <div
+      class="reaction-popup"
+      *ngIf="activeReactionMessageId === (msg.id || msg._id)"
+    >
+      <button
+        *ngFor="let emoji of quickReactions"
+        (click)="
+          sendReaction.emit({ messageId: msg.id || msg._id, emoji: emoji })
+        "
+        class="quick-reaction-btn"
+      >
+        {{ emoji }}
+      </button>
+    </div>
+  </div>
+
+  <div class="message-meta-row">
+    <span class="meta-time">{{ getTimeFromMessageFn(msg) }}</span>
+
+    <span
+      *ngIf="isCurrentUserFn(msg.sender)"
+      class="material-symbols-outlined seen-icon"
+      style="font-size: 14px"
+    >
+      {{ msg.isRead ? "done_all" : "check" }}
+    </span>
+
+    <div class="hidden-actions">
+      <button
+        class="msg-action-btn react"
+        (click)="toggleReactionMenu.emit(msg.id || msg._id)"
+        title="Add Reaction"
+      >
+        <span class="material-symbols-outlined">add_reaction</span>
+      </button>
+
+      <ng-container *ngIf="isCurrentUserFn(msg.sender)">
+        <button
+          class="msg-action-btn edit"
+          (click)="editMessage.emit(msg.id || msg._id)"
+          title="Edit"
+        >
+          <span class="material-symbols-outlined">edit</span>
+        </button>
+        <button
+          class="msg-action-btn delete"
+          (click)="deleteMessage.emit(msg.id || msg._id)"
+          title="Delete"
+        >
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</div>

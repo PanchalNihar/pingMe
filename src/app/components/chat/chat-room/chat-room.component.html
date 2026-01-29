@@ -1,124 +1,18 @@
 <div class="chat-interface-container">
-  <div *ngIf="!isEmailVerified" class="verification-banner">
-    <div class="banner-content">
-      <span class="material-symbols-outlined">warning</span>
-      <span>Your email is not verified. Please check your inbox to enable all features.</span>
-    </div>
-    </div>
-  <div class="user-list-panel">
-    <div class="search-section">
-      <div class="search-wrapper">
-        <span class="material-symbols-outlined search-icon">search</span>
-        <input
-          type="text"
-          class="search-input"
-          placeholder="Search..."
-          [(ngModel)]="searchTerm"
-        />
-      </div>
-      <button
-        class="btn-create-group"
-        (click)="openGroupModal()"
-        title="Create New Group"
-      >
-        <span class="material-symbols-outlined">group_add</span>
-      </button>
-      <div class="search-section">
-        <button
-          class="btn-create-group"
-          (click)="openAddFriendModal()"
-          title="Add Friend"
-        >
-          <span class="material-symbols-outlined">person_add</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="users-scroll-area custom-scrollbar">
-      <div *ngIf="groups.length > 0" class="list-section-label">Groups</div>
-      <div
-        *ngFor="let group of groups"
-        class="user-item"
-        [class.active]="selectedGroupId === group._id"
-        (click)="startChat(group, true)"
-      >
-        <div class="avatar-container">
-          <div class="avatar-circle group-avatar">
-            <img
-              *ngIf="group.avatar"
-              [src]="group.avatar"
-              class="avatar-img"
-              style="
-                border-radius: 50%;
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-              "
-            />
-            <span *ngIf="!group.avatar">{{
-              group.name.charAt(0).toUpperCase()
-            }}</span>
-          </div>
-        </div>
-        <div class="user-details">
-          <div class="user-row-top">
-            <h3 class="user-name">{{ group.name }}</h3>
-          </div>
-          <div class="user-row-bottom">
-            <p class="last-msg-preview">
-              {{ group.participants.length }} members
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="list-section-label">Direct Messages</div>
-      <div
-        *ngFor="let user of filtertedUser"
-        class="user-item"
-        [class.active]="receiverId === user._id"
-        (click)="startChat(user, false)"
-      >
-        <div class="avatar-container">
-          <div class="avatar-circle" *ngIf="!user.avatar">
-            {{ user.name.charAt(0).toUpperCase() }}
-          </div>
-          <img
-            *ngIf="user.avatar"
-            [src]="user.avatar"
-            class="avatar-img"
-            alt="Avatar"
-          />
-          <div
-            class="status-badge"
-            [ngClass]="
-              onlineUsers.has(user._id) ? 'status-online' : 'status-offline'
-            "
-          ></div>
-        </div>
-        <div class="user-details">
-          <div class="user-row-top">
-            <h3 class="user-name">{{ user.name }}</h3>
-            <span class="msg-time">{{
-              onlineUsers.has(user._id) ? "Online" : "Offline"
-            }}</span>
-          </div>
-          <div class="user-row-bottom">
-            <p class="last-msg-preview">
-              {{
-                onlineUsers.has(user._id) ? "Active now" : "Last seen recently"
-              }}
-            </p>
-            <span
-              class="unread-badge"
-              *ngIf="(unreadMap.get(user._id) ?? 0) > 0"
-              >{{ unreadMap.get(user._id) }}</span
-            >
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <app-chat-verification-banner [isEmailVerified]="isEmailVerified"></app-chat-verification-banner>
+  <app-chat-sidebar
+    [users]="users"
+    [groups]="groups"
+    [onlineUsers]="onlineUsers"
+    [selectedGroupId]="selectedGroupId"
+    [receiverId]="receiverId"
+    [unreadMap]="unreadMap"
+    [filtertedUser]="filtertedUser"
+    [(searchTerm)]="searchTerm"
+    (openChat)="startChat($event.entity, $event.isGroup)"
+    (openGroup)="openGroupModal()"
+    (openAddFriend)="openAddFriendModal()"
+  ></app-chat-sidebar>
 
   <div class="chat-window-panel">
     <div *ngIf="!receiverId && !selectedGroupId" class="empty-state">
@@ -132,224 +26,37 @@
       class="d-flex flex-column h-100"
       style="flex: 1; display: flex; flex-direction: column; overflow: hidden"
     >
-      <header class="chat-header" *ngIf="currentReceiver || currentGroup">
-        <div
-          class="header-user-info"
-          (click)="currentReceiver ? viewProfile(currentReceiver._id) : null"
-        >
-          <ng-container *ngIf="currentReceiver">
-            <div class="header-avatar" *ngIf="!currentReceiver.avatar">
-              {{ currentReceiver.name.charAt(0).toUpperCase() }}
-            </div>
-            <img
-              *ngIf="currentReceiver.avatar"
-              [src]="currentReceiver.avatar"
-              class="header-avatar"
-              alt="Avatar"
-            />
-          </ng-container>
-
-          <div class="header-avatar group-header-avatar" *ngIf="currentGroup">
-            <img
-              *ngIf="currentGroup.avatar"
-              [src]="currentGroup.avatar"
-              style="
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 50%;
-              "
-            />
-            <span
-              *ngIf="!currentGroup.avatar"
-              class="material-symbols-outlined"
-              style="color: white"
-              >groups</span
-            >
-          </div>
-
-          <div class="header-details">
-            <h2>
-              {{ currentGroup ? currentGroup.name : currentReceiver?.name }}
-            </h2>
-            <p *ngIf="currentReceiver">
-              {{ onlineUsers.has(currentReceiver._id) ? "Online" : "Offline" }}
-            </p>
-            <p *ngIf="currentGroup">
-              {{ currentGroup.participants.length }} participants
-            </p>
-          </div>
-        </div>
-
-        <div class="header-actions">
-          <div class="language-selector-wrapper">
-            <span class="material-symbols-outlined lang-icon">language</span>
-            <select
-              [(ngModel)]="selectedLanguage"
-              class="lang-dropdown"
-              title="Select Target Language"
-            >
-              <option *ngFor="let lang of supportedLanguages" [value]="lang">
-                {{ lang }}
-              </option>
-            </select>
-          </div>
-
-          <button
-            class="action-btn"
-            [class.active-btn]="autoTranslate"
-            (click)="toggleAutoTranslate()"
-            title="Auto-Translate Incoming Messages to {{ selectedLanguage }}"
-          >
-            <span class="material-symbols-outlined">translate</span>
-          </button>
-          <button
-            class="action-btn"
-            (click)="generateSummary()"
-            title="Summarize Chat"
-          >
-            <span class="material-symbols-outlined">wysiwyg</span>
-          </button>
-          <button class="action-btn">
-            <span class="material-symbols-outlined">videocam</span>
-          </button>
-          <button class="action-btn">
-            <span class="material-symbols-outlined">call</span>
-          </button>
-          <button class="action-btn">
-            <span class="material-symbols-outlined">more_vert</span>
-          </button>
-          <button
-            class="action-btn"
-            *ngIf="currentGroup"
-            (click)="openGroupInfo()"
-            title="Group Info"
-          >
-            <span class="material-symbols-outlined">info</span>
-          </button>
-        </div>
-      </header>
+      <app-chat-header
+        *ngIf="currentReceiver || currentGroup"
+        [currentReceiver]="currentReceiver"
+        [currentGroup]="currentGroup"
+        [selectedLanguage]="selectedLanguage"
+        [supportedLanguages]="supportedLanguages"
+        [autoTranslate]="autoTranslate"
+        [onlineUsers]="onlineUsers"
+        (openProfile)="viewProfile($event)"
+        (toggleAutoTranslate)="toggleAutoTranslate()"
+        (generateSummary)="generateSummary()"
+        (openGroupInfo)="openGroupInfo()"
+        (selectedLanguageChange)="selectedLanguage = $event"
+      ></app-chat-header>
 
       <div class="messages-viewport custom-scrollbar" #scrollContainer>
-        <div
-          *ngIf="messages.length === 0"
-          class="empty-state"
-          style="height: auto; padding-top: 2rem"
-        >
-          <p>No messages here yet. Say hello! 👋</p>
-        </div>
-
-        <div
-          *ngFor="let msg of messages"
-          class="message-group"
-          [ngClass]="
-            isCurrentUser(msg.sender) ? 'group-sender' : 'group-receiver'
-          "
-        >
-          <div class="message-bubble-container" style="position: relative">
-            <div
-              *ngIf="currentGroup && !isCurrentUser(msg.sender)"
-              class="sender-name-label"
-            >
-              {{ getUserName(msg.sender) }}
-            </div>
-
-            <div class="message-bubble">
-              <img
-                *ngIf="msg.image?.data"
-                [src]="'data:' + msg.image?.contentType + ';base64,' + msg.image?.data"
-                class="chat-image"
-              />
-
-              <div *ngIf="msg.content && msg.content !== 'Voice message'">
-                 {{ msg.content }}
-              </div>
-              
-              <div *ngIf="msg.content === 'Voice message' && !msg.audio?.data" class="italic-text">
-                 <span class="material-symbols-outlined" style="font-size: 12px; vertical-align: middle;">mic</span> Voice Message (Processing...)
-              </div>
-
-              <div *ngIf="msg.audio?.data" class="audio-player-wrapper">
-                <audio controls controlsList="nodownload noplaybackrate">
-                  <source [src]="getSafeAudioUrl(msg)" [type]="msg.audio?.contentType">
-                  Your browser does not support audio.
-                </audio>
-              </div>
-
-              <div *ngIf="msg.translatedContent" class="translated-text">
-                 <div class="t-divider"></div>
-                 <span class="material-symbols-outlined t-icon">translate</span>
-                 {{ msg.translatedContent }}
-              </div>
-              </div>
-
-            <div
-              class="reactions-list"
-              *ngIf="msg.reactions && msg.reactions.length > 0"
-            >
-              <div
-                *ngFor="let reaction of getReactionCounts(msg)"
-                class="reaction-pill"
-                [class.active]="reaction.hasReacted"
-                (click)="sendReaction(msg.id!, reaction.emoji)"
-              >
-                {{ reaction.emoji }}
-                <span class="count">{{ reaction.count }}</span>
-              </div>
-            </div>
-
-            <div
-              class="reaction-popup"
-              *ngIf="activeReactionMessageId === (msg.id || msg._id)"
-            >
-              <button
-                *ngFor="let emoji of quickReactions"
-                (click)="sendReaction(msg.id!, emoji)"
-                class="quick-reaction-btn"
-              >
-                {{ emoji }}
-              </button>
-            </div>
-          </div>
-
-          <div class="message-meta-row">
-            <span class="meta-time">{{ getTimeFromMessage(msg) }}</span>
-            <span
-              *ngIf="isCurrentUser(msg.sender)"
-              class="material-symbols-outlined seen-icon"
-              style="font-size: 14px"
-            >
-              {{ msg.isRead ? "done_all" : "check" }}
-            </span>
-
-            <div class="hidden-actions">
-              <button
-                class="msg-action-btn react"
-                (click)="toggleReactionMenu(msg.id!)"
-                title="Add Reaction"
-              >
-                <span class="material-symbols-outlined">add_reaction</span>
-              </button>
-
-              <ng-container *ngIf="isCurrentUser(msg.sender)">
-                <button
-                  class="msg-action-btn edit"
-                  (click)="editMessage(msg.id!)"
-                  title="Edit"
-                >
-                  <span class="material-symbols-outlined">edit</span>
-                </button>
-                <button
-                  class="msg-action-btn delete"
-                  (click)="deleteMessage(msg.id!)"
-                  title="Delete"
-                >
-                  <span class="material-symbols-outlined">delete</span>
-                </button>
-              </ng-container>
-            </div>
-          </div>
-        </div>
+        <app-chat-messages
+          [messages]="messages"
+          [currentGroup]="currentGroup"
+          [activeReactionMessageId]="activeReactionMessageId"
+          [quickReactions]="quickReactions"
+          [isCurrentUserFn]="isCurrentUser.bind(this)"
+          [getUserNameFn]="getUserName.bind(this)"
+          [getReactionCountsFn]="getReactionCounts.bind(this)"
+          [getTimeFromMessageFn]="getTimeFromMessage.bind(this)"
+          [getSafeAudioUrlFn]="getSafeAudioUrl.bind(this)"
+          (sendReaction)="sendReaction($event.messageId, $event.emoji)"
+          (toggleReactionMenu)="toggleReactionMenu($event)"
+          (editMessage)="editMessage($event)"
+          (deleteMessage)="deleteMessage($event)"
+        ></app-chat-messages>
       </div>
 
       <div class="edit-banner" *ngIf="edititngMessageId">
@@ -410,97 +117,28 @@
       </div>
 
       <div class="input-area" style="position: relative">
-        <div class="emoji-picker-wrapper" *ngIf="showEmojiPicker">
-          <emoji-mart
-            (emojiClick)="addEmoji($event)"
-            [darkMode]="false"
-            [showPreview]="false"
-            color="#3b82f6"
-          ></emoji-mart>
-        </div>
+        <!-- keep file input in parent so ViewChild('fileInput') remains valid -->
+        <input #fileInput type="file" hidden accept="image/*" (change)="onImageSelected($event)" />
 
-        <div class="input-container">
-          
-          <div *ngIf="isRecording" class="recording-ui">
-            <div class="rec-indicator">
-              <span class="rec-dot"></span>
-              <span>{{ formatDuration(recordingDuration) }}</span>
-            </div>
-            <span class="rec-text">Recording...</span>
-            <button class="btn-cancel-rec" (click)="cancelRecording()" title="Cancel">
-              <span class="material-symbols-outlined">delete</span>
-            </button>
-            <button class="btn-send-rec" (click)="stopRecording()" title="Send Voice Note">
-              <span class="material-symbols-outlined">send</span>
-            </button>
-          </div>
-
-          <ng-container *ngIf="!isRecording">
-            <label class="btn attach-btn" title="Attach Image">
-              <span class="material-symbols-outlined">attach_file</span>
-              <input
-                #fileInput
-                type="file"
-                hidden
-                accept="image/*"
-                (change)="onImageSelected($event)"
-              />
-            </label>
-
-            <button
-              class="btn ai-btn"
-              (click)="triggerSmartReplies()"
-              [disabled]="isAiLoading"
-              title="Generate AI Reply"
-            >
-              <span
-                class="material-symbols-outlined"
-                [class.sparkle-anim]="isAiLoading"
-                >auto_awesome</span
-              >
-            </button>
-
-            <button
-              class="btn emoji-btn"
-              (click)="toggleEmojiPicker()"
-              title="Insert Emoji"
-            >
-              <span class="material-symbols-outlined">sentiment_satisfied</span>
-            </button>
-
-            <input
-              type="text"
-              class="main-input"
-              [(ngModel)]="message"
-              [placeholder]="
-                edititngMessageId
-                  ? 'Update your message...'
-                  : 'Type a message...'
-              "
-              (input)="onInput()"
-              (keyup.enter)="send()"
-            />
-
-            <button
-              class="send-btn"
-              *ngIf="message.trim() || selectedImage"
-              (click)="send()"
-            >
-              <span class="material-symbols-outlined" style="font-size: 20px">
-                {{ edititngMessageId ? "check" : "send" }}
-              </span>
-            </button>
-
-            <button
-              class="mic-btn"
-              *ngIf="!message.trim() && !selectedImage"
-              (click)="startRecording()"
-              title="Record Voice Note"
-            >
-              <span class="material-symbols-outlined">mic</span>
-            </button>
-          </ng-container>
-        </div>
+        <app-chat-input
+          [message]="message"
+          (messageChange)="message = $event"
+          [selectedImage]="selectedImage"
+          [isRecording]="isRecording"
+          [recordingDuration]="recordingDuration"
+          [isAiLoading]="isAiLoading"
+          [showEmojiPicker]="showEmojiPicker"
+          [edititngMessageId]="edititngMessageId"
+          (send)="send()"
+          (startRecording)="startRecording()"
+          (stopRecording)="stopRecording()"
+          (cancelRecording)="cancelRecording()"
+          (triggerSmartReplies)="triggerSmartReplies()"
+          (toggleEmojiPicker)="toggleEmojiPicker()"
+          (onInput)="onInput()"
+          (openFilePicker)="fileInput.click()"
+          (addEmoji)="addEmoji($event)"
+        ></app-chat-input>
       </div>
     </div>
   </div>

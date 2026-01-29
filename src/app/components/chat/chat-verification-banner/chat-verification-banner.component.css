@@ -1,0 +1,36 @@
+:host {
+  display: contents;
+}
+
+.verification-banner {
+  position: absolute; /* Floating on top of the chat interface */
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff7ed; /* Light Orange */
+  border-bottom: 1px solid #fed7aa;
+  color: #c2410c;
+  padding: 0.5rem 1rem;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  animation: slideDown 0.3s ease-out;
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,115 @@
+<div class="user-list-panel">
+  <div class="search-section">
+    <div class="search-wrapper">
+      <span class="material-symbols-outlined search-icon">search</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search..."
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="searchTermChange.emit($event)"
+      />
+    </div>
+
+    <button
+      class="btn-create-group"
+      (click)="openGroupModalEmit()"
+      title="Create New Group"
+    >
+      <span class="material-symbols-outlined">group_add</span>
+    </button>
+
+    <button
+      class="btn-create-group"
+      (click)="openAddFriendEmit()"
+      title="Add Friend"
+    >
+      <span class="material-symbols-outlined">person_add</span>
+    </button>
+  </div>
+
+  <div class="users-scroll-area custom-scrollbar">
+    <div *ngIf="groups.length > 0" class="list-section-label">Groups</div>
+    <div
+      *ngFor="let group of groups"
+      class="user-item"
+      [class.active]="selectedGroupId === group._id"
+      (click)="selectGroup(group)"
+    >
+      <div class="avatar-container">
+        <div class="avatar-circle group-avatar">
+          <img
+            *ngIf="group.avatar"
+            [src]="group.avatar"
+            class="avatar-img"
+            style="
+              border-radius: 50%;
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            "
+          />
+          <span *ngIf="!group.avatar">{{
+            group.name.charAt(0).toUpperCase()
+          }}</span>
+        </div>
+      </div>
+      <div class="user-details">
+        <div class="user-row-top">
+          <h3 class="user-name">{{ group.name }}</h3>
+        </div>
+        <div class="user-row-bottom">
+          <p class="last-msg-preview">
+            {{ group.participants.length }} members
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="list-section-label">Direct Messages</div>
+    <div
+      *ngFor="let user of filtertedUser"
+      class="user-item"
+      [class.active]="receiverId === user._id"
+      (click)="selectUser(user)"
+    >
+      <div class="avatar-container">
+        <div class="avatar-circle" *ngIf="!user.avatar">
+          {{ user.name.charAt(0).toUpperCase() }}
+        </div>
+        <img
+          *ngIf="user.avatar"
+          [src]="user.avatar"
+          class="avatar-img"
+          alt="Avatar"
+        />
+        <div
+          class="status-badge"
+          [ngClass]="
+            onlineUsers.has(user._id) ? 'status-online' : 'status-offline'
+          "
+        ></div>
+      </div>
+      <div class="user-details">
+        <div class="user-row-top">
+          <h3 class="user-name">{{ user.name }}</h3>
+          <span class="msg-time">{{
+            onlineUsers.has(user._id) ? "Online" : "Offline"
+          }}</span>
+        </div>
+        <div class="user-row-bottom">
+          <p class="last-msg-preview">
+            {{
+              onlineUsers.has(user._id) ? "Active now" : "Last seen recently"
+            }}
+          </p>
+          <span
+            class="unread-badge"
+            *ngIf="(unreadMap.get(user._id) ?? 0) > 0"
+            >{{ unreadMap.get(user._id) }}</span
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

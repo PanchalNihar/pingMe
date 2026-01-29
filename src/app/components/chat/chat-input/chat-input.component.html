@@ -1,0 +1,92 @@
+<div class="emoji-picker-wrapper" *ngIf="showEmojiPicker">
+  <emoji-mart
+    (emojiClick)="emojiClicked($event)"
+    [darkMode]="false"
+    [showPreview]="false"
+    color="#3b82f6"
+  ></emoji-mart>
+</div>
+
+<div class="input-container">
+  <div *ngIf="isRecording" class="recording-ui">
+    <div class="rec-indicator">
+      <span class="rec-dot"></span>
+      <span>{{ formatDuration(recordingDuration) }}</span>
+    </div>
+    <span class="rec-text">Recording...</span>
+
+    <button
+      class="btn-cancel-rec"
+      (click)="cancelRecording.emit()"
+      title="Cancel"
+    >
+      <span class="material-symbols-outlined">delete</span>
+    </button>
+    <button
+      class="btn-send-rec"
+      (click)="stopRecording.emit()"
+      title="Send Voice Note"
+    >
+      <span class="material-symbols-outlined">send</span>
+    </button>
+  </div>
+
+  <ng-container *ngIf="!isRecording">
+    <label
+      class="btn attach-btn"
+      title="Attach Image"
+      (click)="openFilePicker.emit()"
+    >
+      <span class="material-symbols-outlined">attach_file</span>
+    </label>
+
+    <button
+      class="btn ai-btn"
+      (click)="triggerSmartReplies.emit()"
+      [disabled]="isAiLoading"
+      title="Generate AI Reply"
+    >
+      <span class="material-symbols-outlined" [class.sparkle-anim]="isAiLoading"
+        >auto_awesome</span
+      >
+    </button>
+
+    <button
+      class="btn emoji-btn"
+      (click)="toggleEmojiPicker.emit()"
+      title="Insert Emoji"
+    >
+      <span class="material-symbols-outlined">sentiment_satisfied</span>
+    </button>
+
+    <input
+      type="text"
+      class="main-input"
+      [ngModel]="message"
+      (ngModelChange)="handleInput($event)"
+      [placeholder]="
+        edititngMessageId ? 'Update your message...' : 'Type a message...'
+      "
+      (keyup.enter)="onSendClick()"
+    />
+
+    <button
+      class="send-btn"
+      *ngIf="message?.trim() || selectedImage"
+      (click)="onSendClick()"
+    >
+      <span class="material-symbols-outlined" style="font-size: 20px">{{
+        edititngMessageId ? "check" : "send"
+      }}</span>
+    </button>
+
+    <button
+      class="mic-btn"
+      *ngIf="!message?.trim() && !selectedImage"
+      (click)="startRecording.emit()"
+      title="Record Voice Note"
+    >
+      <span class="material-symbols-outlined">mic</span>
+    </button>
+  </ng-container>
+</div>

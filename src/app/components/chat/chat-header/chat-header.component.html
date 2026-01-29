@@ -1,0 +1,76 @@
+<div class="chat-header">
+  <div class="header-user-info" (click)="currentReceiver ? openProfile.emit(currentReceiver._id) : null">
+    
+    <ng-container *ngIf="currentReceiver">
+      <div class="header-avatar" *ngIf="!currentReceiver.avatar">
+        {{ currentReceiver.name.charAt(0).toUpperCase() }}
+      </div>
+      <img *ngIf="currentReceiver.avatar" [src]="currentReceiver.avatar" class="header-avatar" />
+    </ng-container>
+
+    <div class="header-avatar group-header-avatar" *ngIf="currentGroup">
+      <img *ngIf="currentGroup.avatar" [src]="currentGroup.avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+      <span *ngIf="!currentGroup.avatar" class="material-symbols-outlined" style="color: white">groups</span>
+    </div>
+
+    <div class="header-details">
+      <h2>{{ currentGroup ? currentGroup.name : currentReceiver?.name }}</h2>
+      <p *ngIf="currentReceiver">
+        {{ onlineUsers.has(currentReceiver._id) ? "Online" : "Offline" }}
+      </p>
+      <p *ngIf="currentGroup">
+        {{ currentGroup.participants.length }} participants
+      </p>
+    </div>
+  </div>
+
+  <div class="header-actions">
+    <div class="language-selector-wrapper">
+      <span class="material-symbols-outlined lang-icon">language</span>
+      <select
+        [(ngModel)]="selectedLanguage"
+        class="lang-dropdown"
+        title="Select Target Language"
+        (ngModelChange)="selectedLanguageChange.emit($event)"
+      >
+        <option *ngFor="let lang of supportedLanguages" [value]="lang">
+          {{ lang }}
+        </option>
+      </select>
+    </div>
+
+    <button
+      class="action-btn"
+      [class.active-btn]="autoTranslate"
+      (click)="toggleAutoTranslate.emit()"
+      title="Auto-Translate"
+    >
+      <span class="material-symbols-outlined">translate</span>
+    </button>
+    
+    <button class="action-btn" (click)="generateSummary.emit()" title="Summarize">
+      <span class="material-symbols-outlined">wysiwyg</span>
+    </button>
+    
+    <button class="action-btn">
+      <span class="material-symbols-outlined">videocam</span>
+    </button>
+    
+    <button class="action-btn">
+      <span class="material-symbols-outlined">call</span>
+    </button>
+    
+    <button class="action-btn">
+      <span class="material-symbols-outlined">more_vert</span>
+    </button>
+
+    <button
+      class="action-btn"
+      *ngIf="currentGroup"
+      (click)="openGroupInfo.emit()"
+      title="Group Info"
+    >
+      <span class="material-symbols-outlined">info</span>
+    </button>
+  </div>
+</div>
