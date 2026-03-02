@@ -1,12 +1,21 @@
 .layout-container {
-    display: flex;
-    height: 100vh;
-  }
-  
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background-color: #ffffff;
+  margin-left: 288px; /* clear the position:fixed navigation sidebar */
+}
+
+@media (max-width: 1024px) {
   .main-content {
-    flex-grow: 1;
-    padding: 2rem;
-    overflow-y: auto;
-    background-color: #ffffff;
+    margin-left: 0; /* sidebar slides off-screen at tablet/mobile */
   }
-  
+}

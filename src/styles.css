@@ -46,11 +46,13 @@ body {
 }
 
 /* Ensure Angular host elements don't cause overflow */
-app-root {
+app-root,
+app-layout {
   height: 100%;
 }
 
 app-root,
+app-layout,
 app-chat-room,
 app-chat-sidebar,
 app-chat-header,
@@ -59,4 +61,12 @@ app-chat-input {
   display: block;
   max-width: 100%;
   overflow-x: hidden;
+}
+
+/* Hide the nav hamburger button when a chat conversation is open on mobile.
+   The chat header's own back button replaces its role in that state. */
+@media (max-width: 1024px) {
+  .layout-container:has(.mobile-chat-open) .mobile-toggle-btn {
+    display: none !important;
+  }
 }
