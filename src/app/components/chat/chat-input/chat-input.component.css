@@ -18,6 +18,9 @@
   border-radius: 1rem;
   border: 1px solid var(--border-color);
   transition: all 0.2s ease;
+  width: 100%; /* ensure it fills .input-area on all devices */
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .input-container:focus-within {
@@ -28,6 +31,7 @@
 
 .main-input {
   flex: 1;
+  min-width: 0; /* prevents long content from overflowing flex container */
   background: transparent;
   border: none;
   padding: 0.5rem 0;
@@ -312,16 +316,9 @@
   .mic-btn,
   .send-btn,
   .ai-btn {
-    width: 2.35rem;
-    height: 2.35rem;
+    width: 2.25rem;
+    height: 2.25rem;
     border-radius: 0.65rem;
-  }
-
-  /* Make send button slightly more prominent */
-  .send-btn {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 0.75rem;
   }
 
   /* Recording UI stays readable */
@@ -365,8 +362,8 @@
   }
 
   .send-btn {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2rem;
+    height: 2rem;
     flex-shrink: 0;
   }
 

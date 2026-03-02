@@ -46,6 +46,10 @@ body {
 }
 
 /* Ensure Angular host elements don't cause overflow */
+app-root {
+  height: 100%;
+}
+
 app-root,
 app-chat-room,
 app-chat-sidebar,
