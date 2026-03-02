@@ -4,7 +4,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
 
 :host {
-  /* Variables */
   --primary: #3b82f6;
   --primary-soft: rgba(59, 130, 246, 0.1);
   --bg-surface: #ffffff;
@@ -16,7 +15,10 @@
   display: contents;
 }
 
+/* ─── Base Layout ─────────────────────────────────────────── */
+
 .chat-header {
+  position: relative; /* anchor for dropdown panel */
   height: 5rem;
   padding: 0 2rem;
   border-bottom: 1px solid var(--border-color);
@@ -24,16 +26,59 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-shrink: 0; /* Prevent shrinking if window gets small */
+  flex-shrink: 0;
+  gap: 0.5rem;
+  /* prevent any child from bleeding out horizontally */
+  overflow: visible; /* must be visible so the dropdown panel renders outside */
 }
 
-/* User Info Section */
+/* ─── Responsive utility classes ──────────────────────────── */
+
+/* Visible on > 768px, hidden on mobile */
+.desktop-only {
+  display: flex;
+}
+
+/* Hidden on > 768px, visible on mobile */
+.mobile-only {
+  display: none !important;
+}
+
+/* ─── Back Button (hidden on desktop) ─────────────────────── */
+
+.back-btn {
+  display: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  border: none;
+  background: transparent;
+  color: var(--text-light);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.2s, color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.back-btn:hover,
+.back-btn:active {
+  background-color: var(--primary-soft);
+  color: var(--primary);
+}
+
+/* ─── User Info Section ───────────────────────────────────── */
+
 .header-user-info {
   display: flex;
   align-items: center;
   gap: 1rem;
   cursor: pointer;
-  min-width: 0; /* Allows text truncation if needed */
+  min-width: 0;
+  flex: 1;
+  overflow: hidden; /* prevent long names from pushing actions out */
+  -webkit-tap-highlight-color: transparent;
 }
 
 .header-avatar {
@@ -46,6 +91,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 600;
+  font-size: 1rem;
   object-fit: cover;
   flex-shrink: 0;
   font-family: var(--font-display);
@@ -60,6 +106,8 @@
 .header-details {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .header-details h2 {
@@ -68,6 +116,9 @@
   font-size: 1rem;
   margin: 0;
   color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-details p {
@@ -75,13 +126,18 @@
   font-size: 0.75rem;
   color: var(--text-light);
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Actions Section */
+/* ─── Actions Section ─────────────────────────────────────── */
+
 .header-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .action-btn {
@@ -95,10 +151,13 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.action-btn:hover {
+.action-btn:hover,
+.action-btn:active {
   background-color: var(--primary-soft);
   color: var(--primary);
 }
@@ -109,22 +168,22 @@
   border: 1px solid var(--primary);
 }
 
-/* Language Selector */
+/* ─── Language Selector ───────────────────────────────────── */
+
 .language-selector-wrapper {
-  position: relative;
-  display: flex;
   align-items: center;
   background-color: #f1f5f9;
   border-radius: 0.75rem;
   padding: 0 0.5rem;
-  margin-right: 0.5rem;
   height: 2.5rem;
+  max-width: 160px; /* prevent it from overflowing on medium screens */
 }
 
 .lang-icon {
   font-size: 1.1rem;
   color: #64748b;
   pointer-events: none;
+  flex-shrink: 0;
 }
 
 .lang-dropdown {
@@ -134,8 +193,253 @@
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-main);
-  padding: 0 0.5rem;
+  padding: 0 0.25rem;
   cursor: pointer;
   outline: none;
-  min-width: 80px;
+  min-width: 70px;
+  max-width: 100px;
+  -webkit-appearance: none;
+}
+
+/* ─── Mobile Menu Overlay (click-outside-to-close) ────────── */
+
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: transparent;
+}
+
+/* ─── Mobile Dropdown Panel ───────────────────────────────── */
+
+.mobile-menu-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0.5rem;
+  z-index: 100;
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  min-width: 220px;
+  overflow: hidden;
+  animation: menuDropIn 0.15s ease-out;
+}
+
+@keyframes menuDropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.menu-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+}
+
+.menu-row:last-child {
+  border-bottom: none;
+}
+
+.menu-row-btn {
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.15s;
+}
+
+.menu-row-btn:hover,
+.menu-row-btn:active {
+  background-color: #f8fafc;
+}
+
+.menu-row-active .menu-label {
+  color: var(--primary);
+}
+
+.menu-icon {
+  font-size: 1.2rem;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.menu-label {
+  flex: 1;
+}
+
+.menu-check {
+  font-size: 1.1rem;
+  color: var(--primary);
+}
+
+/* Language select inside the panel */
+.menu-lang-select {
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-main);
+  padding: 0.25rem 0.4rem;
+  cursor: pointer;
+  outline: none;
+  max-width: 110px;
+}
+
+/* ─── Tablet (≤ 1024px) ───────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .chat-header {
+    padding: 0 1rem;
+  }
+
+  .header-details h2 {
+    font-size: 0.95rem;
+  }
+
+  .language-selector-wrapper {
+    max-width: 140px;
+  }
+
+  .lang-dropdown {
+    min-width: 60px;
+  }
+}
+
+/* ─── Mobile (≤ 768px) ── WhatsApp-like layout ────────────── */
+
+@media (max-width: 768px) {
+  .chat-header {
+    height: auto;
+    min-height: 3.5rem;
+    padding: 0.5rem 0.75rem;
+    padding-top: calc(0.5rem + env(safe-area-inset-top, 0px));
+  }
+
+  /* Show back button */
+  .back-btn {
+    display: flex;
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  /* Flip utility classes */
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: flex !important;
+  }
+
+  .header-user-info {
+    gap: 0.6rem;
+  }
+
+  .header-avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 0.85rem;
+  }
+
+  .header-details h2 {
+    font-size: 0.9rem;
+  }
+
+  .header-details p {
+    font-size: 0.7rem;
+  }
+
+  .header-actions {
+    gap: 0.15rem;
+  }
+
+  .action-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.6rem;
+  }
+
+  .mobile-menu-panel {
+    right: 0.25rem;
+    min-width: 200px;
+  }
+}
+
+/* ─── Small Phones (≤ 480px) ──────────────────────────────── */
+
+@media (max-width: 480px) {
+  .chat-header {
+    padding: 0.4rem 0.5rem;
+    padding-top: calc(0.4rem + env(safe-area-inset-top, 0px));
+    gap: 0.25rem;
+  }
+
+  .back-btn {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .header-avatar {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.8rem;
+  }
+
+  .header-details h2 {
+    font-size: 0.875rem;
+  }
+
+  .header-details p {
+    font-size: 0.65rem;
+  }
+
+  .action-btn {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+/* ─── Extra Small (≤ 360px) ───────────────────────────────── */
+
+@media (max-width: 360px) {
+  .back-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .header-user-info {
+    gap: 0.35rem;
+  }
+
+  .header-avatar {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.75rem;
+  }
+
+  .header-details h2 {
+    font-size: 0.8rem;
+  }
+
+  .action-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.5rem;
+  }
 }

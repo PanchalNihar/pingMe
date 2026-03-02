@@ -715,4 +715,12 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     if (!msg.audio || !msg.audio.data) return '';
     return this.sanitizer.bypassSecurityTrustUrl(`data:${msg.audio.contentType};base64,${msg.audio.data}`);
   }
+  closeChat() {
+    // Clearing these variables triggers the *ngIf logic in HTML 
+    // to switch back to the sidebar view
+    this.receiverId = null;
+    this.selectedGroupId = null;
+    this.currentReceiver = null;
+    this.currentGroup = null;
+  }
 }

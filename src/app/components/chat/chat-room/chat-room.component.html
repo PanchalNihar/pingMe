@@ -1,6 +1,13 @@
-<div class="chat-interface-container">
-  <app-chat-verification-banner [isEmailVerified]="isEmailVerified"></app-chat-verification-banner>
+<div
+  class="chat-interface-container"
+  [class.mobile-chat-open]="!!(receiverId || selectedGroupId)"
+>
+  <app-chat-verification-banner
+    [isEmailVerified]="isEmailVerified"
+  ></app-chat-verification-banner>
+
   <app-chat-sidebar
+    class="sidebar-component"
     [users]="users"
     [groups]="groups"
     [onlineUsers]="onlineUsers"
@@ -21,13 +28,8 @@
       <p>Choose a contact or group from the left to start chatting.</p>
     </div>
 
-    <div
-      *ngIf="receiverId || selectedGroupId"
-      class="d-flex flex-column h-100"
-      style="flex: 1; display: flex; flex-direction: column; overflow: hidden"
-    >
+    <div *ngIf="receiverId || selectedGroupId" class="active-chat-container">
       <app-chat-header
-        *ngIf="currentReceiver || currentGroup"
         [currentReceiver]="currentReceiver"
         [currentGroup]="currentGroup"
         [selectedLanguage]="selectedLanguage"
@@ -39,6 +41,7 @@
         (generateSummary)="generateSummary()"
         (openGroupInfo)="openGroupInfo()"
         (selectedLanguageChange)="selectedLanguage = $event"
+        (back)="closeChat()"
       ></app-chat-header>
 
       <div class="messages-viewport custom-scrollbar" #scrollContainer>
@@ -60,13 +63,8 @@
       </div>
 
       <div class="edit-banner" *ngIf="edititngMessageId">
-        <div class="edit-info">
-          <span class="material-symbols-outlined icon">edit</span>
-          <span>Editing message</span>
-        </div>
-        <button class="cancel-edit-btn" (click)="cancleEdit()">
-          <span class="material-symbols-outlined">close</span>
-        </button>
+        <span>Editing message</span>
+        <button (click)="cancleEdit()">Cancel</button>
       </div>
 
       <div class="attachment-preview" *ngIf="selectedImage">
@@ -74,9 +72,9 @@
           <span class="material-symbols-outlined file-icon">image</span>
           <div class="file-info">
             <span class="file-name">{{ selectedImage.name }}</span>
-            <span class="file-size"
-              >{{ (selectedImage.size / 1024).toFixed(1) }} KB</span
-            >
+            <span class="file-size">
+              {{ (selectedImage.size / 1024).toFixed(1) }} KB
+            </span>
           </div>
           <button class="remove-btn" (click)="clearImage()">
             <span class="material-symbols-outlined">close</span>
@@ -88,24 +86,14 @@
         class="smart-replies-container"
         *ngIf="suggestedReplies.length > 0 || isAiLoading"
       >
-        <div
-          *ngIf="isAiLoading && suggestedReplies.length === 0"
-          class="ai-thinking"
-        >
+        <div *ngIf="isAiLoading" class="ai-thinking">
           <span class="material-symbols-outlined sparkle-icon"
             >auto_awesome</span
           >
           <span>AI is thinking...</span>
         </div>
 
-        <div
-          *ngIf="!isAiLoading && suggestedReplies.length > 0"
-          class="chips-row custom-scrollbar"
-        >
-          <div class="ai-label">
-            <span class="material-symbols-outlined">auto_awesome</span>
-          </div>
-
+        <div *ngIf="!isAiLoading" class="chips-row">
           <button
             *ngFor="let reply of suggestedReplies"
             class="reply-chip"
@@ -116,9 +104,14 @@
         </div>
       </div>
 
-      <div class="input-area" style="position: relative">
-        <!-- keep file input in parent so ViewChild('fileInput') remains valid -->
-        <input #fileInput type="file" hidden accept="image/*" (change)="onImageSelected($event)" />
+      <div class="input-area">
+        <input
+          #fileInput
+          type="file"
+          hidden
+          accept="image/*"
+          (change)="onImageSelected($event)"
+        />
 
         <app-chat-input
           [message]="message"
@@ -130,19 +123,21 @@
           [showEmojiPicker]="showEmojiPicker"
           [edititngMessageId]="edititngMessageId"
           (send)="send()"
+          (openFilePicker)="fileInput.click()"
+          (toggleEmojiPicker)="toggleEmojiPicker()"
+          (addEmoji)="addEmoji($event)"
           (startRecording)="startRecording()"
           (stopRecording)="stopRecording()"
           (cancelRecording)="cancelRecording()"
           (triggerSmartReplies)="triggerSmartReplies()"
-          (toggleEmojiPicker)="toggleEmojiPicker()"
           (onInput)="onInput()"
-          (openFilePicker)="fileInput.click()"
-          (addEmoji)="addEmoji($event)"
         ></app-chat-input>
       </div>
     </div>
   </div>
+</div>
 
+<div>
   <div class="modal-overlay" *ngIf="showCreateGroupModal">
     <div class="modal-card">
       <div class="modal-header">
@@ -151,7 +146,6 @@
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
-
       <div class="modal-body">
         <div class="form-group">
           <label class="modal-label">Group Name</label>
@@ -162,7 +156,6 @@
             placeholder="e.g. Project Team"
           />
         </div>
-
         <div class="form-group">
           <label class="modal-label">Select Members</label>
           <div class="member-selection-list custom-scrollbar">
@@ -195,7 +188,6 @@
           </div>
         </div>
       </div>
-
       <div class="modal-footer">
         <button class="btn-cancel" (click)="closeGroupModal()">Cancel</button>
         <button class="btn-create" (click)="createGroup()">Create Group</button>
@@ -211,7 +203,6 @@
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
-
       <div class="modal-body">
         <div class="group-header-section">
           <div class="group-icon-wrapper">
@@ -225,7 +216,6 @@
                 currentGroup.name.charAt(0).toUpperCase()
               }}</span>
             </div>
-
             <label
               class="edit-icon-btn"
               *ngIf="isGroupAdmin"
@@ -240,7 +230,6 @@
               />
             </label>
           </div>
-
           <div class="group-name-edit">
             <input
               [disabled]="!isGroupAdmin"
@@ -257,7 +246,6 @@
             </button>
           </div>
         </div>
-
         <div class="add-member-section" *ngIf="isGroupAdmin">
           <h4>Add Member</h4>
           <div class="add-row">
@@ -278,7 +266,6 @@
             </button>
           </div>
         </div>
-
         <div class="participants-section">
           <h4>{{ currentGroup.participants.length }} Participants</h4>
           <div class="participants-list custom-scrollbar">
@@ -291,7 +278,6 @@
                 <div *ngIf="!p.avatar" class="p-avatar-placeholder">
                   {{ p.name?.charAt(0) || "U" }}
                 </div>
-
                 <div class="p-details">
                   <span class="p-name">{{ p.name }}</span>
                   <span *ngIf="p._id === currentGroup.admin" class="admin-badge"
@@ -299,7 +285,6 @@
                   >
                 </div>
               </div>
-
               <button
                 *ngIf="isGroupAdmin && p._id !== userId"
                 class="btn-remove-member"
@@ -314,133 +299,127 @@
       </div>
     </div>
   </div>
-</div>
-<div class="modal-overlay" *ngIf="showAddFriendModal">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3>Manage Connections</h3>
-      <button class="close-btn" (click)="closeAddFriendModal()">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-    </div>
 
-    <div class="modal-tabs">
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'add'"
-        (click)="switchTab('add')"
-      >
-        Add New
-      </button>
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'requests'"
-        (click)="switchTab('requests')"
-      >
-        Requests
-        <span class="badge" *ngIf="pendingRequests.length > 0">{{
-          pendingRequests.length
-        }}</span>
-      </button>
-    </div>
-
-    <div class="modal-body">
-      <div *ngIf="activeTab === 'add'" class="add-friend-view">
-        <div class="search-row">
-          <input
-            type="text"
-            class="modal-input"
-            [(ngModel)]="searchName"
-            placeholder="Enter user name..."
-            (keyup.enter)="searchUser()"
-          />
-          <button class="btn-primary-mini" (click)="searchUser()">
-            Search
-          </button>
-        </div>
-
-        <div class="found-user-card" *ngIf="foundUser">
-          <div class="user-info">
-            <div class="avatar-circle small">
-              <img *ngIf="foundUser.avatar" [src]="foundUser.avatar" />
-              <span *ngIf="!foundUser.avatar">{{
-                foundUser.name.charAt(0)
-              }}</span>
-            </div>
-            <span>{{ foundUser.name }}</span>
-          </div>
-          <button class="btn-add-mini" (click)="sendRequest()">
-            Send Request
-          </button>
-        </div>
+  <div class="modal-overlay" *ngIf="showAddFriendModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Manage Connections</h3>
+        <button class="close-btn" (click)="closeAddFriendModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
       </div>
-
-      <div
-        *ngIf="activeTab === 'requests'"
-        class="requests-view custom-scrollbar"
-      >
-        <div *ngIf="pendingRequests.length === 0" class="empty-state-mini">
-          No pending requests
-        </div>
-
-        <div *ngFor="let req of pendingRequests" class="request-row">
-          <div class="user-info">
-            <div class="avatar-circle small">
-              <img *ngIf="req.sender.avatar" [src]="req.sender.avatar" />
-              <span *ngIf="!req.sender.avatar">{{
-                req.sender.name.charAt(0)
-              }}</span>
-            </div>
-            <div class="details">
-              <span class="name">{{ req.sender.name }}</span>
-              <span class="email">{{ req.sender.email }}</span>
-            </div>
+      <div class="modal-tabs">
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'add'"
+          (click)="switchTab('add')"
+        >
+          Add New
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'requests'"
+          (click)="switchTab('requests')"
+        >
+          Requests
+          <span class="badge" *ngIf="pendingRequests.length > 0">{{
+            pendingRequests.length
+          }}</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="activeTab === 'add'" class="add-friend-view">
+          <div class="search-row">
+            <input
+              type="text"
+              class="modal-input"
+              [(ngModel)]="searchName"
+              placeholder="Enter user name..."
+              (keyup.enter)="searchUser()"
+            />
+            <button class="btn-primary-mini" (click)="searchUser()">
+              Search
+            </button>
           </div>
-          <div class="actions">
-            <button
-              class="btn-accept"
-              (click)="respondToRequest(req.sender._id, 'accept')"
-            >
-              Accept
+          <div class="found-user-card" *ngIf="foundUser">
+            <div class="user-info">
+              <div class="avatar-circle small">
+                <img *ngIf="foundUser.avatar" [src]="foundUser.avatar" />
+                <span *ngIf="!foundUser.avatar">{{
+                  foundUser.name.charAt(0)
+                }}</span>
+              </div>
+              <span>{{ foundUser.name }}</span>
+            </div>
+            <button class="btn-add-mini" (click)="sendRequest()">
+              Send Request
             </button>
-            <button
-              class="btn-reject"
-              (click)="respondToRequest(req.sender._id, 'reject')"
-            >
-              Reject
-            </button>
+          </div>
+        </div>
+        <div
+          *ngIf="activeTab === 'requests'"
+          class="requests-view custom-scrollbar"
+        >
+          <div *ngIf="pendingRequests.length === 0" class="empty-state-mini">
+            No pending requests
+          </div>
+          <div *ngFor="let req of pendingRequests" class="request-row">
+            <div class="user-info">
+              <div class="avatar-circle small">
+                <img *ngIf="req.sender.avatar" [src]="req.sender.avatar" />
+                <span *ngIf="!req.sender.avatar">{{
+                  req.sender.name.charAt(0)
+                }}</span>
+              </div>
+              <div class="details">
+                <span class="name">{{ req.sender.name }}</span>
+                <span class="email">{{ req.sender.email }}</span>
+              </div>
+            </div>
+            <div class="actions">
+              <button
+                class="btn-accept"
+                (click)="respondToRequest(req.sender._id, 'accept')"
+              >
+                Accept
+              </button>
+              <button
+                class="btn-reject"
+                (click)="respondToRequest(req.sender._id, 'reject')"
+              >
+                Reject
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-<div class="modal-overlay" *ngIf="showSummaryModal">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3>Chat Summary</h3>
-      <button class="close-btn" (click)="closeSummaryModal()">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-    </div>
 
-    <div class="modal-body summary-body">
-      <div *ngIf="isGeneratingSummary" class="loading-summary">
-        <span class="material-symbols-outlined spin-icon">sync</span>
-        <p>Analyzing conversation...</p>
+  <div class="modal-overlay" *ngIf="showSummaryModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Chat Summary</h3>
+        <button class="close-btn" (click)="closeSummaryModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
       </div>
-
-      <div *ngIf="!isGeneratingSummary" class="summary-content">
-        <div class="ai-badge">
-          <span class="material-symbols-outlined">auto_awesome</span>
-          <span>AI Generated Summary</span>
+      <div class="modal-body summary-body">
+        <div *ngIf="isGeneratingSummary" class="loading-summary">
+          <span class="material-symbols-outlined spin-icon">sync</span>
+          <p>Analyzing conversation...</p>
         </div>
-        <p class="summary-text">{{ summaryContent }}</p>
+        <div *ngIf="!isGeneratingSummary" class="summary-content">
+          <div class="ai-badge">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            <span>AI Generated Summary</span>
+          </div>
+          <p class="summary-text">{{ summaryContent }}</p>
+        </div>
       </div>
-    </div>
-
-    <div class="modal-footer">
-      <button class="btn-create" (click)="closeSummaryModal()">Close</button>
+      <div class="modal-footer">
+        <button class="btn-create" (click)="closeSummaryModal()">Close</button>
+      </div>
     </div>
   </div>
 </div>

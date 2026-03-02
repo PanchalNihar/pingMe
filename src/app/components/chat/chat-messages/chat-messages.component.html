@@ -10,6 +10,7 @@
   *ngFor="let msg of messages"
   class="message-group"
   [ngClass]="isCurrentUserFn(msg.sender) ? 'group-sender' : 'group-receiver'"
+  [class.actions-active]="activeActionsMessageId === (msg.id || msg._id)"
 >
   <div class="message-bubble-container" style="position: relative">
     <div
@@ -94,7 +95,7 @@
     </div>
   </div>
 
-  <div class="message-meta-row">
+  <div class="message-meta-row" (click)="toggleMessageActions(msg.id || msg._id)">
     <span class="meta-time">{{ getTimeFromMessageFn(msg) }}</span>
 
     <span

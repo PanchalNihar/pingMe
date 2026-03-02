@@ -1,31 +1,51 @@
 <div class="chat-header">
-  <div class="header-user-info" (click)="currentReceiver ? openProfile.emit(currentReceiver._id) : null">
-    
+
+  <!-- Back button — mobile only -->
+  <button class="back-btn" (click)="onBack()" title="Back">
+    <span class="material-symbols-outlined">arrow_back</span>
+  </button>
+
+  <!-- User / Group info -->
+  <div
+    class="header-user-info"
+    (click)="currentReceiver ? openProfile.emit(currentReceiver._id) : null"
+  >
     <ng-container *ngIf="currentReceiver">
       <div class="header-avatar" *ngIf="!currentReceiver.avatar">
         {{ currentReceiver.name.charAt(0).toUpperCase() }}
       </div>
-      <img *ngIf="currentReceiver.avatar" [src]="currentReceiver.avatar" class="header-avatar" />
+      <img
+        *ngIf="currentReceiver.avatar"
+        [src]="currentReceiver.avatar"
+        class="header-avatar"
+      />
     </ng-container>
 
     <div class="header-avatar group-header-avatar" *ngIf="currentGroup">
-      <img *ngIf="currentGroup.avatar" [src]="currentGroup.avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
-      <span *ngIf="!currentGroup.avatar" class="material-symbols-outlined" style="color: white">groups</span>
+      <img
+        *ngIf="currentGroup.avatar"
+        [src]="currentGroup.avatar"
+        style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+      />
+      <span *ngIf="!currentGroup.avatar" class="material-symbols-outlined" style="color:white">
+        groups
+      </span>
     </div>
 
     <div class="header-details">
       <h2>{{ currentGroup ? currentGroup.name : currentReceiver?.name }}</h2>
       <p *ngIf="currentReceiver">
-        {{ onlineUsers.has(currentReceiver._id) ? "Online" : "Offline" }}
+        {{ onlineUsers.has(currentReceiver._id) ? 'Online' : 'Offline' }}
       </p>
-      <p *ngIf="currentGroup">
-        {{ currentGroup.participants.length }} participants
-      </p>
+      <p *ngIf="currentGroup">{{ currentGroup.participants.length }} participants</p>
     </div>
   </div>
 
+  <!-- ── Desktop-only actions ──────────────────────────────── -->
   <div class="header-actions">
-    <div class="language-selector-wrapper">
+
+    <!-- Language selector (desktop only) -->
+    <div class="language-selector-wrapper desktop-only">
       <span class="material-symbols-outlined lang-icon">language</span>
       <select
         [(ngModel)]="selectedLanguage"
@@ -33,44 +53,112 @@
         title="Select Target Language"
         (ngModelChange)="selectedLanguageChange.emit($event)"
       >
-        <option *ngFor="let lang of supportedLanguages" [value]="lang">
-          {{ lang }}
-        </option>
+        <option *ngFor="let lang of supportedLanguages" [value]="lang">{{ lang }}</option>
       </select>
     </div>
 
+    <!-- Auto-translate (desktop only) -->
     <button
-      class="action-btn"
+      class="action-btn desktop-only"
       [class.active-btn]="autoTranslate"
       (click)="toggleAutoTranslate.emit()"
       title="Auto-Translate"
     >
       <span class="material-symbols-outlined">translate</span>
     </button>
-    
-    <button class="action-btn" (click)="generateSummary.emit()" title="Summarize">
+
+    <!-- Summarize (desktop only) -->
+    <button
+      class="action-btn desktop-only"
+      (click)="generateSummary.emit()"
+      title="Summarize"
+    >
       <span class="material-symbols-outlined">wysiwyg</span>
     </button>
-    
-    <button class="action-btn">
+
+    <!-- Video call -->
+    <button class="action-btn" title="Video call">
       <span class="material-symbols-outlined">videocam</span>
     </button>
-    
-    <button class="action-btn">
+
+    <!-- Voice call -->
+    <button class="action-btn" title="Voice call">
       <span class="material-symbols-outlined">call</span>
     </button>
-    
-    <button class="action-btn">
-      <span class="material-symbols-outlined">more_vert</span>
-    </button>
 
+    <!-- Group info (desktop only) -->
     <button
-      class="action-btn"
+      class="action-btn desktop-only"
       *ngIf="currentGroup"
       (click)="openGroupInfo.emit()"
       title="Group Info"
     >
       <span class="material-symbols-outlined">info</span>
     </button>
+
+    <!-- Three-dots — mobile only, triggers dropdown -->
+    <button
+      class="action-btn more-btn mobile-only"
+      (click)="toggleMobileMenu()"
+      title="More options"
+    >
+      <span class="material-symbols-outlined">more_vert</span>
+    </button>
+
+  </div>
+
+  <!-- ── Mobile dropdown overlay (click-outside to close) ─── -->
+  <div
+    class="mobile-menu-overlay"
+    *ngIf="showMobileMenu"
+    (click)="closeMobileMenu()"
+  ></div>
+
+  <!-- ── Mobile dropdown panel ─────────────────────────────── -->
+  <div class="mobile-menu-panel" *ngIf="showMobileMenu">
+
+    <!-- Language row -->
+    <div class="menu-row">
+      <span class="material-symbols-outlined menu-icon">language</span>
+      <span class="menu-label">Language</span>
+      <select
+        [(ngModel)]="selectedLanguage"
+        class="menu-lang-select"
+        (ngModelChange)="selectedLanguageChange.emit($event)"
+      >
+        <option *ngFor="let lang of supportedLanguages" [value]="lang">{{ lang }}</option>
+      </select>
+    </div>
+
+    <!-- Auto-translate toggle row -->
+    <button
+      class="menu-row menu-row-btn"
+      [class.menu-row-active]="autoTranslate"
+      (click)="toggleAutoTranslate.emit()"
+    >
+      <span class="material-symbols-outlined menu-icon">translate</span>
+      <span class="menu-label">Auto-Translate</span>
+      <span class="material-symbols-outlined menu-check" *ngIf="autoTranslate">check</span>
+    </button>
+
+    <!-- Summarize row -->
+    <button
+      class="menu-row menu-row-btn"
+      (click)="generateSummary.emit(); closeMobileMenu()"
+    >
+      <span class="material-symbols-outlined menu-icon">wysiwyg</span>
+      <span class="menu-label">Summarize Chat</span>
+    </button>
+
+    <!-- Group info row -->
+    <button
+      class="menu-row menu-row-btn"
+      *ngIf="currentGroup"
+      (click)="openGroupInfo.emit(); closeMobileMenu()"
+    >
+      <span class="material-symbols-outlined menu-icon">info</span>
+      <span class="menu-label">Group Info</span>
+    </button>
+
   </div>
 </div>

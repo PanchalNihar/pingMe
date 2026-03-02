@@ -3,11 +3,11 @@
 }
 
 .verification-banner {
-  position: absolute; /* Floating on top of the chat interface */
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  background-color: #fff7ed; /* Light Orange */
+  background-color: #fff7ed;
   border-bottom: 1px solid #fed7aa;
   color: #c2410c;
   padding: 0.5rem 1rem;
@@ -18,12 +18,31 @@
   font-size: 0.85rem;
   font-weight: 600;
   animation: slideDown 0.3s ease-out;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .banner-content {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  max-width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.banner-content a,
+.banner-content button {
+  color: #c2410c;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @keyframes slideDown {
@@ -32,5 +51,43 @@
   }
   to {
     transform: translateY(0);
+  }
+}
+
+/* --- Tablet (below 1024px) --- */
+@media (max-width: 1024px) {
+  .verification-banner {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* --- Mobile (below 768px) --- */
+@media (max-width: 768px) {
+  .verification-banner {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    text-align: center;
+    /* Account for safe area on notched phones */
+    top: env(safe-area-inset-top, 0);
+  }
+
+  .banner-content {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem;
+    text-align: center;
+  }
+}
+
+/* --- Small Phones (below 480px) --- */
+@media (max-width: 480px) {
+  .verification-banner {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  .banner-content {
+    gap: 0.25rem;
   }
 }

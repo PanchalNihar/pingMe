@@ -25,4 +25,11 @@ export class ChatMessagesComponent {
   @Output() toggleReactionMenu = new EventEmitter<string>();
   @Output() editMessage = new EventEmitter<string>();
   @Output() deleteMessage = new EventEmitter<string>();
+
+  /** Tracks which message's actions are currently revealed on mobile via tap */
+  activeActionsMessageId: string | null = null;
+
+  toggleMessageActions(id: string): void {
+    this.activeActionsMessageId = this.activeActionsMessageId === id ? null : id;
+  }
 }

@@ -22,4 +22,19 @@ export class ChatHeaderComponent {
   @Output() generateSummary = new EventEmitter<void>();
   @Output() openGroupInfo = new EventEmitter<void>();
   @Output() selectedLanguageChange = new EventEmitter<string>();
+  @Output() back = new EventEmitter<void>();
+
+  showMobileMenu = false;
+
+  onBack() {
+    this.back.emit();
+  }
+
+  toggleMobileMenu() {
+    this.showMobileMenu = !this.showMobileMenu;
+  }
+
+  closeMobileMenu() {
+    this.showMobileMenu = false;
+  }
 }

@@ -5,7 +5,7 @@
   --text-main: #0f172a;
   --text-secondary: #64748b;
   --border-color: #f1f5f9;
-  display: contents; /* Allows children to sit directly in parent grid/flex */
+  display: contents;
 }
 
 /* --- Input Container --- */
@@ -31,13 +31,21 @@
   background: transparent;
   border: none;
   padding: 0.5rem 0;
-  font-size: 0.875rem;
+  font-size: 1rem; /* 16px minimum to prevent zoom on iOS */
   color: var(--text-main);
   outline: none;
   min-height: 2.5rem;
-  max-height: 100px;
+  max-height: 120px;
   display: flex;
   align-items: center;
+  resize: none; /* For textarea */
+  font-family: inherit;
+  line-height: 1.5;
+  -webkit-appearance: none;
+}
+
+.main-input::placeholder {
+  color: var(--text-secondary);
 }
 
 /* --- Buttons (Standard) --- */
@@ -56,11 +64,15 @@
   border: none;
   flex-shrink: 0;
   transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .attach-btn:hover,
 .emoji-btn:hover,
-.mic-btn:hover {
+.mic-btn:hover,
+.attach-btn:active,
+.emoji-btn:active,
+.mic-btn:active {
   color: var(--primary);
   background: rgba(59, 130, 246, 0.1);
 }
@@ -80,6 +92,7 @@
   transition: all 0.2s;
   box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
   flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .send-btn:hover {
@@ -89,9 +102,10 @@
 
 .send-btn:active {
   transform: translateY(0);
+  filter: brightness(95%);
 }
 
-/* --- AI Button (Missing in your previous file) --- */
+/* --- AI Button --- */
 .ai-btn {
   width: 2.5rem;
   height: 2.5rem;
@@ -100,14 +114,16 @@
   justify-content: center;
   border-radius: 0.75rem;
   cursor: pointer;
-  color: #8b5cf6; /* Violet */
+  color: #8b5cf6;
   background: transparent;
   border: none;
   flex-shrink: 0;
   transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.ai-btn:hover {
+.ai-btn:hover,
+.ai-btn:active {
   background-color: #f3f4f6;
   color: #7c3aed;
   transform: scale(1.1);
@@ -139,7 +155,7 @@
   }
 }
 
-/* --- Recording UI (Missing in your previous file) --- */
+/* --- Recording UI --- */
 .recording-ui {
   flex: 1;
   display: flex;
@@ -147,6 +163,7 @@
   gap: 1rem;
   padding: 0 0.5rem;
   animation: slideIn 0.2s ease-out;
+  min-width: 0;
 }
 
 .rec-indicator {
@@ -157,6 +174,7 @@
   font-weight: 600;
   font-family: monospace;
   font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .rec-dot {
@@ -165,12 +183,17 @@
   background-color: #ef4444;
   border-radius: 50%;
   animation: blink 1s infinite;
+  flex-shrink: 0;
 }
 
 .rec-text {
   flex: 1;
   color: var(--text-secondary);
   font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .btn-cancel-rec {
@@ -183,9 +206,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.btn-cancel-rec:hover {
+.btn-cancel-rec:hover,
+.btn-cancel-rec:active {
   background-color: #fee2e2;
   color: #ef4444;
 }
@@ -201,6 +227,8 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* --- Animations --- */
@@ -228,12 +256,12 @@
 }
 
 /* --- Emoji Picker Wrapper --- */
+/* position: fixed escapes overflow:hidden on all ancestor containers */
 .emoji-picker-wrapper {
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  z-index: 50;
-  margin-bottom: 10px;
+  position: fixed;
+  bottom: 5.5rem; /* sits above the input area on desktop */
+  left: calc(288px + 3.5rem); /* nav-width + host-padding + input-area-padding */
+  z-index: 500;
   animation: popIn 0.2s ease-out;
 }
 
@@ -245,5 +273,116 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* --- Tablet (below 1024px) --- */
+@media (max-width: 1024px) {
+  .input-container {
+    gap: 0.5rem;
+  }
+
+  .main-input {
+    font-size: 1rem;
+  }
+
+  /* Tablet: no nav side-bar margin */
+  .emoji-picker-wrapper {
+    left: 2.5rem;
+    bottom: 5rem;
+  }
+}
+
+/* --- Mobile (below 768px) --- */
+@media (max-width: 768px) {
+  .input-container {
+    padding: 0.4rem 0.5rem;
+    border-radius: 0.875rem;
+    gap: 0.4rem;
+  }
+
+  .main-input {
+    min-height: 2.25rem;
+    font-size: 1rem; /* Must stay 16px to prevent iOS zoom */
+    padding: 0.4rem 0;
+  }
+
+  .attach-btn,
+  .emoji-btn,
+  .mic-btn,
+  .send-btn,
+  .ai-btn {
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 0.65rem;
+  }
+
+  /* Make send button slightly more prominent */
+  .send-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.75rem;
+  }
+
+  /* Recording UI stays readable */
+  .recording-ui {
+    gap: 0.5rem;
+  }
+
+  .rec-text {
+    font-size: 0.85rem;
+  }
+
+  /* Mobile: center the emoji picker and use safe-area offset */
+  .emoji-picker-wrapper {
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 1rem);
+    bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* --- Small Phones (below 480px) --- */
+@media (max-width: 480px) {
+  .input-container {
+    gap: 0.35rem;
+    padding: 0.35rem 0.4rem;
+  }
+
+  /* Compact buttons on small phones — keep all buttons visible */
+  .attach-btn,
+  .ai-btn,
+  .emoji-btn,
+  .mic-btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+  }
+
+  .main-input {
+    font-size: 1rem;
+    padding: 0.35rem 0;
+  }
+
+  .send-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-shrink: 0;
+  }
+
+  .recording-ui {
+    gap: 0.4rem;
+  }
+
+  .rec-indicator {
+    font-size: 0.9rem;
+  }
+
+  .rec-text {
+    font-size: 0.8rem;
+  }
+
+  .emoji-picker-wrapper {
+    bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
   }
 }

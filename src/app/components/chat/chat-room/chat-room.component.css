@@ -16,10 +16,13 @@
   font-family: var(--font-body);
   background-color: var(--bg-app);
   height: 100vh;
-  margin-left: 288px;
+  height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  margin-left: 288px; /* Desktop margin for main nav */
   padding: 2rem;
   box-sizing: border-box;
   overflow: hidden;
+  /* prevent any inner element from creating horizontal document scroll */
+  max-width: 100%;
 }
 
 /* --- Main Layout --- */
@@ -31,7 +34,16 @@
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--border-color);
   overflow: hidden;
-  position: relative; /* For Banner positioning */
+  position: relative;
+}
+
+/* Sidebar component */
+.sidebar-component {
+  width: 320px;
+  border-right: 1px solid var(--border-color);
+  display: block;
+  height: 100%;
+  flex-shrink: 0;
 }
 
 /* --- Right Panel Container --- */
@@ -42,24 +54,38 @@
   background-color: #fafbfc;
   position: relative;
   overflow: hidden;
+  min-width: 0;
 }
 
-/* --- Messages Container (Parent manages scroll) --- */
+/* Inner container for active chat */
+.active-chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  flex: 1;
+}
+
+/* --- Messages Container --- */
 .messages-viewport {
   flex: 1;
+  min-height: 0; /* critical: allows flex child to shrink below content height */
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 2rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
 }
 
-/* --- Input Wrapper (Parent manages positioning of the input component) --- */
+/* --- Input Wrapper --- */
 .input-area {
   padding: 1.5rem;
   background-color: var(--bg-surface);
   border-top: 1px solid var(--border-color);
   position: relative;
+  flex-shrink: 0;
 }
 
 /* --- Empty State --- */
@@ -71,6 +97,7 @@
   justify-content: center;
   color: var(--text-light);
   text-align: center;
+  padding: 1rem;
 }
 
 .empty-icon {
@@ -79,13 +106,13 @@
   margin-bottom: 1rem;
 }
 
-/* --- UI Elements Managed by Parent --- */
-
-/* 1. Smart Replies */
+/* --- Smart Replies --- */
 .smart-replies-container {
   padding: 0.5rem 1.5rem;
   background-color: var(--bg-surface);
   animation: slideUpFade 0.3s ease-out;
+  flex-shrink: 0;
+  overflow-x: auto;
 }
 
 .ai-thinking {
@@ -110,13 +137,12 @@
   overflow-x: auto;
   white-space: nowrap;
   padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
 
-.ai-label {
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  margin-right: 0.25rem;
+.chips-row::-webkit-scrollbar {
+  display: none;
 }
 
 .reply-chip {
@@ -132,6 +158,7 @@
   white-space: nowrap;
   flex-shrink: 0;
   font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .reply-chip:hover {
@@ -141,7 +168,7 @@
   transform: translateY(-1px);
 }
 
-/* 2. Edit Banner */
+/* Edit Banner */
 .edit-banner {
   background-color: #f0f9ff;
   border-top: 1px solid #e0f2fe;
@@ -151,13 +178,15 @@
   align-items: center;
   color: #0369a1;
   font-size: 0.875rem;
+  flex-shrink: 0;
 }
 
-/* 3. Attachment Preview */
+/* Attachment Preview */
 .attachment-preview {
   padding: 0.75rem 1.5rem;
   background-color: #f8fafc;
   border-top: 1px solid #e8eaed;
+  flex-shrink: 0;
 }
 
 .preview-card {
@@ -183,6 +212,10 @@
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-main);
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .file-size {
@@ -199,24 +232,28 @@
   align-items: center;
 }
 
-/* --- Modals (Global) --- */
+/* --- Modals --- */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   backdrop-filter: blur(2px);
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .modal-card {
   background: white;
-  width: 420px;
+  width: 100%;
+  max-width: 420px;
   border-radius: 16px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -224,6 +261,7 @@
   display: flex;
   flex-direction: column;
   max-height: 85vh;
+  max-height: 85dvh;
 }
 
 .modal-header {
@@ -232,6 +270,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .modal-header h3 {
@@ -246,11 +285,17 @@
   border: none;
   cursor: pointer;
   color: var(--text-secondary);
+  padding: 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .modal-body {
   padding: 1.5rem;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .form-group {
@@ -273,6 +318,7 @@
   font-family: inherit;
   font-size: 0.9rem;
   box-sizing: border-box;
+  -webkit-appearance: none;
 }
 
 .modal-input:focus {
@@ -288,6 +334,7 @@
   justify-content: flex-end;
   gap: 0.75rem;
   background-color: #f8fafc;
+  flex-shrink: 0;
 }
 
 .btn-cancel {
@@ -298,6 +345,7 @@
   cursor: pointer;
   font-weight: 600;
   color: var(--text-secondary);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn-create {
@@ -308,6 +356,7 @@
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Modal Helper Classes */
@@ -316,6 +365,7 @@
   overflow-y: auto;
   border: 1px solid var(--border-color);
   border-radius: 8px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .select-item {
@@ -324,11 +374,14 @@
   padding: 0.75rem;
   cursor: pointer;
   border-bottom: 1px solid #f8fafc;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.select-item:hover {
+.select-item:hover,
+.select-item:active {
   background-color: #f8fafc;
 }
+
 .select-item.selected {
   background-color: #eff6ff;
 }
@@ -345,6 +398,7 @@
   font-weight: 600;
   margin-right: 0.75rem;
   color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
 .check-icon {
@@ -357,6 +411,13 @@
   display: flex;
   border-bottom: 1px solid var(--border-color);
   padding: 0 1.5rem;
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.modal-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tab-btn {
@@ -367,6 +428,9 @@
   color: var(--text-secondary);
   cursor: pointer;
   border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .tab-btn.active {
@@ -383,7 +447,7 @@
   margin-left: 5px;
 }
 
-/* Group Info Specifics */
+/* Group Info */
 .group-header-section {
   display: flex;
   flex-direction: column;
@@ -446,6 +510,7 @@
   overflow-y: auto;
   border: 1px solid var(--border-color);
   border-radius: 8px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .participant-row {
@@ -467,6 +532,7 @@
   height: 2.25rem;
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .p-avatar-placeholder {
@@ -479,6 +545,7 @@
   justify-content: center;
   font-weight: 600;
   color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
 .admin-badge {
@@ -495,9 +562,11 @@
   border: none;
   color: #ef4444;
   cursor: pointer;
+  padding: 0.5rem;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Animations */
+/* --- Animations --- */
 @keyframes popIn {
   from {
     opacity: 0;
@@ -535,13 +604,146 @@
   }
 }
 
-/* Mobile Responsive */
+/* =========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================= */
+
+/* Tablet (below 1024px) */
 @media (max-width: 1024px) {
   :host {
     margin-left: 0;
     padding: 1rem;
+    height: 100dvh;
   }
+
   .chat-interface-container {
-    flex-direction: column;
+    border-radius: 0.75rem;
+  }
+
+  .sidebar-component {
+    width: 280px;
+  }
+}
+
+/* Mobile (below 768px) — Full-screen switching layout */
+@media (max-width: 768px) {
+  :host {
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    margin-left: 0;
+    overflow: hidden;
+  }
+
+  .chat-interface-container {
+    border: none;
+    border-radius: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* DEFAULT: Show Sidebar, Hide Chat Window */
+  .sidebar-component {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-right: none;
+  }
+
+  .chat-window-panel {
+    display: none;
+  }
+
+  /* ACTIVE STATE: Hide Sidebar, Show Chat */
+  .chat-interface-container.mobile-chat-open .sidebar-component {
+    display: none;
+  }
+
+  .chat-interface-container.mobile-chat-open .chat-window-panel {
+    display: flex;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Adjust inner spacing for mobile */
+  .messages-viewport {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .input-area {
+    padding: 0.75rem;
+    /* Prevent content from being hidden behind mobile browser chrome */
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .smart-replies-container {
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Full-screen modals on mobile */
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal-card {
+    max-height: 90dvh;
+    border-radius: 1.25rem 1.25rem 0 0;
+    width: 100vw;
+    max-width: 100vw;
+    animation: slideUpModal 0.3s ease-out;
+  }
+
+  @keyframes slideUpModal {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+/* Small Phones (below 480px) */
+@media (max-width: 480px) {
+  .reply-chip {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.85rem;
+  }
+
+  .modal-header h3 {
+    font-size: 1rem;
+  }
+
+  .btn-create,
+  .btn-cancel {
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .preview-card {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .edit-banner {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .attachment-preview {
+    padding: 0.5rem 0.75rem;
   }
 }
