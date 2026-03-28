@@ -139,89 +139,138 @@
 
 <div>
   <div class="modal-overlay" *ngIf="showCreateGroupModal">
-    <div class="modal-card">
+    <div class="modal-card create-group-modal">
       <div class="modal-header">
-        <h3>Create New Group</h3>
+        <div class="header-content">
+          <span class="material-symbols-outlined header-icon">group_add</span>
+          <h3>Create New Group</h3>
+        </div>
         <button class="close-btn" (click)="closeGroupModal()">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
+      
       <div class="modal-body">
-        <div class="form-group">
-          <label class="modal-label">Group Name</label>
-          <input
-            type="text"
-            class="modal-input"
-            [(ngModel)]="newGroupName"
-            placeholder="e.g. Project Team"
-          />
+        <p class="section-description">
+          Create a group chat to collaborate with multiple people at once
+        </p>
+        
+        <div class="form-section">
+          <label class="form-label">
+            <span class="material-symbols-outlined label-icon">badge</span>
+            <span>Group Name</span>
+          </label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              class="modern-input"
+              [(ngModel)]="newGroupName"
+              placeholder="e.g. Project Team, Study Group..."
+              maxlength="50"
+            />
+            <span class="char-count">{{ newGroupName.length }}/50</span>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="modal-label">Select Members</label>
-          <div class="member-selection-list custom-scrollbar">
+        
+        <div class="form-section">
+          <label class="form-label">
+            <span class="material-symbols-outlined label-icon">group</span>
+            <span>Select Members</span>
+            <span class="member-count" *ngIf="selectedParticipants.size > 0">
+              {{ selectedParticipants.size }} selected
+            </span>
+          </label>
+          
+          <div class="members-grid custom-scrollbar">
             <div
               *ngFor="let user of users"
-              class="select-item"
+              class="member-card"
               [class.selected]="selectedParticipants.has(user._id)"
               (click)="toggleParticipant(user._id)"
             >
-              <div class="select-avatar">
+              <div class="member-checkbox">
+                <span class="material-symbols-outlined check-icon" *ngIf="selectedParticipants.has(user._id)">
+                  check_circle
+                </span>
+                <span class="material-symbols-outlined uncheck-icon" *ngIf="!selectedParticipants.has(user._id)">
+                  radio_button_unchecked
+                </span>
+              </div>
+              
+              <div class="member-avatar">
                 <img
                   *ngIf="user.avatar"
                   [src]="user.avatar"
-                  style="
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    border-radius: 50%;
-                  "
+                  class="avatar-img"
                 />
-                <span *ngIf="!user.avatar">{{ user.name.charAt(0) }}</span>
+                <div *ngIf="!user.avatar" class="avatar-placeholder">
+                  {{ user.name.charAt(0).toUpperCase() }}
+                </div>
               </div>
-              <span class="select-name">{{ user.name }}</span>
-              <span
-                class="material-symbols-outlined check-icon"
-                *ngIf="selectedParticipants.has(user._id)"
-                >check_circle</span
-              >
+              
+              <div class="member-info">
+                <h4 class="member-name">{{ user.name }}</h4>
+                <p class="member-email">{{ user.email }}</p>
+              </div>
+            </div>
+            
+            <div class="empty-state-mini" *ngIf="users.length === 0">
+              <span class="material-symbols-outlined">person_off</span>
+              <p>No friends available</p>
             </div>
           </div>
         </div>
       </div>
+      
       <div class="modal-footer">
-        <button class="btn-cancel" (click)="closeGroupModal()">Cancel</button>
-        <button class="btn-create" (click)="createGroup()">Create Group</button>
+        <button class="btn-cancel" (click)="closeGroupModal()">
+          <span class="material-symbols-outlined">close</span>
+          <span>Cancel</span>
+        </button>
+        <button 
+          class="btn-create" 
+          (click)="createGroup()"
+          [disabled]="!newGroupName.trim() || selectedParticipants.size === 0"
+        >
+          <span class="material-symbols-outlined">add_circle</span>
+          <span>Create Group</span>
+        </button>
       </div>
     </div>
   </div>
 
   <div class="modal-overlay" *ngIf="showGroupInfoModal && currentGroup">
-    <div class="modal-card">
+    <div class="modal-card group-info-modal">
       <div class="modal-header">
-        <h3>Group Info</h3>
+        <div class="header-content">
+          <span class="material-symbols-outlined header-icon">info</span>
+          <h3>Group Information</h3>
+        </div>
         <button class="close-btn" (click)="closeGroupInfo()">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
+      
       <div class="modal-body">
-        <div class="group-header-section">
-          <div class="group-icon-wrapper">
+        <!-- Group Header Section -->
+        <div class="group-profile-section">
+          <div class="group-avatar-wrapper">
             <div
-              class="large-avatar"
+              class="group-avatar-large"
               [style.backgroundImage]="
                 currentGroup.avatar ? 'url(' + currentGroup.avatar + ')' : ''
               "
             >
-              <span *ngIf="!currentGroup.avatar">{{
+              <span *ngIf="!currentGroup.avatar" class="avatar-letter">{{
                 currentGroup.name.charAt(0).toUpperCase()
               }}</span>
             </div>
             <label
-              class="edit-icon-btn"
+              class="edit-avatar-btn"
               *ngIf="isGroupAdmin"
               title="Change Group Icon"
             >
-              <span class="material-symbols-outlined">edit</span>
+              <span class="material-symbols-outlined">photo_camera</span>
               <input
                 type="file"
                 hidden
@@ -230,66 +279,99 @@
               />
             </label>
           </div>
-          <div class="group-name-edit">
-            <input
-              [disabled]="!isGroupAdmin"
-              type="text"
-              class="modal-input name-input"
-              [(ngModel)]="editGroupName"
-            />
-            <button
-              *ngIf="isGroupAdmin"
-              class="btn-save-mini"
-              (click)="updateGroupDetails()"
-            >
-              Save
-            </button>
+          
+          <div class="group-name-section">
+            <label class="form-label">
+              <span class="material-symbols-outlined label-icon">badge</span>
+              <span>Group Name</span>
+            </label>
+            <div class="name-edit-row">
+              <input
+                [disabled]="!isGroupAdmin"
+                type="text"
+                class="modern-input"
+                [(ngModel)]="editGroupName"
+                placeholder="Enter group name..."
+              />
+              <button
+                *ngIf="isGroupAdmin"
+                class="btn-save"
+                (click)="updateGroupDetails()"
+              >
+                <span class="material-symbols-outlined">check</span>
+                <span>Save</span>
+              </button>
+            </div>
           </div>
         </div>
+        
+        <!-- Add Member Section -->
         <div class="add-member-section" *ngIf="isGroupAdmin">
-          <h4>Add Member</h4>
-          <div class="add-row">
-            <select [(ngModel)]="newMemberId" class="modal-input">
-              <option value="" disabled selected>Select user...</option>
-              <ng-container *ngFor="let user of users">
-                <option *ngIf="!isMemberOfGroup(user._id)" [value]="user._id">
-                  {{ user.name }}
-                </option>
-              </ng-container>
-            </select>
+          <label class="form-label">
+            <span class="material-symbols-outlined label-icon">person_add</span>
+            <span>Add New Member</span>
+          </label>
+          <div class="add-member-row">
+            <div class="select-wrapper">
+              <span class="material-symbols-outlined select-icon">search</span>
+              <select [(ngModel)]="newMemberId" class="modern-select">
+                <option value="" disabled selected>Select a user to add...</option>
+                <ng-container *ngFor="let user of users">
+                  <option *ngIf="!isMemberOfGroup(user._id)" [value]="user._id">
+                    {{ user.name }}
+                  </option>
+                </ng-container>
+              </select>
+            </div>
             <button
-              class="btn-add-mini"
+              class="btn-add-member"
               [disabled]="!newMemberId"
               (click)="addMember()"
             >
-              Add
+              <span class="material-symbols-outlined">add</span>
+              <span>Add</span>
             </button>
           </div>
         </div>
-        <div class="participants-section">
-          <h4>{{ currentGroup.participants.length }} Participants</h4>
-          <div class="participants-list custom-scrollbar">
+        
+        <!-- Participants Section -->
+        <div class="members-section">
+          <div class="section-header">
+            <label class="form-label">
+              <span class="material-symbols-outlined label-icon">group</span>
+              <span>Members</span>
+            </label>
+            <span class="member-count">{{ currentGroup.participants.length }}</span>
+          </div>
+          
+          <div class="members-list custom-scrollbar">
             <div
               *ngFor="let p of currentGroup.participants"
-              class="participant-row"
+              class="member-item"
             >
-              <div class="p-info">
-                <img *ngIf="p.avatar" [src]="p.avatar" class="p-avatar" />
-                <div *ngIf="!p.avatar" class="p-avatar-placeholder">
-                  {{ p.name?.charAt(0) || "U" }}
+              <div class="member-content">
+                <div class="member-avatar">
+                  <img *ngIf="p.avatar" [src]="p.avatar" class="avatar-img" />
+                  <div *ngIf="!p.avatar" class="avatar-placeholder">
+                    {{ p.name?.charAt(0) || "U" }}
+                  </div>
                 </div>
-                <div class="p-details">
-                  <span class="p-name">{{ p.name }}</span>
-                  <span *ngIf="p._id === currentGroup.admin" class="admin-badge"
-                    >Admin</span
-                  >
+                <div class="member-details">
+                  <div class="member-name-row">
+                    <span class="member-name">{{ p.name }}</span>
+                    <span *ngIf="p._id === currentGroup.admin" class="admin-badge">
+                      <span class="material-symbols-outlined">shield</span>
+                      <span>Admin</span>
+                    </span>
+                  </div>
+                  <span class="member-email">{{ p.email }}</span>
                 </div>
               </div>
               <button
                 *ngIf="isGroupAdmin && p._id !== userId"
-                class="btn-remove-member"
+                class="btn-remove"
                 (click)="removeMember(p._id)"
-                title="Remove User"
+                title="Remove from group"
               >
                 <span class="material-symbols-outlined">person_remove</span>
               </button>
@@ -301,94 +383,131 @@
   </div>
 
   <div class="modal-overlay" *ngIf="showAddFriendModal">
-    <div class="modal-card">
+    <div class="modal-card add-friend-modal">
       <div class="modal-header">
-        <h3>Manage Connections</h3>
+        <div class="header-content">
+          <span class="material-symbols-outlined header-icon">people</span>
+          <h3>Manage Connections</h3>
+        </div>
         <button class="close-btn" (click)="closeAddFriendModal()">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
+      
       <div class="modal-tabs">
         <button
           class="tab-btn"
           [class.active]="activeTab === 'add'"
           (click)="switchTab('add')"
         >
-          Add New
+          <span class="material-symbols-outlined tab-icon">person_add</span>
+          <span>Add New</span>
         </button>
         <button
           class="tab-btn"
           [class.active]="activeTab === 'requests'"
           (click)="switchTab('requests')"
         >
-          Requests
+          <span class="material-symbols-outlined tab-icon">notifications</span>
+          <span>Requests</span>
           <span class="badge" *ngIf="pendingRequests.length > 0">{{
             pendingRequests.length
           }}</span>
         </button>
       </div>
+      
       <div class="modal-body">
+        <!-- Add New Tab -->
         <div *ngIf="activeTab === 'add'" class="add-friend-view">
-          <div class="search-row">
-            <input
-              type="text"
-              class="modal-input"
-              [(ngModel)]="searchName"
-              placeholder="Enter user name..."
-              (keyup.enter)="searchUser()"
-            />
-            <button class="btn-primary-mini" (click)="searchUser()">
-              Search
+          <div class="search-section">
+            <p class="section-description">
+              Search for users by their username to send a friend request
+            </p>
+            <div class="search-box">
+              <span class="material-symbols-outlined search-icon">search</span>
+              <input
+                type="text"
+                class="search-input"
+                [(ngModel)]="searchName"
+                placeholder="Enter username..."
+                (keyup.enter)="searchUser()"
+              />
+              <button class="btn-search" (click)="searchUser()">
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="found-user-card" *ngIf="foundUser">
+            <div class="user-card-content">
+              <div class="user-avatar">
+                <img *ngIf="foundUser.avatar" [src]="foundUser.avatar" class="avatar-img" />
+                <div *ngIf="!foundUser.avatar" class="avatar-placeholder">
+                  {{ foundUser.name.charAt(0).toUpperCase() }}
+                </div>
+              </div>
+              <div class="user-details">
+                <h4 class="user-name">{{ foundUser.name }}</h4>
+                <p class="user-email">{{ foundUser.email }}</p>
+              </div>
+            </div>
+            <button class="btn-send-request" (click)="sendRequest()">
+              <span class="material-symbols-outlined">send</span>
+              <span>Send Request</span>
             </button>
           </div>
-          <div class="found-user-card" *ngIf="foundUser">
-            <div class="user-info">
-              <div class="avatar-circle small">
-                <img *ngIf="foundUser.avatar" [src]="foundUser.avatar" />
-                <span *ngIf="!foundUser.avatar">{{
-                  foundUser.name.charAt(0)
-                }}</span>
-              </div>
-              <span>{{ foundUser.name }}</span>
-            </div>
-            <button class="btn-add-mini" (click)="sendRequest()">
-              Send Request
-            </button>
+          
+          <div class="empty-state" *ngIf="!foundUser">
+            <span class="material-symbols-outlined empty-icon">person_search</span>
+            <p class="empty-text">Search for a user to get started</p>
           </div>
         </div>
+        
+        <!-- Requests Tab -->
         <div
           *ngIf="activeTab === 'requests'"
           class="requests-view custom-scrollbar"
         >
-          <div *ngIf="pendingRequests.length === 0" class="empty-state-mini">
-            No pending requests
+          <p class="section-description" *ngIf="pendingRequests.length > 0">
+            {{ pendingRequests.length }} pending friend {{ pendingRequests.length === 1 ? 'request' : 'requests' }}
+          </p>
+          
+          <div *ngIf="pendingRequests.length === 0" class="empty-state">
+            <span class="material-symbols-outlined empty-icon">inbox</span>
+            <p class="empty-text">No pending requests</p>
+            <p class="empty-subtext">You're all caught up!</p>
           </div>
-          <div *ngFor="let req of pendingRequests" class="request-row">
-            <div class="user-info">
-              <div class="avatar-circle small">
-                <img *ngIf="req.sender.avatar" [src]="req.sender.avatar" />
-                <span *ngIf="!req.sender.avatar">{{
-                  req.sender.name.charAt(0)
-                }}</span>
+          
+          <div class="requests-list">
+            <div *ngFor="let req of pendingRequests" class="request-card">
+              <div class="request-user-info">
+                <div class="user-avatar">
+                  <img *ngIf="req.sender.avatar" [src]="req.sender.avatar" class="avatar-img" />
+                  <div *ngIf="!req.sender.avatar" class="avatar-placeholder">
+                    {{ req.sender.name.charAt(0).toUpperCase() }}
+                  </div>
+                </div>
+                <div class="user-details">
+                  <h4 class="user-name">{{ req.sender.name }}</h4>
+                  <p class="user-email">{{ req.sender.email }}</p>
+                </div>
               </div>
-              <div class="details">
-                <span class="name">{{ req.sender.name }}</span>
-                <span class="email">{{ req.sender.email }}</span>
+              <div class="request-actions">
+                <button
+                  class="btn-accept"
+                  (click)="respondToRequest(req.sender._id, 'accept')"
+                >
+                  <span class="material-symbols-outlined">check_circle</span>
+                  <span>Accept</span>
+                </button>
+                <button
+                  class="btn-reject"
+                  (click)="respondToRequest(req.sender._id, 'reject')"
+                >
+                  <span class="material-symbols-outlined">cancel</span>
+                  <span>Decline</span>
+                </button>
               </div>
-            </div>
-            <div class="actions">
-              <button
-                class="btn-accept"
-                (click)="respondToRequest(req.sender._id, 'accept')"
-              >
-                Accept
-              </button>
-              <button
-                class="btn-reject"
-                (click)="respondToRequest(req.sender._id, 'reject')"
-              >
-                Reject
-              </button>
             </div>
           </div>
         </div>
