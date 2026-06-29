@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./chat-sidebar.component.css']
 })
 export class ChatSidebarComponent {
+
   @Input() users: any[] = [];
   @Input() groups: any[] = [];
   @Input() onlineUsers: Set<string> = new Set();
@@ -19,13 +20,48 @@ export class ChatSidebarComponent {
   @Input() filtertedUser: any[] = [];
   @Input() searchTerm: string = '';
 
+  // Number of pending requests (Friend requests + future group invites)
+  @Input() pendingRequestsCount = 0;
+
   @Output() searchTermChange = new EventEmitter<string>();
-  @Output() openChat = new EventEmitter<{ entity: any; isGroup: boolean }>();
+
+  @Output() openChat = new EventEmitter<{
+    entity: any;
+    isGroup: boolean;
+  }>();
+
   @Output() openGroup = new EventEmitter<void>();
+
   @Output() openAddFriend = new EventEmitter<void>();
 
-  selectUser(u: any) { this.openChat.emit({ entity: u, isGroup: false }); }
-  selectGroup(g: any) { this.openChat.emit({ entity: g, isGroup: true }); }
-  openGroupModalEmit() { this.openGroup.emit(); }
-  openAddFriendEmit() { this.openAddFriend.emit(); }
+  // NEW
+  @Output() openRequests = new EventEmitter<void>();
+
+
+  selectUser(user: any): void {
+    this.openChat.emit({
+      entity: user,
+      isGroup: false
+    });
+  }
+
+  selectGroup(group: any): void {
+    this.openChat.emit({
+      entity: group,
+      isGroup: true
+    });
+  }
+
+  openGroupModalEmit(): void {
+    this.openGroup.emit();
+  }
+
+  openAddFriendEmit(): void {
+    this.openAddFriend.emit();
+  }
+
+  // NEW
+  openRequestsEmit(): void {
+    this.openRequests.emit();
+  }
 }

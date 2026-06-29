@@ -715,6 +715,11 @@ export class ChatRoomComponent implements OnInit, AfterViewChecked {
     if (!msg.audio || !msg.audio.data) return '';
     return this.sanitizer.bypassSecurityTrustUrl(`data:${msg.audio.contentType};base64,${msg.audio.data}`);
   }
+  openRequestsModal(): void {
+  this.showAddFriendModal = true;
+  this.activeTab = 'requests';
+  this.fetchPendingRequests();
+}
   closeChat() {
     // Clearing these variables triggers the *ngIf logic in HTML 
     // to switch back to the sidebar view

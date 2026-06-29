@@ -12,27 +12,31 @@
     </div>
 
     <div class="action-buttons">
-      <button
-        class="action-btn group-btn"
-        (click)="openGroupModalEmit()"
-        title="Create New Group"
-      >
+      <button class="action-btn group-btn" (click)="openGroupModalEmit()">
         <span class="material-symbols-outlined">group_add</span>
-        <span class="btn-label">New Group</span>
+        <span>New Group</span>
       </button>
-      <button
-        class="action-btn friend-btn"
-        (click)="openAddFriendEmit()"
-        title="Manage Connections"
-      >
+
+      <button class="action-btn friend-btn" (click)="openAddFriendEmit()">
         <span class="material-symbols-outlined">person_add</span>
-        <span class="btn-label">Add Friend</span>
+        <span>Add Friend</span>
+      </button>
+    </div>
+
+    <div class="action-buttons requests-row">
+      <button class="action-btn request-btn" (click)="openRequestsEmit()">
+        <span class="material-symbols-outlined">notifications</span>
+
+        <span>Requests</span>
+
+        <span class="request-badge" *ngIf="pendingRequestsCount > 0">
+          {{ pendingRequestsCount }}
+        </span>
       </button>
     </div>
   </div>
 
   <div class="users-scroll-area custom-scrollbar">
-    
     <ng-container *ngIf="groups.length > 0">
       <div class="list-section-label">Groups</div>
       <div
@@ -43,12 +47,10 @@
       >
         <div class="avatar-wrapper">
           <div class="avatar-circle group-avatar">
-            <img
-              *ngIf="group.avatar"
-              [src]="group.avatar"
-              class="avatar-img"
-            />
-            <span *ngIf="!group.avatar">{{ group.name.charAt(0).toUpperCase() }}</span>
+            <img *ngIf="group.avatar" [src]="group.avatar" class="avatar-img" />
+            <span *ngIf="!group.avatar">{{
+              group.name.charAt(0).toUpperCase()
+            }}</span>
           </div>
         </div>
         <div class="item-details">
@@ -72,7 +74,9 @@
       <div class="avatar-wrapper">
         <div class="avatar-circle" [class.no-img]="!user.avatar">
           <img *ngIf="user.avatar" [src]="user.avatar" class="avatar-img" />
-          <span *ngIf="!user.avatar">{{ user.name.charAt(0).toUpperCase() }}</span>
+          <span *ngIf="!user.avatar">{{
+            user.name.charAt(0).toUpperCase()
+          }}</span>
         </div>
         <div
           class="status-dot"
@@ -80,15 +84,19 @@
           [class.offline]="!onlineUsers.has(user._id)"
         ></div>
       </div>
-      
+
       <div class="item-details">
         <div class="row-top">
           <h3 class="name-text">{{ user.name }}</h3>
-          <span class="time-text">{{ onlineUsers.has(user._id) ? "Online" : "Offline" }}</span>
+          <span class="time-text">{{
+            onlineUsers.has(user._id) ? "Online" : "Offline"
+          }}</span>
         </div>
         <div class="row-bottom">
           <p class="preview-text">
-            {{ onlineUsers.has(user._id) ? "Active now" : "Last seen recently" }}
+            {{
+              onlineUsers.has(user._id) ? "Active now" : "Last seen recently"
+            }}
           </p>
           <span class="unread-count" *ngIf="(unreadMap.get(user._id) ?? 0) > 0">
             {{ unreadMap.get(user._id) }}
