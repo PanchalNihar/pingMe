@@ -24,8 +24,8 @@
   display: block;
   font-family: var(--font-body);
   background-color: var(--bg-app);
-  min-height: 100vh;
-  margin-left: 288px; /* Offset for Fixed Sidebar */
+  min-height: 100%;
+  margin-left: 0; /* Sidebar offset is already handled by layout */
   padding: 3rem;
   box-sizing: border-box;
 }
@@ -388,7 +388,6 @@
 /* Responsive */
 @media (max-width: 1024px) {
   :host {
-    margin-left: 0;
     padding: 1.5rem;
   }
 }

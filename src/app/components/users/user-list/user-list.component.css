@@ -19,9 +19,9 @@
   display: block;
   font-family: var(--font-body);
   background-color: var(--bg-app);
-  min-height: 100vh;
+  min-height: 100%;
   /* Left margin for the Fixed Sidebar */
-  margin-left: 288px; 
+  margin-left: 0;
   padding: 3rem;
   box-sizing: border-box;
 }
@@ -304,7 +304,6 @@
 /* Responsive Sidebar Adjustment */
 @media (max-width: 1024px) {
   :host {
-    margin-left: 0;
     padding: 1.5rem;
   }
 }

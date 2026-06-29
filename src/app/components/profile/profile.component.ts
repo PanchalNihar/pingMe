@@ -3,7 +3,6 @@ import { ProfileService } from '../../services/profile.service';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { SocketService } from '../../services/socket.service';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from '../../services/modal.service';

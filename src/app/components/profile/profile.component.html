@@ -1,148 +1,190 @@
 <div class="content-wrapper">
-  
-  <div class="profile-card">
-    
-    <div class="card-section">
-      <div class="profile-header-content">
-        <div class="avatar-wrapper">
-          <img 
-            [src]="user.avatar || 'https://via.placeholder.com/150'" 
-            alt="User Avatar"
-            class="main-avatar"
-          >
-          <div 
-            class="status-indicator" 
-            [ngClass]="{'status-online': isUserOnline(), 'status-offline': !isUserOnline()}"
-            [title]="isUserOnline() ? 'Online' : 'Offline'">
-          </div>
+  <section class="profile-hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Profile settings</p>
+      <h1>Shape how people see you on PingMe.</h1>
+      <p class="hero-description">
+        Keep your identity, contact details, and presence current so people can recognize and reach you quickly.
+      </p>
+
+      <div class="hero-metrics">
+        <div class="metric-card">
+          <span class="metric-label">Status</span>
+          <span class="metric-value">
+            <span class="metric-dot" [ngClass]="{'metric-dot--online': isUserOnline(), 'metric-dot--offline': !isUserOnline()}"></span>
+            {{ isUserOnline() ? 'Online' : 'Offline' }}
+          </span>
         </div>
-        
-        <div class="user-meta">
-          <h2>{{ user.name || 'Your Name' }}</h2>
-          <p>Member since {{ memberSince || '2023' }}</p>
-          
-          <div class="badge">
-            <span class="material-symbols-outlined" style="font-size: 14px;">check_circle</span>
-            Active Account
-          </div>
+        <div class="metric-card">
+          <span class="metric-label">Member since</span>
+          <span class="metric-value">{{ memberSince || 'Unknown' }}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Profile</span>
+          <span class="metric-value">Active account</span>
         </div>
       </div>
     </div>
 
-    <div class="card-section stats-bg">
-      <h3 class="section-label">About Me</h3>
-      <div class="input-group" style="margin-bottom: 0;">
-        <textarea 
-          class="borderless-input" 
-          [(ngModel)]="user.bio" 
+    <div class="hero-profile-card">
+      <div class="avatar-stack">
+        <img
+          [src]="user.avatar || 'https://via.placeholder.com/150'"
+          alt="User Avatar"
+          class="main-avatar"
+        >
+        <div
+          class="status-indicator"
+          [ngClass]="{'status-online': isUserOnline(), 'status-offline': !isUserOnline()}"
+          [title]="isUserOnline() ? 'Online' : 'Offline'">
+        </div>
+      </div>
+
+      <div class="hero-user-copy">
+        <p class="hero-name">{{ user.name || 'Your Name' }}</p>
+        <p class="hero-email">{{ user.email || 'No email provided' }}</p>
+        <p class="hero-bio">
+          {{ user.bio || 'Add a short bio to help people understand what you do and how you connect.' }}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <form class="profile-layout" (ngSubmit)="updateProfile()">
+    <section class="profile-panel profile-panel--accent">
+      <div class="panel-header">
+        <div>
+          <p class="section-label">About you</p>
+          <h2>Tell people a little more.</h2>
+        </div>
+        <span class="panel-pill">Public</span>
+      </div>
+
+      <div class="input-group input-group--full">
+        <label class="input-label">Bio</label>
+        <textarea
+          class="borderless-input"
+          [(ngModel)]="user.bio"
           [ngModelOptions]="{standalone: true}"
           placeholder="Write a short bio about yourself..."
-          rows="2"
+          rows="4"
           style="resize: none;"
         ></textarea>
       </div>
-    </div>
 
-    <form (ngSubmit)="updateProfile()">
-      <div class="card-section">
-        <h3 class="section-label">Core Information</h3>
-        <div class="form-grid">
-          
-          <div class="input-group">
-            <label class="input-label">Full Name</label>
-            <input 
-              class="borderless-input" 
-              type="text" 
-              [(ngModel)]="user.name" 
-              name="name" 
-              placeholder="Enter full name"
-            />
-          </div>
-          
-          <div class="input-group">
-            <label class="input-label">Email Address</label>
-            <input 
-              class="borderless-input" 
-              type="email" 
-              [(ngModel)]="user.email" 
-              name="email" 
-              placeholder="Enter email address"
-            />
-          </div>
+      <div class="profile-summary-grid">
+        <div class="summary-card">
+          <span class="summary-label">Member since</span>
+          <span class="summary-value">{{ memberSince || 'Unknown' }}</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Connection</span>
+          <span class="summary-value">{{ isUserOnline() ? 'Currently online' : 'Currently offline' }}</span>
+        </div>
+      </div>
+    </section>
 
-          <div class="input-group">
-            <label class="input-label">Phone Number</label>
-            <input 
-              class="borderless-input" 
-              type="tel" 
-              [(ngModel)]="user.phone"
-              name="phone"
-              placeholder="+1 (555) 000-0000"
-            />
-          </div>
-          
-          <div class="input-group">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <label class="input-label">Location</label>
-              <button 
-                type="button" 
-                (click)="fetchCurrentLocation()"
-                class="location-btn"
-                [disabled]="isLocating"
-                title="Get current location">
-                <span class="material-symbols-outlined" style="font-size: 16px;">my_location</span>
-                {{ isLocating ? 'Locating...' : 'Auto-Detect' }}
-              </button>
-            </div>
-            <input 
-              class="borderless-input" 
-              type="text" 
-              [(ngModel)]="user.location"
-              name="location"
-              placeholder="City, Country"
-            />
-          </div>
-
+    <section class="profile-panel">
+      <div class="panel-header">
+        <div>
+          <p class="section-label">Core information</p>
+          <h2>Keep your contact details updated.</h2>
         </div>
       </div>
 
-      <div class="card-section">
-        <h3 class="section-label">Profile Image</h3>
-        <div class="upload-row">
-          <div class="upload-trigger" (click)="fileInput.click()">
-            <span class="material-symbols-outlined">add_a_photo</span>
+      <div class="form-grid">
+        <div class="input-group">
+          <label class="input-label">Full Name</label>
+          <input
+            class="borderless-input"
+            type="text"
+            [(ngModel)]="user.name"
+            name="name"
+            placeholder="Enter full name"
+          />
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Email Address</label>
+          <input
+            class="borderless-input"
+            type="email"
+            [(ngModel)]="user.email"
+            name="email"
+            placeholder="Enter email address"
+          />
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Phone Number</label>
+          <input
+            class="borderless-input"
+            type="tel"
+            [(ngModel)]="user.phone"
+            name="phone"
+            placeholder="+1 (555) 000-0000"
+          />
+        </div>
+
+        <div class="input-group">
+          <div class="input-row">
+            <label class="input-label">Location</label>
+            <button
+              type="button"
+              (click)="fetchCurrentLocation()"
+              class="location-btn"
+              [disabled]="isLocating"
+              title="Get current location">
+              <span class="material-symbols-outlined">my_location</span>
+              {{ isLocating ? 'Locating...' : 'Auto-detect' }}
+            </button>
           </div>
-          <div class="flex flex-col gap-1">
-            <p class="text-sm font-semibold text-[#131516]">
-              {{ selectedFile ? selectedFile.name : 'Change Avatar' }}
-            </p>
-            <p class="text-sm text-[#6a777c]">JPG, JPEG or PNG. Max size 2MB</p>
-          </div>
-          <input 
-            #fileInput
-            type="file" 
-            style="display: none;"
-            accept="image/*"
-            (change)="onFileChange($event)"
+          <input
+            class="borderless-input"
+            type="text"
+            [(ngModel)]="user.location"
+            name="location"
+            placeholder="City, Country"
           />
         </div>
       </div>
+    </section>
 
-      <div class="card-section footer-action">
-        <button type="submit" class="btn-update">
-          Update Profile
-        </button>
+    <section class="profile-panel profile-panel--upload">
+      <div class="panel-header">
+        <div>
+          <p class="section-label">Profile image</p>
+          <h2>Refresh your avatar.</h2>
+        </div>
       </div>
-    </form>
-  </div>
-  
-  <div class="support-footer">
-    <p class="disclaimer">
-      All personal data is encrypted and handled according to our Privacy Policy.
-    </p>
-    <button class="btn-danger">
-      Deactivate Account
-    </button>
-  </div>
 
+      <div class="upload-row" (click)="fileInput.click()">
+        <div class="upload-trigger">
+          <span class="material-symbols-outlined">add_a_photo</span>
+        </div>
+        <div class="upload-copy">
+          <p class="upload-title">
+            {{ selectedFile ? selectedFile.name : 'Change Avatar' }}
+          </p>
+          <p class="upload-subtitle">JPG, JPEG or PNG. Max size 2MB</p>
+        </div>
+      </div>
+      <input
+        #fileInput
+        type="file"
+        style="display: none;"
+        accept="image/*"
+        (change)="onFileChange($event)"
+      />
+    </section>
+
+    <section class="profile-actions">
+      <button type="submit" class="btn-update">
+        Update Profile
+      </button>
+      <button type="button" class="btn-danger">
+        Deactivate Account
+      </button>
+    </section>
+  </form>
 </div>
