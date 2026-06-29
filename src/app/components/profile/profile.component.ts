@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SocketService } from '../../services/socket.service';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from '../../services/modal.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -27,12 +28,14 @@ export class ProfileComponent implements OnInit {
   memberSince: string = '';
   isLocating: boolean = false;
   onlineUsers: Set<string> = new Set();
+  showDeleteConfirmation = false;
   constructor(
     private profileService: ProfileService,
     private authService: AuthService,
     private socketService: SocketService,
     private http: HttpClient,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -142,5 +145,28 @@ export class ProfileComponent implements OnInit {
         );
       },
     );
+  }
+  openDeleteConfirmation() {
+    this.showDeleteConfirmation = true;
+  }
+  closeDeleteConfirmation() {
+    this.showDeleteConfirmation = false;
+  }
+  confirmDelete() {
+    this.profileService.deleteAccount().subscribe(
+      {
+        next: () => {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        },
+        error: (error) => {
+          console.error('Account deletion failed:', error);
+          this.modalService.alert(
+            'Failed to delete account: ' +
+              (error.error?.message || 'Unknown error'),
+          );
+        }
+      }
+    )
   }
 }

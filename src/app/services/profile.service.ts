@@ -24,4 +24,13 @@ export class ProfileService {
   getAllusers(excludeId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/users?exclude=${excludeId}`);
   }
+  deleteAccount(): Observable<any> {
+  const token = localStorage.getItem('token');
+
+  return this.http.delete(`${this.apiUrl}/delete-account`, {
+    headers: {
+      Authorization: `Bearer ${token || ''}`,
+    },
+  });
+}
 }

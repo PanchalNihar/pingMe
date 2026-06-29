@@ -182,9 +182,46 @@
       <button type="submit" class="btn-update">
         Update Profile
       </button>
-      <button type="button" class="btn-danger">
-        Deactivate Account
+      <button type="button" class="btn-danger" (click)="openDeleteConfirmation()">
+        Delete Account
       </button>
     </section>
   </form>
+  <div
+  class="delete-overlay"
+  *ngIf="showDeleteConfirmation">
+
+  <div class="delete-card">
+
+      <span class="material-symbols-outlined delete-icon">
+          warning
+      </span>
+
+      <h2>Delete Account?</h2>
+
+      <p>
+          This action is permanent.
+          Your account, chats, friends and profile
+          cannot be recovered.
+      </p>
+
+      <div class="delete-actions">
+
+          <button
+              class="cancel-btn"
+              (click)="closeDeleteConfirmation()">
+              Cancel
+          </button>
+
+          <button
+              class="delete-btn"
+              (click)="confirmDelete()">
+              Delete Forever
+          </button>
+
+      </div>
+
+  </div>
+
+</div>
 </div>
